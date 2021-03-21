@@ -2310,7 +2310,10 @@ int32 field::process_idle_command(uint16 step) {
 			save_lp_cost();
 			pduel->lua->add_param(peff, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+			//ktest//////////	
 			if(pduel->lua->check_condition(peff->condition, 2))
+			//if(pduel->lua->check_condition(peff->condition, 2) && peff->excondition)
+			//ktest//////////	
 				core.spsummonable_cards.push_back(pcard);
 			restore_lp_cost();
 			core.reason_effect = oreason;
@@ -5736,7 +5739,10 @@ int32 field::adjust_step(uint16 step) {
 				effect* peffect = std::get<effect*>(res);
 				if(cur != ref && pcard->is_capable_change_control()) {
 					core.control_adjust_set[p].insert(pcard);
+					//ktest//////////
 					if(peffect && (!(peffect->type & EFFECT_TYPE_SINGLE) || peffect->condition))
+					//if(peffect && (!(peffect->type & EFFECT_TYPE_SINGLE) || (peffect->condition && peffect->excondition)))
+					//ktest//////////
 						reason_cards.insert(peffect->get_handler());
 				}
 			}
@@ -5752,7 +5758,10 @@ int32 field::adjust_step(uint16 step) {
 				effect* peffect = std::get<effect*>(res);
 				if(cur != ref && pcard->is_capable_change_control()) {
 					core.control_adjust_set[p].insert(pcard);
+					//ktest//////////
 					if(peffect && (!(peffect->type & EFFECT_TYPE_SINGLE) || peffect->condition))
+					//if(peffect && (!(peffect->type & EFFECT_TYPE_SINGLE) || (peffect->condition && peffect->excondition)))
+					//ktest//////////
 						reason_cards.insert(peffect->get_handler());
 				}
 			}
@@ -5791,7 +5800,10 @@ int32 field::adjust_step(uint16 step) {
 							for(auto eit = pr.first; eit != pr.second;) {
 								effect* peffect = eit->second;
 								++eit;
+								//ktest//////////
 								if(!peffect->condition)
+								//if(!peffect->condition && peffect->excondition)
+								//ktest//////////
 									peffect->handler->remove_effect(peffect);
 							}
 							if(p != pcard->owner && pcard->is_capable_change_control())
@@ -5807,7 +5819,10 @@ int32 field::adjust_step(uint16 step) {
 							for(auto eit = pr.first; eit != pr.second;) {
 								effect* peffect = eit->second;
 								++eit;
+								//ktest//////////
 								if(!peffect->condition)
+								//if(!peffect->condition && peffect->excondition)
+								//ktest//////////
 									peffect->handler->remove_effect(peffect);
 							}
 							if(p != pcard->owner && pcard->is_capable_change_control())

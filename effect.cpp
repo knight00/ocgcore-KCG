@@ -45,6 +45,9 @@ effect::effect(duel* pd) : lua_obj_helper(pd) {
 	hint_timing[1] = 0;
 	status = 0;
 	condition = 0;
+	//ktest//////////
+	//excondition = false;
+	//ktest//////////
 	cost = 0;
 	target = 0;
 	value = 0;
@@ -136,11 +139,17 @@ int32 effect::is_available() {
 				return FALSE;
 		}
 	}
+	//ktest//////////
 	if (!condition)
+	//if (!condition && excondition)
+	//ktest//////////
 		return TRUE;
 	pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
+	//ktest//////////
 	int32 res = pduel->lua->check_condition(condition, 1);
-	if(res) {
+	//int32 res = pduel->lua->check_condition(condition, 1) && excondition;
+	//ktest//////////
+	if(res) {	
 		if(!(status & EFFECT_STATUS_AVAILABLE))
 			id = pduel->game_field->infos.field_id++;
 		status |= EFFECT_STATUS_AVAILABLE;
@@ -363,7 +372,10 @@ int32 effect::is_action_check(uint8 playerid) {
 }
 // check functions: condition, cost(chk=0), target(chk=0)
 int32 effect::is_activate_ready(effect* reason_effect, uint8 playerid, const tevent& e, int32 neglect_cond, int32 neglect_cost, int32 neglect_target) {
+	//ktest//////////
 	if(!neglect_cond && condition) {	
+	//if(!neglect_cond && condition && excondition) {	
+	//ktest//////////	
 		pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.event_cards, PARAM_TYPE_GROUP);
@@ -414,7 +426,10 @@ int32 effect::is_condition_check(uint8 playerid, const tevent& e) {
 	card* phandler = get_handler();
 	if(!(type & EFFECT_TYPE_ACTIVATE) && (phandler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED)) && !phandler->is_position(POS_FACEUP))
 		return FALSE;
+	//ktest//////////	
 	if(!condition)
+	//if(!condition && excondition)
+	//ktest//////////
 		return TRUE;
 	effect* oreason = pduel->game_field->core.reason_effect;
 	uint8 op = pduel->game_field->core.reason_player;
@@ -429,7 +444,10 @@ int32 effect::is_condition_check(uint8 playerid, const tevent& e) {
 	pduel->lua->add_param(e.reason_effect , PARAM_TYPE_EFFECT);
 	pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 	pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
+	//ktest//////////
 	if(!pduel->lua->check_condition(condition, 8)) {
+	//if(!pduel->lua->check_condition(condition, 8) || !excondition) {
+	//ktest//////////	
 		pduel->game_field->restore_lp_cost();
 		pduel->game_field->core.reason_effect = oreason;
 		pduel->game_field->core.reason_player = op;

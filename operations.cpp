@@ -3751,7 +3751,10 @@ int32 field::special_summon_rule_group(uint16 step, uint8 sumplayer, uint32 summ
 			pduel->lua->add_param(TRUE, PARAM_TYPE_BOOLEAN);
 			pduel->lua->add_param(oreason, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(sumplayer, PARAM_TYPE_INT);
+			//ktest//////////	
 			if(pduel->lua->check_condition(peff->condition, 5)) {
+			//if(pduel->lua->check_condition(peff->condition, 5) && peff->excondition) {
+			//ktest//////////		
 				core.select_effects.push_back(peff);
 				core.select_options.push_back(peff->description);
 			}

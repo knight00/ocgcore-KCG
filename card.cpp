@@ -2835,7 +2835,10 @@ void card::reset(uint32 id, uint32 reset_type) {
 		}
 		if(id & RESET_TURN_SET) {
 			effect* peffect = std::get<effect*>(refresh_control_status());
+			//ktest//////////
 			if(peffect && (!(peffect->type & EFFECT_TYPE_SINGLE) || peffect->condition)) {
+			//if(peffect && (!(peffect->type & EFFECT_TYPE_SINGLE) || (peffect->condition && peffect->excondition))) {
+			//ktest//////////
 				effect* new_effect = pduel->new_effect();
 				new_effect->id = peffect->id;
 				new_effect->owner = this;
@@ -3637,7 +3640,11 @@ void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
 		pduel->game_field->save_lp_cost();
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
+
+        //ktest//////////
 		if(pduel->lua->check_condition(peffect->condition, 2))
+		//if(pduel->lua->check_condition(peffect->condition, 2) && peffect->excondition)
+		//ktest//////////
 			peset->push_back(peffect);
 		pduel->game_field->restore_lp_cost();
 		pduel->game_field->core.reason_effect = oreason;
@@ -3820,7 +3827,10 @@ int32 card::fusion_check(group* fusion_m, group* cg, uint32 chkf) {
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	for (; ecit != single_effect.end(); ++ecit) {
 		peffect = ecit->second;
+		//ktest//////////
 		if (!peffect->condition || peffect->code != EFFECT_FUSION_MATERIAL)
+		//if ((!peffect->condition && peffect->excondition) || peffect->code != EFFECT_FUSION_MATERIAL)
+		//ktest//////////
 			continue;
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(fusion_m, PARAM_TYPE_GROUP);
@@ -3833,7 +3843,10 @@ int32 card::fusion_check(group* fusion_m, group* cg, uint32 chkf) {
 		int32 res = pduel->lua->check_condition(peffect->condition, 4);
 		pduel->game_field->core.reason_effect = oreason;
 		pduel->game_field->core.reason_player = op;
+		//ktest//////////
 		if(res)
+		//if(res && peffect->excondition)
+		//ktest//////////
 			return TRUE;
 	}
 	return FALSE;
@@ -3843,7 +3856,10 @@ void card::fusion_filter_valid(group* fusion_m, group* cg, uint32 chkf, effect_s
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	for (; ecit != single_effect.end(); ++ecit) {
 		peffect = ecit->second;
+		//ktest//////////
 		if (!peffect->condition || peffect->code != EFFECT_FUSION_MATERIAL)
+		//if ((!peffect->condition && peffect->excondition) || peffect->code != EFFECT_FUSION_MATERIAL)
+		//ktest//////////
 			continue;
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(fusion_m, PARAM_TYPE_GROUP);
@@ -3856,7 +3872,10 @@ void card::fusion_filter_valid(group* fusion_m, group* cg, uint32 chkf, effect_s
 		int32 res = pduel->lua->check_condition(peffect->condition, 4);
 		pduel->game_field->core.reason_effect = oreason;
 		pduel->game_field->core.reason_player = op;
+		//ktest//////////
 		if (res)
+		//if (res && peffect->excondition)
+		//ktest//////////
 			eset->push_back(peffect);
 	}
 }
@@ -3982,7 +4001,10 @@ int32 card::is_spsummonable(effect* peffect) {
 		pduel->lua->add_param(pduel->game_field->core.forced_summon_maxc, PARAM_TYPE_INT);
 		param_count += 2;
 	}
+	//ktest//////////
 	if (pduel->lua->check_condition(peffect->condition, param_count))
+	//if (pduel->lua->check_condition(peffect->condition, param_count) && peffect->excondition)
+	//ktest//////////
 		result = TRUE;
 	pduel->game_field->restore_lp_cost();
 	pduel->game_field->core.reason_effect = oreason;
@@ -4003,7 +4025,10 @@ int32 card::is_summonable(effect* peffect, uint8 min_tribute, uint32 zone, uint3
 	pduel->lua->add_param(zone, PARAM_TYPE_INT);
 	pduel->lua->add_param(releasable, PARAM_TYPE_INT);
 	pduel->lua->add_param(exeffect, PARAM_TYPE_EFFECT);
+	//ktest//////////
 	if(pduel->lua->check_condition(peffect->condition, 6))
+	//if(pduel->lua->check_condition(peffect->condition, 6) && peffect->excondition)
+	//ktest//////////
 		result = TRUE;
 	pduel->game_field->restore_lp_cost();
 	pduel->game_field->core.reason_effect = oreason;

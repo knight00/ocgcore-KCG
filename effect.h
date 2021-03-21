@@ -54,7 +54,7 @@ public:
 	int32 label_object;
 	int32 condition;
 	//ktest////
-	bool excondtion;
+	//bool excondition;
 	//ktest////
 	int32 cost;
 	int32 target;

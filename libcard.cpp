@@ -1455,16 +1455,16 @@ int32 scriptlib::card_register_effect(lua_State* L) {
 		// 	if (peffect->range && (peffect->range & LOCATION_MZONE) && !(peffect->range & LOCATION_SZONE)) {
 		// 		effect* ceffect = peffect->clone();
 		// 		ceffect->range = LOCATION_SZONE;
-		// 		ceffect->excondtion = false;
+		// 		ceffect->excondition = pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0;
 		// 		pcard->add_effect(ceffect);
 		// 	}
 		// 	else if (peffect->range && (peffect->range & LOCATION_SZONE) && !(peffect->range & LOCATION_MZONE)) {
 		// 		effect* ceffect = peffect->clone();
 		// 		ceffect->range = LOCATION_MZONE;
-		// 		ceffect->excondtion = false;
+		// 		ceffect->excondition = pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0;
 		// 		pcard->add_effect(ceffect);
 		// 	}
-		// 	peffect->excondtion = true;
+		// 	peffect->excondition = true;
 		//////ktest////////
 		id = pcard->add_effect(peffect);
 		//////ktest////////
