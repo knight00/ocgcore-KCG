@@ -1436,6 +1436,10 @@ int32 scriptlib::duel_draw(lua_State* L) {
 	auto count = lua_get<uint32>(L, 2);
 	auto reason = lua_get<uint32>(L, 3);
 	const auto pduel = lua_get<duel*>(L);
+	////kdiy/////////
+	pduel->game_field->raise_event((card*)0, EVENT_PREEFFECT_DRAW, pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, count);
+	pduel->game_field->process_instant_event();
+	////kdiy/////////
 	pduel->game_field->draw(pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, count);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State* L, int32/* status*/, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
@@ -3384,6 +3388,9 @@ int32 scriptlib::duel_overlay(lua_State* L) {
 	card* pcard = nullptr;
 	group* pgroup = nullptr;
 	get_card_or_group(L, 2, pcard, pgroup);
+	/////kdiy////////
+	auto reason = lua_get<uint32, REASON_RULE>(L, 3);
+	/////kdiy////////
 	if(pcard) {
 		card::card_set cset;
 		cset.insert(pcard);
