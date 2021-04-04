@@ -18,34 +18,12 @@ uint32 card::set_entity_code(uint32 entity_code) {
 	uint32 code = data.code;
 	if (!code)
 		return 0;
-	auto message = pduel->new_message(MSG_MOVE);
-	message->write<uint32>(code);
-	message->write(get_info_location());
-	message->write(get_info_location());
-	message->write<uint32>(0);
+	// auto message = pduel->new_message(MSG_MOVE);
+	// message->write<uint32>(code);
+	// message->write(get_info_location());
+	// message->write(get_info_location());
+	// message->write<uint32>(0);
 	return code;
-}
-int32 card::is_attack_decreasable_as_cost(uint8 playerid, int32 val) {
-	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
-		return FALSE;
-	if (!((current.location & LOCATION_MZONE && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || ((current.location & LOCATION_SZONE) && is_affected_by_effect(EFFECT_ORICA_SZONE))) || is_position(POS_FACEDOWN))		
-		return FALSE;
-	if(is_affected_by_effect(EFFECT_SET_ATTACK_FINAL) || is_affected_by_effect(EFFECT_REVERSE_UPDATE))
-		return FALSE;
-	if(val && get_attack() < val)
-		return FALSE;
-	return TRUE;
-}
-int32 card::is_defense_decreasable_as_cost(uint8 playerid, int32 val) {
-	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
-		return FALSE;
-	if (!(((current.location & LOCATION_MZONE) && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || ((current.location & LOCATION_SZONE) && is_affected_by_effect(EFFECT_ORICA_SZONE))) || is_position(POS_FACEDOWN) || (data.type & TYPE_LINK))	
-		return FALSE;
-	if(is_affected_by_effect(EFFECT_SET_DEFENSE_FINAL) || is_affected_by_effect(EFFECT_REVERSE_UPDATE))
-		return FALSE;
-	if(val && get_defense() < val)
-		return FALSE;
-	return TRUE;
 }
 ///////////kdiy//////////////
 
@@ -2322,6 +2300,11 @@ void card::xyz_overlay(card_set* materials) {
 	for(auto& pcard : cv) {
 		if(pcard->overlay_target == this)
 			continue;
+		//kdiy////////
+		effect* peffect = pduel->game_field->core.reason_effect;
+		if(!(pcard->is_affect_by_effect(peffect) && !(pcard->current.reason & REASON_RULE)))
+			continue;
+		//kdiy////////
 		if(decktop[0] && pduel->game_field->player[0].list_main.back() == pcard)
 			decktop[0]->write<uint8_t>(0);
 		if(decktop[1] && pduel->game_field->player[1].list_main.back() == pcard)
@@ -3289,32 +3272,19 @@ void card::filter_immune_effect() {
 	immune_effect.clear();
 	auto rg = single_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 	for (; rg.first != rg.second; ++rg.first) {
-		///////kdiy/////////	
-		peffect = rg.first->second;
-		//immune_effect.push_back(rg.first->second);	
-		if (peffect->is_available() && !is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
-			immune_effect.push_back(peffect);
-		///////kdiy/////////
+		immune_effect.push_back(rg.first->second);
 	}
 	for (auto& pcard : equiping_cards) {
 		rg = pcard->equip_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 		for (; rg.first != rg.second; ++rg.first) {
-			///////kdiy/////////	
-			peffect = rg.first->second;
-			//immune_effect.push_back(rg.first->second);
-			if (peffect->is_available() && !is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
-				immune_effect.push_back(peffect);
-			///////kdiy/////////
+			immune_effect.push_back(rg.first->second);
 		}
 	}
 	for (auto& pcard : effect_target_owner) {
 		rg = pcard->target_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
-		    ///////kdiy/////////
-		    //if (peffect->is_target(this))
-		    if (peffect->is_target(this) && !is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
-		    ///////kdiy/////////
+		    if (peffect->is_target(this))
 				immune_effect.push_back(peffect);
 		}
 	}
@@ -3324,19 +3294,13 @@ void card::filter_immune_effect() {
 			peffect = rg.first->second;
 			if (peffect->type & EFFECT_TYPE_FIELD)
 				continue;
-		    ///////kdiy/////////			
-			if (!is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
-		    ///////kdiy/////////	
-				immune_effect.push_back(peffect);
+		    immune_effect.push_back(peffect);
 		}
 	}
 	rg = pduel->game_field->effects.aura_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
-		///////kdiy/////////
-		//if (peffect->is_target(this))
-		if (peffect->is_target(this) && !is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
-		///////kdiy/////////		
+		if (peffect->is_target(this))		
 			immune_effect.push_back(peffect);
 	}
 	std::sort(immune_effect.begin(), immune_effect.end(), effect_sort_id);
@@ -4313,6 +4277,10 @@ int32 card::is_affect_by_effect(effect* peffect) {
 		return FALSE;
 	if(!peffect || peffect->is_flag(EFFECT_FLAG_IGNORE_IMMUNE))
 		return TRUE;
+	////kdiy///////
+	if(peffect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
+		return TRUE;	
+	////kdiy///////	
 	if(peffect->is_immuned(this))
 		return FALSE;
 	return TRUE;

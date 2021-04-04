@@ -89,9 +89,7 @@ public:
 	};
 
 ///////////kdiy//////////////
-	uint32 set_entity_code(uint32 entity_code);
-	int32 is_attack_decreasable_as_cost(uint8 playerid, int32 val);
-	int32 is_defense_decreasable_as_cost(uint8 playerid, int32 val);		
+	uint32 set_entity_code(uint32 entity_code);		
 ///////////kdiy//////////////
 
 	struct sendto_param_t {

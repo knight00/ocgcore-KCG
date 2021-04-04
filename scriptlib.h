@@ -17,9 +17,7 @@ public:
 /////////////////////KDIY///
 	static int32 card_set_entity_code(lua_State *L);
 	static int32 card_set_card_data(lua_State *L);
-	static int32 card_get_origin_link_marker(lua_State *L);
-	static int32 card_is_able_to_decrease_attack_as_cost(lua_State *L);
-	static int32 card_is_able_to_decrease_defense_as_cost(lua_State *L);	
+	static int32 card_get_origin_link_marker(lua_State *L);	
 	static int32 effect_set_owner(lua_State *L);
 	static int32 effect_get_range(lua_State *L);
 	static int32 effect_get_target_range(lua_State *L);
