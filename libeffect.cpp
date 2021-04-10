@@ -207,10 +207,9 @@ int32 scriptlib::effect_set_label_object(lua_State* L) {
 			luaL_unref(L, LUA_REGISTRYINDEX, peffect->label_object);
 		lua_pop(L, 1);
 	}
-	if(lua_isnoneornil(L, 2)) {
-		peffect->label_object = 0;
+	peffect->label_object = 0;
+	if(lua_isnoneornil(L, 2))
 		return 0;
-	}
 	if(auto obj = lua_get<lua_obj*>(L, 2))
 		peffect->label_object = obj->ref_handle;
 	else if(lua_istable(L, 2)) {
@@ -364,15 +363,11 @@ int32 scriptlib::effect_get_label_object(lua_State* L) {
 	if(auto obj = lua_touserdata(L, -1)) {
 		if((*static_cast<lua_obj**>(obj))->lua_type == PARAM_TYPE_DELETED)
 			luaL_error(L, "Attempting to access deleted object.");
-		return 1;
-	}
-	if(lua_istable(L, -1))
-		return 1;
-	else {
+	} else if(!lua_istable(L, -1)) {
 		lua_pop(L, 1);
 		lua_pushnil(L);
-		return 1;
 	}
+	return 1;
 }
 int32 scriptlib::effect_get_category(lua_State* L) {
 	check_param_count(L, 1);

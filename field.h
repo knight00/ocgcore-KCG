@@ -64,6 +64,7 @@ struct chain {
 	uint8 disable_player;
 	tevent evt;
 	opmap opinfos;
+	opmap possibleopinfos;
 	uint32 flag;
 	uint32 event_id;
 	bool was_just_sent{ false };
@@ -101,7 +102,7 @@ struct field_effect {
 	typedef std::unordered_map<effect*, effect*> oath_effects;
 	typedef std::unordered_set<effect*> effect_collection;
 	typedef std::unordered_map<card*, effect*> gain_effects;
-	typedef std::unordered_map<effect*, gain_effects> grant_effect_container;
+	typedef std::map<effect*, gain_effects, effect_sort> grant_effect_container;
 
 	effect_container aura_effect;
 	effect_container ignition_effect;
@@ -179,6 +180,7 @@ struct processor {
 		int32 player;
 	};
 	typedef std::vector<chain_limit_t> chain_limit_list;
+	using action_counter_t = std::unordered_map<uint32, std::pair<uint32, uint32>>;
 
 	processor_list units;
 	processor_list subunits;
@@ -336,12 +338,12 @@ struct processor {
 	uint8 current_player;
 	uint8 conti_player;
 	bool force_turn_end;
-	std::unordered_map<uint32, std::pair<uint32, uint32>> summon_counter;
-	std::unordered_map<uint32, std::pair<uint32, uint32>> normalsummon_counter;
-	std::unordered_map<uint32, std::pair<uint32, uint32>> spsummon_counter;
-	std::unordered_map<uint32, std::pair<uint32, uint32>> flipsummon_counter;
-	std::unordered_map<uint32, std::pair<uint32, uint32>> attack_counter;
-	std::unordered_map<uint32, std::pair<uint32, uint32>> chain_counter;
+	action_counter_t summon_counter;
+	action_counter_t normalsummon_counter;
+	action_counter_t spsummon_counter;
+	action_counter_t flipsummon_counter;
+	action_counter_t attack_counter;
+	action_counter_t chain_counter;
 	processor_list recover_damage_reserve;
 	effect_vector dec_count_reserve;
 };
