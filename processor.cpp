@@ -3856,7 +3856,7 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 						{
 							if (core.battle_damage[0] >= 999999)
 								core.battle_damage[0] = 1000000;
-							else if (player[0].lp>=999999) 
+							else if (player[0].lp >= 999999) 
 							    core.battle_damage[0] = 0;
 				            else core.battle_damage[0] *= 2;
 						}
@@ -4125,8 +4125,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				{
 				if (core.battle_damage[p] >= 999999)
 					core.battle_damage[p] = 1000000;
-				}
-			else core.battle_damage[p] *= 2;			
+				else core.battle_damage[p] *= 2;
+				}			
                 /////kdiy//////////
 			if (half_dam)
 				/////kdiy//////////
@@ -4134,8 +4134,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				{
 				if (core.battle_damage[p] >= 999999)
 					core.battle_damage[p] = 1000000;
-				}
-			else core.battle_damage[p] /= 2;			
+				else core.battle_damage[p] /= 2;	
+				}		
             /////kdiy//////////			
 			if(dam_value >= 0 && core.battle_damage[p] > 0)
 				core.battle_damage[p] = dam_value;
