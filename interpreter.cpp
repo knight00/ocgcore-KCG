@@ -763,7 +763,9 @@ interpreter::interpreter(duel* pd): coroutines(256), deleted(pd) {
 	lua_pushinteger(lua_state, HINT_ANIME);
 	lua_setglobal(lua_state, "HINT_ANIME");	
 	lua_pushinteger(lua_state, HINT_BGM);
-	lua_setglobal(lua_state, "HINT_BGM");			
+	lua_setglobal(lua_state, "HINT_BGM");
+	lua_pushinteger(lua_state, HINT_AVATAR);
+	lua_setglobal(lua_state, "HINT_AVATAR");			
 //////////////kdiy///////////	
 }
 interpreter::~interpreter() {
