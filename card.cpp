@@ -18,11 +18,12 @@ uint32 card::set_entity_code(uint32 entity_code) {
 	uint32 code = data.code;
 	if (!code)
 		return 0;
-	// auto message = pduel->new_message(MSG_MOVE);
-	// message->write<uint32>(code);
-	// message->write(get_info_location());
-	// message->write(get_info_location());
-	// message->write<uint32>(0);
+	auto message = pduel->new_message(MSG_MOVE);
+	message->write<uint32>(code);
+	message->write(get_info_location());
+	message->write(get_info_location());
+	message->write<uint32>(0);
+	message->write<bool>(true);
 	return code;
 }
 ///////////kdiy//////////////
