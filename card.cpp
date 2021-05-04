@@ -23,7 +23,7 @@ uint32 card::set_entity_code(uint32 entity_code) {
 	message->write(get_info_location());
 	message->write(get_info_location());
 	message->write<uint32>(0);
-	message->write<bool>(true);
+	message->write<uint8>(1);
 	return code;
 }
 ///////////kdiy//////////////
