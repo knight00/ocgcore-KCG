@@ -23,7 +23,6 @@ uint32 card::set_entity_code(uint32 entity_code) {
 	message->write(get_info_location());
 	message->write(get_info_location());
 	message->write<uint32>(0);
-	message->write<uint8>(1);
 	return code;
 }
 ///////////kdiy//////////////
@@ -2303,7 +2302,7 @@ void card::xyz_overlay(card_set* materials) {
 			continue;
 		//kdiy////////
 		effect* peffect = pduel->game_field->core.reason_effect;
-		if(!(pcard->is_affect_by_effect(peffect) && !(pcard->current.reason & REASON_RULE)))
+		if(!(pcard->is_affect_by_effect(peffect) || (pcard->current.reason & REASON_RULE)))
 			continue;
 		//kdiy////////
 		if(decktop[0] && pduel->game_field->player[0].list_main.back() == pcard)
