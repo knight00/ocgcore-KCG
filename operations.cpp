@@ -3357,6 +3357,9 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		auto message = pduel->new_message(MSG_SPSUMMONING);
 		message->write<uint32>(target->data.code);
 		message->write(target->get_info_location());
+		//kdiy///////
+		message->write<uint32>(0);
+		//kdiy///////
 		return FALSE;
 	}
 	case 6: {
@@ -3611,7 +3614,15 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		message->write(pcard->get_info_location());
 		set_control(pcard, pcard->current.controler, 0, 0);
 		if(pgroup->it != pgroup->container.end())
+		    //kdiy///////
+			{
+			message->write<uint32>(0);
+			//kdiy///////
 			core.units.begin()->step = 22;
+			//kdiy///////
+			} else
+			message->write<uint32>(1);
+			//kdiy///////
 		return FALSE;
 	}
 	case 25: {
@@ -3905,6 +3916,9 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 		auto message = pduel->new_message(MSG_SPSUMMONING);
 		message->write<uint32>(target->data.code);
 		message->write(target->get_info_location());
+		//kdiy///////
+		message->write<uint32>(0);
+		//kdiy///////
 		return FALSE;
 	}
 	case 3: {
