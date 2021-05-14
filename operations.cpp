@@ -2412,7 +2412,12 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		return FALSE;
 	}
 	case 17: {
-		pduel->new_message(MSG_SUMMONED);
+		//kdiy///////
+		//pduel->new_message(MSG_SUMMONED);
+		auto message = pduel->new_message(MSG_SUMMONED);
+		message->write<uint32>(target->data.code);
+		message->write(target->get_info_location());
+		//kdiy///////
 		adjust_instant();
 		if(target->material_cards.size()) {
 			for(auto& mcard : target->material_cards)
@@ -2525,7 +2530,12 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card* target) {
 		return FALSE;
 	}
 	case 4: {
-		pduel->new_message(MSG_FLIPSUMMONED);
+		//kdiy///////
+		//pduel->new_message(MSG_FLIPSUMMONED);
+		auto message = pduel->new_message(MSG_FLIPSUMMONED);
+		message->write<uint32>(target->data.code);
+		message->write(target->get_info_location());
+		//kdiy///////
 		if(!is_flag(DUEL_CANNOT_SUMMON_OATH_OLD)) {
 			core.flipsummon_state_count[sumplayer]++;
 			check_card_counter(target, 4, sumplayer);
@@ -3357,9 +3367,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		auto message = pduel->new_message(MSG_SPSUMMONING);
 		message->write<uint32>(target->data.code);
 		message->write(target->get_info_location());
-		//kdiy///////
-		message->write<uint32>(0);
-		//kdiy///////
 		return FALSE;
 	}
 	case 6: {
@@ -3444,7 +3451,12 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		return FALSE;
 	}
 	case 16: {
-		pduel->new_message(MSG_SPSUMMONED);
+		//kdiy///////
+		//pduel->new_message(MSG_SPSUMMONED);
+		auto message = pduel->new_message(MSG_SPSUMMONED);
+		message->write<uint32>(target->data.code);
+		message->write(target->get_info_location());
+		//kdiy///////
 		adjust_instant();
 		effect* proc = core.units.begin()->peffect;
 		int32 matreason = REASON_SPSUMMON;
@@ -3614,15 +3626,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		message->write(pcard->get_info_location());
 		set_control(pcard, pcard->current.controler, 0, 0);
 		if(pgroup->it != pgroup->container.end())
-		    //kdiy///////
-			{
-			message->write<uint32>(0);
-			//kdiy///////
 			core.units.begin()->step = 22;
-			//kdiy///////
-			} else
-			message->write<uint32>(1);
-			//kdiy///////
 		return FALSE;
 	}
 	case 25: {
@@ -3710,7 +3714,13 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	}
 	case 28: {
 		group* pgroup = core.units.begin()->ptarget;
-		pduel->new_message(MSG_SPSUMMONED);
+		//kdiy///////
+		//pduel->new_message(MSG_SPSUMMONED);
+		card *scard = *pgroup->container.rbegin();
+		auto message = pduel->new_message(MSG_SPSUMMONED);
+		message->write<uint32>(scard->data.code);
+		message->write(scard->get_info_location());
+		//kdiy///////
 		if(!is_flag(DUEL_CANNOT_SUMMON_OATH_OLD)) {
 			set_spsummon_counter(sumplayer);
 			check_card_counter(pgroup, 3, sumplayer);
@@ -3916,9 +3926,6 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 		auto message = pduel->new_message(MSG_SPSUMMONING);
 		message->write<uint32>(target->data.code);
 		message->write(target->get_info_location());
-		//kdiy///////
-		message->write<uint32>(0);
-		//kdiy///////
 		return FALSE;
 	}
 	case 3: {
@@ -4006,7 +4013,13 @@ int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_pla
 		return FALSE;
 	}
 	case 3: {
-		pduel->new_message(MSG_SPSUMMONED);
+		//kdiy///////
+		//pduel->new_message(MSG_SPSUMMONED);
+		card *scard = *targets->container.rbegin();
+		auto message = pduel->new_message(MSG_SPSUMMONED);
+		message->write<uint32>(scard->data.code);
+		message->write(scard->get_info_location());
+		//kdiy///////
 		for(auto& pcard : targets->container) {
 			if(!is_flag(DUEL_CANNOT_SUMMON_OATH_OLD)) {
 				check_card_counter(pcard, 3, pcard->summon_player);
