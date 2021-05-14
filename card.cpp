@@ -646,7 +646,7 @@ uint32 card::get_type(card* scard, uint64 sumtype, uint8 playerid) {
 	if (temp.type != 0xffffffff)
 		return temp.type;
 	effect_set effects;
-	int32 type = data.type, alttype = 0;
+	int32 type = data.type, alttype = sumtype ? data.type : 0;
 	bool changed = false;
 	temp.type = data.type;
 	filter_effect(EFFECT_ADD_TYPE, &effects, FALSE);
@@ -3926,7 +3926,9 @@ int32 card::check_cost_condition(int32 ecode, int32 playerid, int32 sumtype) {
 }
 // check if this is a normal summonable card
 int32 card::is_summonable_card() {
-	if(!(data.type & TYPE_MONSTER) || (data.type & TYPE_TOKEN))
+	if(!(data.type & TYPE_MONSTER) || (data.type & (TYPE_RITUAL | TYPE_SPSUMMON
+					  | TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK
+					  | TYPE_TOKEN | TYPE_TRAPMONSTER)))
 		return FALSE;
 	return !is_affected_by_effect(EFFECT_UNSUMMONABLE_CARD);
 }

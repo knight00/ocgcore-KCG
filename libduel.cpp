@@ -1041,11 +1041,13 @@ int32 scriptlib::duel_move_sequence(lua_State* L) {
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto seq = lua_get<uint8>(L, 2);
 	auto playerid = pcard->current.controler;
-	pduel->game_field->move_card(playerid, pcard, pcard->current.location, seq);
-	pduel->game_field->raise_single_event(pcard, 0, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, playerid, 0);
-	pduel->game_field->raise_event(pcard, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, playerid, 0);
-	pduel->game_field->process_single_event();
-	pduel->game_field->process_instant_event();
+	if(pcard->is_affect_by_effect(pduel->game_field->core.reason_effect)) {
+		pduel->game_field->move_card(playerid, pcard, pcard->current.location, seq);
+		pduel->game_field->raise_single_event(pcard, 0, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, playerid, 0);
+		pduel->game_field->raise_event(pcard, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, playerid, 0);
+		pduel->game_field->process_single_event();
+		pduel->game_field->process_instant_event();
+	}
 	return 0;
 }
 int32 scriptlib::duel_swap_sequence(lua_State* L) {
@@ -4637,6 +4639,7 @@ int32 scriptlib::duel_get_card_from_cardid(lua_State* L) {
 	return 0;
 }
 int32 scriptlib::duel_load_script(lua_State* L) {
+	using SLS = duel::SCRIPT_LOAD_STATUS;
 	check_param_count(L, 1);
 	const auto pduel = lua_get<duel*>(L);
 	lua_getglobal(L, "tostring");
@@ -4650,12 +4653,16 @@ int32 scriptlib::duel_load_script(lua_State* L) {
 				hash = (((hash << 5) + hash) + c) & 0xffffffff; /* hash * 33 + c */
 			return hash;
 		}(string);
-		if(pduel->loaded_scripts[hash])
-			lua_pushboolean(L, pduel->loaded_scripts[hash] == 1);
+		auto& load_status = pduel->loaded_scripts[hash];
+		if(load_status == SLS::LOADING) {
+			luaL_error(L, "Recursive script loading detected.");
+		} else if(load_status != SLS::NOT_LOADED)
+			lua_pushboolean(L, load_status == SLS::LOAD_SUCCEDED);
 		else {
+			load_status = SLS::LOADING;
 			auto res = pduel->read_script(string);
 			lua_pushboolean(L, res);
-			pduel->loaded_scripts[hash] = res ? 1 : 2;
+			load_status = res ? SLS::LOAD_SUCCEDED : SLS::LOAD_FAILED;
 		}
 		return 1;
 	}

@@ -231,7 +231,6 @@ void field::special_summon_complete(effect* reason_effect, uint8 reason_player) 
 	group* ng = pduel->new_group();
 	ng->container.swap(core.special_summoning);
 	ng->is_readonly = TRUE;
-	//core.special_summoning.clear();
 	add_process(PROCESSOR_SPSUMMON, 1, reason_effect, ng, reason_player, 0);
 }
 void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
@@ -327,10 +326,12 @@ void field::send_to(card* target, effect* reason_effect, uint32 reason, uint32 r
 }
 void field::move_to_field(card* target, uint32 move_player, uint32 playerid, uint32 destination, uint32 positions, uint8 enable, uint8 ret, uint8 zone, uint8 rule, uint8 reason, uint8 confirm, uint8 Rloc) {
 	//////kdiy///////
-	//if(!(destination & (LOCATION_MZONE | LOCATION_SZONE | LOCATION_PZONE | LOCATION_FZONE)) || !positions || (destination & LOCATION_PZONE && target->current.is_location(LOCATION_PZONE)))
-	if(!(destination & (LOCATION_RMZONE | LOCATION_RSZONE | LOCATION_MZONE | LOCATION_SZONE | LOCATION_PZONE | LOCATION_FZONE)) || !positions || (destination & LOCATION_PZONE && target->current.is_location(LOCATION_PZONE)))	
+	//if(!(destination & (LOCATION_MZONE | LOCATION_SZONE | LOCATION_PZONE | LOCATION_FZONE)) || !positions)
+	if(!(destination & (LOCATION_RMZONE | LOCATION_RSZONE | LOCATION_MZONE | LOCATION_SZONE | LOCATION_PZONE | LOCATION_FZONE)) || !positions)	
 	//////kdiy///////	
 		return;
+	if(destination & LOCATION_PZONE && target->current.is_location(LOCATION_PZONE) && playerid == target->current.controler)
+	    return;
 	//////kdiy///////		
 	//if(destination == target->current.location && playerid == target->current.controler)
 	if(!((destination == target->current.location && ((target->current.location == LOCATION_SZONE && destination == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (target->current.location == LOCATION_MZONE && destination == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))))
@@ -3643,18 +3644,21 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			for(auto& cit : spsummon_once_set)
 				core.spsummon_once_map[sumplayer][cit]++;
 		}
-		card_set cset;
-		for(auto& pcard : pgroup->container) {
-			pcard->set_status(STATUS_SUMMONING, TRUE);
-			if(!pcard->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON)) {
-				cset.insert(pcard);
+		if(core.current_chain.size() == 0) {
+			card_set cset;
+			for(auto& pcard : pgroup->container) {
+				pcard->set_status(STATUS_SUMMONING, TRUE);
+				if(!pcard->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON)) {
+					cset.insert(pcard);
+				}
 			}
-		}
-		if(cset.size()) {
-			raise_event(&cset, EVENT_SPSUMMON, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
-			process_instant_event();
-			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
-		}
+			if(cset.size()) {
+				raise_event(&cset, EVENT_SPSUMMON, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
+				process_instant_event();
+				add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
+			}
+		} else
+			core.units.begin()->step = 26;
 		return FALSE;
 	}
 	case 26: {

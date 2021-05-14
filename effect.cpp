@@ -14,8 +14,8 @@
 bool effect_sort_id(const effect* e1, const effect* e2) {
 	return e1->id < e2->id;
 }
-bool effect_sort::operator()(void* const& e1, void* const& e2) const {
-	return effect_sort_id((const effect*)e1, (const effect*)e2);
+bool field_effect::grant_effect_container::effect_sort_by_ref::operator()(effect* e1, effect* e2) const {
+	return e1->ref_handle < e2->ref_handle;
 }
 effect::effect(duel* pd) : lua_obj_helper(pd) {
 	owner = 0;
@@ -564,9 +564,9 @@ int32 effect::is_target_player(uint8 playerid) {
 }
 int32 effect::is_player_effect_target(card* pcard) {
 	if(target) {
-		handler->pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
-		handler->pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
-		if(!handler->pduel->lua->check_condition(target, 2)) {
+		pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+		if(!pduel->lua->check_condition(target, 2)) {
 			return FALSE;
 		}
 	}
@@ -636,7 +636,7 @@ int32 effect::reset(uint32 reset_level, uint32 reset_type) {
 		if(!(reset_flag & RESET_PHASE))
 			return FALSE;
 		uint8 pid = get_handler_player();
-		uint8 tp = handler->pduel->game_field->infos.turn_player;
+		uint8 tp = pduel->game_field->infos.turn_player;
 		if((((reset_flag & RESET_SELF_TURN) && pid == tp) || ((reset_flag & RESET_OPPO_TURN) && pid != tp)) 
 				&& (reset_level & 0x3ff & reset_flag))
 			reset_count--;
