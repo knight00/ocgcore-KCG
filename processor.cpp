@@ -1524,8 +1524,9 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		// Obsolete ignition effect ruling
 		tevent _e;
 		if(core.current_chain.size() == 0 &&
-		        (check_event(EVENT_SUMMON_SUCCESS, &_e) || check_event(EVENT_SPSUMMON_SUCCESS, &_e) || check_event(EVENT_FLIP_SUMMON_SUCCESS, &_e)
-				 || check_event(EVENT_CHAIN_END, &_e)) && _e.reason_player == infos.turn_player) {
+		   (((check_event(EVENT_SUMMON_SUCCESS, &_e) || check_event(EVENT_SPSUMMON_SUCCESS, &_e) ||
+			 check_event(EVENT_FLIP_SUMMON_SUCCESS, &_e)) && _e.reason_player == infos.turn_player)
+		   || check_event(EVENT_CHAIN_END))) {
 			chain newchain;
 			tevent e;
 			e.event_cards = 0;
@@ -4726,7 +4727,11 @@ int32 field::add_chain(uint16 step) {
 		peffect->card_type = phandler->get_type();
 		if((peffect->card_type & (TYPE_TRAP | TYPE_MONSTER)) == (TYPE_TRAP | TYPE_MONSTER))
 			peffect->card_type -= TYPE_TRAP;
-		peffect->set_active_type();
+		if(is_flag(DUEL_TRIGGER_WHEN_PRIVATE_KNOWLEDGE)) {
+			if(!((peffect->type & EFFECT_TYPE_CONTINUOUS) == 0 && (peffect->type & EFFECT_TYPE_SINGLE) != 0))
+				peffect->set_active_type();
+		} else
+			peffect->set_active_type();
 		peffect->active_handler = peffect->handler->overlay_target;
 		clit.chain_count = static_cast<uint8>(core.current_chain.size()) + 1;
 		clit.target_cards = 0;
