@@ -943,28 +943,28 @@ int32 card::get_attack() {
 		{
 			up_atk=0; upc_atk=0;
 		}
-        if (((atk < 0) ? batk : atk)<999999 && up_atk+upc_atk+((atk < 0) ? batk : atk)>999998)
+        if (((atk < 0) ? batk : atk)<999999 && up_atk+upc_atk+((atk < 0) ? batk : atk)>999990)
 		{		 
 			bool inf=false;
-			if (up_atk>=999999 && (up_atk==999999 || up_atk==1000000)) inf=true;
-			if (upc_atk>=999999 && (upc_atk==999999 || upc_atk==1000000)) inf=true;
+			if (up_atk>=999999 && (up_atk==999999 || up_atk==999999*2 || up_atk==999999/2 || up_atk==1000000 || up_atk==1000000*2 || up_atk==1000000/2)) inf=true;
+			if (upc_atk>=999999 && (upc_atk==999999 || upc_atk==999999*2 || upc_atk==999999/2 || upc_atk==1000000 || upc_atk==1000000*2 || upc_atk==1000000/2)) inf=true;
 			up_atk=0;
 			if (inf) upc_atk=999999-((atk < 0) ? batk : atk);
-			else upc_atk=999998-((atk < 0) ? batk : atk);
+			else upc_atk=999990-((atk < 0) ? batk : atk);
 		} 		
-        if (((atk < 0) ? batk : atk)<999999 && up_atk+((atk < 0) ? batk : atk)>999998)
+        if (((atk < 0) ? batk : atk)<999999 && up_atk+((atk < 0) ? batk : atk)>999990)
 		{		
 			bool inf=false;
-			if (up_atk>=999999 && (up_atk==999999 || up_atk==1000000)) inf=true;
+			if (up_atk>=999999 && (up_atk==999999 || up_atk==999999*2 || up_atk==999999/2 || up_atk==1000000 || up_atk==1000000*2 || up_atk==1000000/2)) inf=true;
 			if (inf) up_atk=999999-((atk < 0) ? batk : atk);
-			else up_atk=999998-((atk < 0) ? batk : atk);
+			else up_atk=999990-((atk < 0) ? batk : atk);
 		} 
-        if (((atk < 0) ? batk : atk)<999999 && upc_atk+((atk < 0) ? batk : atk)>999998)
+        if (((atk < 0) ? batk : atk)<999999 && upc_atk+((atk < 0) ? batk : atk)>999990)
 		{		 
 			bool inf=false;
-			if (upc_atk>=999999 && (upc_atk==999999 || upc_atk==1000000)) inf=true;
+			if (upc_atk>=999999 && (upc_atk==999999 || upc_atk==999999*2 || upc_atk==999999/2 || upc_atk==1000000 || upc_atk==1000000*2 || upc_atk==1000000/2)) inf=true;
 			if (inf) upc_atk=999999-((atk < 0) ? batk : atk);
-			else upc_atk=999998-((atk < 0) ? batk : atk);
+			else upc_atk=999990-((atk < 0) ? batk : atk);
 		}		 
         //////////kdiy/////////////
 		if(!rev) {
@@ -1264,28 +1264,28 @@ int32 card::get_defense() {
 		{
 			up_def=0; upc_def=0;
 		}
-        if (((def < 0) ? bdef : def)<999999 && up_def+upc_def+((def < 0) ? bdef : def)>=999998)
+        if (((def < 0) ? bdef : def)<999999 && up_def+upc_def+((def < 0) ? bdef : def)>=999990)
 		{
 			bool inf=false;
-			if (upc_def>=999999 && (upc_def==999999 || upc_def==1000000)) inf=true;
-			if (up_def>=999999 && (up_def==999999 || up_def==1000000)) inf=true;
+			if (upc_def>=999999 && (upc_def==999999 || upc_def==999999*2 || upc_def==999999/2 || upc_def==1000000 || upc_def==1000000*2 || upc_def==1000000/2)) inf=true;
+			if (up_def>=999999 && (up_def==999999 || up_def==999999*2 || up_def==999999/2 || up_def==1000000 || up_def==1000000*2 || up_def==1000000/2)) inf=true;
 			up_def=0;
 			if (inf) upc_def=999999-((def < 0) ? bdef : def);
-			else upc_def=999998-((def < 0) ? bdef : def);	
+			else upc_def=999990-((def < 0) ? bdef : def);	
 		} 		
-        if (((def < 0) ? bdef : def)<999999 && up_def+((def < 0) ? bdef : def)>=999998)
+        if (((def < 0) ? bdef : def)<999999 && up_def+((def < 0) ? bdef : def)>=999990)
 		{		 
 			bool inf=false;
-			if (up_def>=999999 && (up_def==999999 || up_def==1000000)) inf=true;
+			if (up_def>=999999 && (up_def==999999 || up_def==999999*2 || up_def==999999/2 || up_def==1000000 || up_def==1000000*2 || up_def==1000000/2)) inf=true;
 			if (inf) up_def=999999-((def < 0) ? bdef : def);
-			else up_def=999998-((def < 0) ? bdef : def);
+			else up_def=999990-((def < 0) ? bdef : def);
 		} 
-        if (((def < 0) ? bdef : def)<999999 && upc_def+((def < 0) ? bdef : def)>=999998)
+        if (((def < 0) ? bdef : def)<999999 && upc_def+((def < 0) ? bdef : def)>=999990)
 		{		 
 			bool inf=false;
-			if (upc_def>=999999 && (upc_def==999999 || upc_def==1000000)) inf=true;
+			if (upc_def>=999999 && (upc_def==999999 || upc_def==999999*2 || upc_def==999999/2 || upc_def==1000000 || upc_def==1000000*2 || upc_def==1000000/2)) inf=true;
 			if (inf) upc_def=999999-((def < 0) ? bdef : def);
-			else upc_def=999998-((def < 0) ? bdef : def);
+			else upc_def=999990-((def < 0) ? bdef : def);
 		}		 
         //////////kdiy/////////////		
 		if(!rev) {
