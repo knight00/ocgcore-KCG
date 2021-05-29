@@ -1205,7 +1205,8 @@ void field::reset_sequence(uint8 playerid, uint8 location) {
 	}
 }
 void field::swap_deck_and_grave(uint8 playerid) {
-	for(auto& pcard : player[playerid].list_grave) {
+	auto& cur_player = player[playerid];
+	for(auto& pcard : cur_player.list_grave) {
 		if(core.current_chain.size() > 0)
 			core.just_sent_cards.insert(pcard);
 		pcard->previous.location = LOCATION_GRAVE;
@@ -1213,7 +1214,7 @@ void field::swap_deck_and_grave(uint8 playerid) {
 		pcard->enable_field_effect(false);
 		pcard->cancel_field_effect();
 	}
-	for(auto& pcard : player[playerid].list_main) {
+	for(auto& pcard : cur_player.list_main) {
 		if(core.current_chain.size() > 0)
 			core.just_sent_cards.insert(pcard);
 		pcard->previous.location = LOCATION_DECK;
@@ -1221,24 +1222,24 @@ void field::swap_deck_and_grave(uint8 playerid) {
 		pcard->enable_field_effect(false);
 		pcard->cancel_field_effect();
 	}
-	player[playerid].list_grave.swap(player[playerid].list_main);
+	cur_player.list_grave.swap(cur_player.list_main);
 	auto message = pduel->new_message(MSG_SWAP_GRAVE_DECK);
 	message->write<uint8>(playerid);
-	message->write<uint32>(player[playerid].list_main.size());
 	card_vector ex;
 	ProgressiveBuffer buff;
 	int i = 0;
-	for(auto clit = player[playerid].list_main.begin(); clit != player[playerid].list_main.end(); i++) {
+	for(auto clit = cur_player.list_main.begin(); clit != cur_player.list_main.end(); i++) {
 		if((*clit)->is_extra_deck_monster()) {
 			buff.bitSet(i);
 			ex.push_back(*clit);
-			clit = player[playerid].list_main.erase(clit);
+			clit = cur_player.list_main.erase(clit);
 		} else {
 			buff.bitSet(i, false);
 			++clit;
 		}
 	}
-	for(auto& pcard : player[playerid].list_grave) {
+	for(auto& pcard : cur_player.list_grave) {
+		pcard->current.position = POS_FACEUP;
 		pcard->current.location = LOCATION_GRAVE;
 		pcard->current.reason = REASON_EFFECT;
 		pcard->current.reason_effect = core.reason_effect;
@@ -1247,7 +1248,8 @@ void field::swap_deck_and_grave(uint8 playerid) {
 		pcard->enable_field_effect(true);
 		pcard->reset(RESET_TOGRAVE, RESET_EVENT);
 	}
-	for(auto& pcard : player[playerid].list_main) {
+	for(auto& pcard : cur_player.list_main) {
+		pcard->current.position = POS_FACEDOWN_DEFENSE;
 		pcard->current.location = LOCATION_DECK;
 		pcard->current.reason = REASON_EFFECT;
 		pcard->current.reason_effect = core.reason_effect;
@@ -1257,6 +1259,7 @@ void field::swap_deck_and_grave(uint8 playerid) {
 		pcard->reset(RESET_TODECK, RESET_EVENT);
 	}
 	for(auto& pcard : ex) {
+		pcard->current.position = POS_FACEDOWN_DEFENSE;
 		pcard->current.location = LOCATION_EXTRA;
 		pcard->current.reason = REASON_EFFECT;
 		pcard->current.reason_effect = core.reason_effect;
@@ -1265,7 +1268,8 @@ void field::swap_deck_and_grave(uint8 playerid) {
 		pcard->enable_field_effect(true);
 		pcard->reset(RESET_TODECK, RESET_EVENT);
 	}
-	player[playerid].list_extra.insert(player[playerid].list_extra.end(), ex.begin(), ex.end());
+	message->write<uint32>(cur_player.list_extra.size() - cur_player.extra_p_count);
+	cur_player.list_extra.insert(cur_player.list_extra.end() - cur_player.extra_p_count, ex.begin(), ex.end());
 	reset_sequence(playerid, LOCATION_GRAVE);
 	reset_sequence(playerid, LOCATION_EXTRA);
 	message->write<uint32>(buff.data.size());
