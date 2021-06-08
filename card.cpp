@@ -648,7 +648,10 @@ uint32 card::get_type(card* scard, uint64 sumtype, uint8 playerid) {
 	effect_set effects;
 	int32 type = data.type;
 	int32 alttype = 0;
-	if(sumtype && current.location == LOCATION_SZONE)
+	//kdiy//////
+	//if(sumtype && current.location == LOCATION_SZONE)
+	if(sumtype && ((current.location == LOCATION_SZONE && !is_affected_by_effect(EFFECT_ORICA_SZONE)) || (current.location == LOCATION_MZONE && is_affected_by_effect(EFFECT_SANCT_MZONE))))
+	//kdiy//////
 		alttype = data.type;
 	bool changed = false;
 	temp.type = data.type;
