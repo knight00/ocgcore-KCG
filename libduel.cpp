@@ -278,8 +278,8 @@ int32 scriptlib::duel_set_lp(lua_State* L) {
 		return 0;
 	const auto pduel = lua_get<duel*>(L);
     //////////kdiy/////////
-    if (pduel->game_field->player[p].lp<999999 && lp>=999999) lp=999999;
-    if (pduel->game_field->player[p].lp>=999999 && lp>90000) lp=999999;
+    if (lp > 2000000)
+	    lp = 8888888;
     //////////kdiy/////////	
 	pduel->game_field->player[p].lp = lp;
 	auto message = pduel->new_message(MSG_LPUPDATE);
@@ -1460,11 +1460,7 @@ int32 scriptlib::duel_damage(lua_State* L) {
 		amount = 0;
 	auto reason = lua_get<uint32>(L, 3);
 	bool is_step = lua_get<bool, false>(L, 4);
-	const auto pduel = lua_get<duel*>(L);
-    ///////////kdiy//////////		
-    if (pduel->game_field->player[playerid].lp>=999999)    
-	    amount=0;
-    ///////////kdiy//////////			
+	const auto pduel = lua_get<duel*>(L);		
 	pduel->game_field->damage(pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, 0, playerid, amount, is_step);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State* L, int32/* status*/, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
@@ -1483,15 +1479,7 @@ int32 scriptlib::duel_recover(lua_State* L) {
 		amount = 0;
 	auto reason = lua_get<uint32>(L, 3);
 	bool is_step = lua_get<bool, false>(L, 4);
-	const auto pduel = lua_get<duel*>(L);
-    ///////////kdiy//////////		
-    if (pduel->game_field->player[playerid].lp>=999999) 
-	    amount=0;
-	else if (pduel->game_field->player[playerid].lp<999999 && amount>=999999) 
-	    amount=999999-pduel->game_field->player[playerid].lp;
-	else if (pduel->game_field->player[playerid].lp<999999 && pduel->game_field->player[playerid].lp+amount>=999999) 
-	    amount=999999-pduel->game_field->player[playerid].lp;
-    ///////////kdiy//////////		
+	const auto pduel = lua_get<duel*>(L);	
 	pduel->game_field->recover(pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, amount, is_step);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State* L, int32/* status*/, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
@@ -1616,11 +1604,7 @@ int32 scriptlib::duel_pay_lp_cost(lua_State* L) {
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	auto cost = lua_get<uint32>(L, 2);
-	const auto pduel = lua_get<duel*>(L);
-	///////////kdiy//////////		
-    if (pduel->game_field->player[playerid].lp>=999999)    
-	    cost=0;
-    ///////////kdiy//////////		
+	const auto pduel = lua_get<duel*>(L);		
 	pduel->game_field->add_process(PROCESSOR_PAY_LPCOST, 0, 0, 0, playerid, cost);
 	return lua_yield(L, 0);
 }

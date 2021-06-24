@@ -3790,9 +3790,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				damp = pd;
 				//////////kdiy/////////
 				//core.battle_damage[damp] = a - d;
-				if ((a >= 999999 && d < 999999) || (a > 999999 && d == 999999))
-					core.battle_damage[damp] = 1000000;
-				else if (player[damp].lp>=999999) core.battle_damage[damp] = 0;
+				if ((a >= 8888888 && d < 8888888) || (a >= 9999999 && d < 9999999))
+					core.battle_damage[damp] = 8888888;
 				else core.battle_damage[damp] = a - d;
 				//////////kdiy/////////
 				reason_card = core.attacker;
@@ -3801,9 +3800,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				damp = pa;
 				//////////kdiy/////////
 				//core.battle_damage[damp] = d - a;
-				if ((d >= 999999 && a < 999999) || (d > 999999 && a == 999999))
-					core.battle_damage[damp] = 1000000;
-				else if (player[damp].lp>=999999) core.battle_damage[damp] = 0;
+				if ((d >= 8888888 && a < 8888888) || (d >= 9999999 && a < 9999999))
+					core.battle_damage[damp] = 8888888;
 				else core.battle_damage[damp] = d - a;
 				//////////kdiy/////////		
 				reason_card = core.attack_target;
@@ -3827,10 +3825,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 					//////////kdiy/////////
 					    //core.battle_damage[0] = a - d;
 					{
-						if ((a >= 999999 && d < 999999) || (a > 999999 && d == 999999))
-							core.battle_damage[0] = 1000000;
-						else if (player[0].lp>=999999)
-						    core.battle_damage[0] = 0;
+						if ((a >= 8888888 && d < 8888888) || (a >= 9999999 && d < 9999999))
+							core.battle_damage[0] = 8888888;
 				        else core.battle_damage[0] = a - d;
 					}
 					//////////kdiy/////////		
@@ -3838,10 +3834,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 					//////////kdiy/////////	
 					    //core.battle_damage[1] = a - d;
 					{
-						if ((a >= 999999 && d < 999999) || (a > 999999 && d == 999999))
-							core.battle_damage[1] = 1000000;
-						else if (player[1].lp>=999999)
-						    core.battle_damage[1] = 0;
+						if ((a >= 8888888 && d < 8888888) || (a >= 9999999 && d != 9999999))
+							core.battle_damage[1] = 8888888;
 				        else core.battle_damage[1] = a - d;
 					}
 					//////////kdiy/////////	
@@ -3862,10 +3856,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 						////////kdiy////////
 						//core.battle_damage[0] *= 2;
 						{
-							if (core.battle_damage[0] >= 999999)
-								core.battle_damage[0] = 1000000;
-							else if (player[0].lp >= 999999) 
-							    core.battle_damage[0] = 0;
+							if (core.battle_damage[0] >= 8888888)
+								core.battle_damage[0] = 8888888;
 				            else core.battle_damage[0] *= 2;
 						}
 						////////kdiy////////
@@ -3873,10 +3865,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 						////////kdiy////////
 						//core.battle_damage[1] *= 2;
 						{
-							if (core.battle_damage[1] >= 999999)
-								core.battle_damage[1] = 1000000;
-							else if (player[1].lp>=999999) 
-							    core.battle_damage[1] = 0;
+							if (core.battle_damage[1] >= 8888888)
+								core.battle_damage[1] = 8888888;
 				            else core.battle_damage[1] *= 2;
 						}
 						////////kdiy////////
@@ -3982,8 +3972,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 						////////kdiy////////
 						//core.battle_damage[p] *= 2;
 						{
-							if (core.battle_damage[p] >= 999999)
-								core.battle_damage[p] = 1000000;
+							if (core.battle_damage[p] >= 8888888)
+								core.battle_damage[p] = 8888888;
 							else core.battle_damage[p] *= 2;
 						}
 						////////kdiy////////						
@@ -3991,8 +3981,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 						////////kdiy////////
 						//core.battle_damage[p] /= 2;
 						{
-							if (core.battle_damage[p] >= 999999)
-								core.battle_damage[p] = 1000000;
+							if (core.battle_damage[p] >= 8888888)
+								core.battle_damage[p] = 8888888;
 							else core.battle_damage[p] /= 2;
 						}
 						////////kdiy////////				
@@ -4014,9 +4004,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				damp = pa;
 				//////////kdiy/////////
 				//core.battle_damage[damp] = d - a;
-				if ((d >= 999999 && a < 999999) || (d > 999999 && a == 999999))
-					core.battle_damage[damp] = 1000000;
-				else if (player[damp].lp>=999999) core.battle_damage[damp] = 0;
+				if ((d >= 8888888 && a < 8888888) || (d >= 9999999 && a < 9999999))
+					core.battle_damage[damp] = 8888888;
 				else core.battle_damage[damp] = d - a;
 				//////////kdiy/////////		
 				reason_card = core.attack_target;
@@ -4027,9 +4016,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 			damp = 1 - pa;
 			//////////kdiy/////////	
 			//core.battle_damage[damp] = a;
-			if (a >= 999999)
-				core.battle_damage[damp] = 1000000;
-			else if (player[damp].lp>=999999) core.battle_damage[damp] = 0;
+			if (a >= 8888888)
+				core.battle_damage[damp] = 8888888;
 			else core.battle_damage[damp] = a;
 			//////////kdiy/////////	
 			reason_card = core.attacker;
@@ -4131,8 +4119,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				/////kdiy//////////
 				//core.battle_damage[p] *= 2;	
 				{
-				if (core.battle_damage[p] >= 999999)
-					core.battle_damage[p] = 1000000;
+				if (core.battle_damage[p] >= 8888888)
+					core.battle_damage[p] = 8888888;
 				else core.battle_damage[p] *= 2;
 				}			
                 /////kdiy//////////
@@ -4140,8 +4128,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				/////kdiy//////////
 				//core.battle_damage[p] /= 2;
 				{
-				if (core.battle_damage[p] >= 999999)
-					core.battle_damage[p] = 1000000;
+				if (core.battle_damage[p] >= 8888888)
+					core.battle_damage[p] = 8888888;
 				else core.battle_damage[p] /= 2;	
 				}		
             /////kdiy//////////			

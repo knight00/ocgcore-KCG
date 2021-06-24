@@ -229,6 +229,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_LEVEL_RANK_LINK_S            519
 #define EVENT_OVERLAY                       511
 #define EVENT_PREEFFECT_DRAW                520
+#define EFFECT_INF_ATTACK                   521
+#define EFFECT_INF_DEFENSE                  522
 //////////kdiy/////////
 #define EFFECT_IMMUNE_EFFECT                1
 #define EFFECT_DISABLE                      2

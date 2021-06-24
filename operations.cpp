@@ -579,6 +579,15 @@ int32 field::damage(uint16 step, effect* reason_effect, uint32 reason, uint8 rea
 		if(is_reflect || (reason & REASON_RRECOVER))
 			core.units.begin()->step = 2;
 		core.hint_timing[playerid] |= TIMING_DAMAGE;
+		//////kdiy/////////
+		if (player[playerid].lp >= 8888888)
+			player[playerid].lp = 8888888;
+		else if (amount > 2000000) {
+			amount = 8888888;	
+			player[playerid].lp = 0;
+		}
+		else
+		//////kdiy/////////
 		player[playerid].lp -= amount;
 		auto message = pduel->new_message(MSG_DAMAGE);
 		message->write<uint8>(playerid);
@@ -643,6 +652,15 @@ int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 re
 		if(reason & REASON_RDAMAGE)
 			core.units.begin()->step = 2;
 		core.hint_timing[playerid] |= TIMING_RECOVER;
+		//////kdiy/////////
+		if (player[playerid].lp >= 8888888)
+		    player[playerid].lp = 8888888;
+		else if (amount > 2000000) {
+			amount = 8888888;	
+			player[playerid].lp = 8888888;
+		}
+		else
+		//////kdiy/////////
 		player[playerid].lp += amount;
 		auto message = pduel->new_message(MSG_RECOVER);
 		message->write<uint8>(playerid);
@@ -716,6 +734,15 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost) {
 	case 1: {
 		effect* peffect = core.select_effects[returns.at<int32>(0)];
 		if(!peffect) {
+			//////kdiy/////////
+			if (player[playerid].lp >= 8888888)
+				player[playerid].lp = 8888888;
+			else if (cost > 2000000) {
+				cost = 8888888;	
+				player[playerid].lp = 0;
+			}
+			else
+			//////kdiy/////////
 			player[playerid].lp -= cost;
 			auto message = pduel->new_message(MSG_PAY_LPCOST);
 			message->write<uint8>(playerid);
