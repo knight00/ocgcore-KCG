@@ -2298,7 +2298,7 @@ void card::xyz_overlay(card_set* materials) {
 			continue;
 		//kdiy////////
 		effect* peffect = pduel->game_field->core.reason_effect;
-		if(!(pcard->is_affect_by_effect(peffect) || (pcard->current.reason & REASON_RULE)))
+		if((pcard->current.reason & REASON_RULE))
 			continue;
 		//kdiy////////
 		if(decktop[0] && pduel->game_field->player[0].list_main.back() == pcard)
