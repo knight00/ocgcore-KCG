@@ -786,15 +786,17 @@ effect* effect::clone(int32 majestic) {
 	ceffect->ref_handle = ref;
 	ceffect->handler = 0;
 	if(condition)
-		ceffect->condition = pduel->lua->clone_function_ref(condition);
+		ceffect->condition = pduel->lua->clone_lua_ref(condition);
 	if(cost)
-		ceffect->cost = pduel->lua->clone_function_ref(cost);
+		ceffect->cost = pduel->lua->clone_lua_ref(cost);
 	if(target)
-		ceffect->target = pduel->lua->clone_function_ref(target);
+		ceffect->target = pduel->lua->clone_lua_ref(target);
 	if(operation)
-		ceffect->operation = pduel->lua->clone_function_ref(operation);
+		ceffect->operation = pduel->lua->clone_lua_ref(operation);
+	if(label_object)
+		ceffect->label_object = pduel->lua->clone_lua_ref(label_object);
 	if(value && is_flag(EFFECT_FLAG_FUNC_VALUE))
-		ceffect->value = pduel->lua->clone_function_ref(value);
+		ceffect->value = pduel->lua->clone_lua_ref(value);
 	if(majestic && is_flag(EFFECT_FLAG2_MAJESTIC_MUST_COPY)) {
 		if(value && !is_flag(EFFECT_FLAG_FUNC_VALUE))
 			ceffect->value = value;
