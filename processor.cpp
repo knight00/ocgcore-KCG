@@ -4633,7 +4633,7 @@ int32 field::add_chain(uint16 step) {
 			}
 			/////////kdiy//////////
 			//if(phandler->current.location == LOCATION_SZONE) {
-			if((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & (TYPE_TRAPMONSTER)) && ((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE)))) {
+			if((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & TYPE_TRAPMONSTER) && ((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE)))) {
 			/////////kdiy//////////	
 				phandler->set_status(STATUS_ACT_FROM_HAND, FALSE);
 				change_position(phandler, 0, phandler->current.controler, POS_FACEUP, 0);
@@ -4674,8 +4674,8 @@ int32 field::add_chain(uint16 step) {
 				if(loc > 0) {
 					phandler->enable_field_effect(false);
 					///////kdiy///////	
-					effect* seffect = is_player_affected_by_effect(phandler->current.controler,EFFECT_SANCT);
-					if(is_player_affected_by_effect(phandler->current.controler, EFFECT_SANCT) && !phandler->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+					effect* seffect = is_player_affected_by_effect(phandler->current.controler, EFFECT_SANCT);
+					if((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & TYPE_TRAPMONSTER) && is_player_affected_by_effect(phandler->current.controler, EFFECT_SANCT) && !phandler->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 						effect* deffect = pduel->new_effect();
 						deffect->owner = seffect->owner;
 						deffect->code = EFFECT_SANCT_MZONE;
@@ -4684,19 +4684,16 @@ int32 field::add_chain(uint16 step) {
 						deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 						phandler->add_effect(deffect);
 					}	
-					///////kdiy///////
 					if(loc == LOCATION_MZONE) {	
 						///////kdiy///////
-						//move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP_ATTACK);
-						move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP);
-						///////kdiy///////						
-					} else {
+						//move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP_ATTACK);	
+						move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP);	
 						///////kdiy///////
-						if (loc == LOCATION_SZONE)
+					} else {	
+						///////kdiy///////				
+						//move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP, FALSE, 0, zone);
 						move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP, FALSE, 0, zone, FALSE, 0, TRUE, 2);
-						else
-						/////kdiy///////						
-						move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP, FALSE, 0, zone);
+						/////kdiy///////	
 					}
 				}
 			}

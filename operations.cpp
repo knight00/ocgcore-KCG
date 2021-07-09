@@ -4925,19 +4925,9 @@ int32 field::send_to(uint16 step, group* targets, effect* reason_effect, uint32 
 			param->detach.insert(pcard->overlay_target);
 			pcard->overlay_target->xyz_remove(pcard);
 		}
-		//kdiy///////
-		effect* oeffect = is_player_affected_by_effect(pcard->current.controler,EFFECT_ORICA);	
-		if(pcard->temp.location == LOCATION_SZONE && !(pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && is_player_affected_by_effect(pcard->current.controler, EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
-			effect* deffect = pduel->new_effect();
-			deffect->owner = oeffect->owner;
-			deffect->code = EFFECT_ORICA_SZONE;
-			deffect->type = EFFECT_TYPE_SINGLE;
-			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-			pcard->add_effect(deffect);
-		}		
-		effect* seffect = is_player_affected_by_effect(pcard->current.controler,EFFECT_SANCT);	
-		if(pcard->temp.location == LOCATION_MZONE && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+		//kdiy///////		
+		effect* seffect = is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT);	
+		if(pcard->temp.location == LOCATION_MZONE && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP) && !(pcard->get_type() & TYPE_TRAPMONSTER)) && is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 			effect* deffect = pduel->new_effect();
 			deffect->owner = seffect->owner;
 			deffect->code = EFFECT_SANCT_MZONE;
@@ -5085,19 +5075,9 @@ int32 field::send_to(uint16 step, group* targets, effect* reason_effect, uint32 
 				remove.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_REMOVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
-			//kdiy///////
-			effect* oeffect = is_player_affected_by_effect(pcard->current.controler,EFFECT_ORICA);	
-			if(nloc == LOCATION_SZONE && !(pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && is_player_affected_by_effect(pcard->current.controler, EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
-				effect* deffect = pduel->new_effect();
-				deffect->owner = oeffect->owner;
-				deffect->code = EFFECT_ORICA_SZONE;
-				deffect->type = EFFECT_TYPE_SINGLE;
-				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-				deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-				pcard->add_effect(deffect);
-			}		
-			effect* seffect = is_player_affected_by_effect(pcard->current.controler,EFFECT_SANCT);	
-			if(nloc == LOCATION_MZONE && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+			//kdiy///////	
+			effect* seffect = is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT);	
+			if(nloc == LOCATION_MZONE && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP) && !(pcard->get_type() & TYPE_TRAPMONSTER)) && is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 				effect* deffect = pduel->new_effect();
 				deffect->owner = seffect->owner;
 				deffect->code = EFFECT_SANCT_MZONE;
