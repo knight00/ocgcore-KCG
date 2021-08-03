@@ -139,6 +139,9 @@ static constexpr luaL_Reg cardlib[] = {
 	{ "IsOriginalSetCard", scriptlib::card_is_origin_set_card },
 	{ "IsPreviousSetCard", scriptlib::card_is_pre_set_card },
 	{ "IsType", scriptlib::card_is_type },
+	////////kdiy///////////	
+	{ "IsOType", scriptlib::card_is_otype },
+	////////kdiy///////////	
 	{ "IsLevel", scriptlib::card_is_level },
 	{ "IsRank", scriptlib::card_is_rank },
 	{ "IsLink", scriptlib::card_is_link },

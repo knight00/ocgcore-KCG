@@ -123,6 +123,9 @@ public:
 	static int32 card_is_origin_set_card(lua_State* L);
 	static int32 card_is_pre_set_card(lua_State* L);
 	static int32 card_is_type(lua_State* L);
+	////////kdiy///////////	
+	static int32 card_is_otype(lua_State* L);
+	////////kdiy///////////	
 	static int32 card_is_level(lua_State* L);
 	static int32 card_is_rank(lua_State* L);
 	static int32 card_is_link(lua_State* L);

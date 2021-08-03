@@ -947,6 +947,14 @@ int32 scriptlib::card_is_type(lua_State* L) {
 	return 1;
 }
 ////////kdiy///////////	
+int32 scriptlib::card_is_otype(lua_State* L) {
+	check_param_count(L, 2);
+	const auto pduel = lua_get<duel*>(L);
+	auto pcard = lua_get<card*, true>(L, 1);
+	auto ttype = lua_get<uint32>(L, 2);
+	lua_pushboolean(L, pcard->data.ot & ttype);
+	return 1;
+}
 //inline int32 is_prop(lua_State* L, uint32 val) {	
 inline int32 is_prop(lua_State* L, int32 val) {	
 ////////kdiy///////////	
@@ -972,7 +980,7 @@ int32 scriptlib::card_is_level(lua_State* L) {
 int32 scriptlib::card_is_rank(lua_State* L) {
 	check_param_count(L, 2);
 	return is_prop(L, lua_get<card*, true>(L, 1)->get_rank());
-}
+} 
 int32 scriptlib::card_is_link(lua_State* L) {
 	check_param_count(L, 2);
 	return is_prop(L, lua_get<card*, true>(L, 1)->get_link());

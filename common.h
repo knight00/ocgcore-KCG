@@ -116,6 +116,23 @@ struct card_sort {
 #define TYPE_SPSUMMON    0x2000000
 #define TYPE_LINK        0x4000000
 
+/////kdiy/////////////
+#define SCOPE_OCG        0x1
+#define SCOPE_TCG        0x2
+#define SCOPE_ANIME      0x4
+#define SCOPE_ILLEGAL    0x8
+#define SCOPE_VIDEO_GAME 0x10
+#define SCOPE_CUSTOM     0x20
+#define SCOPE_SPEED      0x40
+#define SCOPE_PRERELEASE 0x100
+#define SCOPE_RUSH       0x200
+#define SCOPE_LEGEND     0x400
+#define SCOPE_HIDDEN     0x1000
+
+#define SCOPE_OCG_TCG    (SCOPE_OCG | SCOPE_TCG)
+#define SCOPE_OFFICIAL   (SCOPE_OCG | SCOPE_TCG | SCOPE_PRERELEASE)
+/////kdiy/////////////
+
 //Attributes
 #define ATTRIBUTE_EARTH  0x01
 #define ATTRIBUTE_WATER  0x02
