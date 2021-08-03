@@ -5612,9 +5612,19 @@ int32 field::move_to_field(uint16 step, card* target, uint8 enable, uint8 ret, u
 					peffect->owner = target;
 					peffect->type = EFFECT_TYPE_FIELD;
 					peffect->range = LOCATION_MZONE;
+					////kdiy///////
+					if(target->previous.location == LOCATION_MZONE)
+					peffect->code = EFFECT_USE_EXTRA_MZONE;
+					else
+					////kdiy///////
 					peffect->code = EFFECT_USE_EXTRA_SZONE;
 					peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 					peffect->reset_flag = RESET_EVENT + 0x1fe0000;
+					////kdiy///////
+					if(target->previous.location == LOCATION_MZONE)
+					peffect->value = 1 + (0x10000 << target->previous.sequence);
+					else
+					////kdiy///////
 					peffect->value = 1 + (0x10000 << target->previous.sequence);
 					target->add_effect(peffect);
 				}
