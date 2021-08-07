@@ -44,9 +44,9 @@ typedef struct OCG_CardData {
 	uint32_t lscale;
 	uint32_t rscale;
 	uint32_t link_marker;
-	//////////kdiy///////////	
+	///////kdiy///////
 	uint32_t ot;
-	//////////kdiy///////////	
+	///////kdiy///////	
 }OCG_CardData;
 
 typedef struct OCG_Player {

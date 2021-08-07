@@ -30,7 +30,6 @@ struct card_data {
 	std::set<uint16_t> setcodes;
 	uint32_t type{};
 	///////kdiy///////
-	uint32_t ot{};
 	//uint32_t level{};
 	int32_t level{};
 	///////kdiy///////		
@@ -41,6 +40,9 @@ struct card_data {
 	uint32_t lscale{};
 	uint32_t rscale{};
 	uint32_t link_marker{};
+	///////kdiy///////
+	uint32_t ot{};
+	///////kdiy///////	
 	card_data(OCG_CardData* data);
 	card_data() {};
 };

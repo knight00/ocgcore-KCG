@@ -3860,6 +3860,9 @@ int32 scriptlib::duel_announce_card(lua_State* L) {
 		case OPCODE_NEG:
 		case OPCODE_NOT:
 		case OPCODE_BNOT:
+		/////kdiy///////
+		case OPCODE_ISOTYPE:
+		/////kdiy///////
 		case OPCODE_ISCODE:
 		case OPCODE_ISSETCARD:
 		case OPCODE_ISTYPE:

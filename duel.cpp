@@ -180,6 +180,9 @@ card_data::card_data(OCG_CardData* data) {
 	COPY(lscale);
 	COPY(rscale);
 	COPY(link_marker);
+	////kdiy///////
+	COPY(ot);
+	////kdiy///////
 #undef COPY
 	if(data->setcodes) {
 		uint16_t* setptr = data->setcodes;
