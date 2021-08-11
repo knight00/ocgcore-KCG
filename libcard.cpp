@@ -2294,40 +2294,63 @@ int32 scriptlib::card_remove_counter(lua_State* L) {
 	check_action_permission(L);
 	check_param_count(L, 5);
 	const auto pduel = lua_get<duel*>(L);
+	auto countertype = lua_get<uint16>(L, 3);
+	if(countertype == 0)
+		return luaL_error(L, "Counter type cannot be 0, use Card.RemoveAllCounters instead");
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto rplayer = lua_get<uint8>(L, 2);
-	auto countertype = lua_get<uint16>(L, 3);
 	auto count = lua_get<uint16>(L, 4);
 	auto reason = lua_get<uint32>(L, 5);
-	if(countertype == 0) {
-		// c38834303: remove all counters
-		for(const auto& cmit : pcard->counters) {
-			auto message = pduel->new_message(MSG_REMOVE_COUNTER);
-			message->write<uint16>(cmit.first);
-			message->write<uint8>(pcard->current.controler);
-			message->write<uint8>(pcard->current.location);
-			message->write<uint8>(pcard->current.sequence);
-			message->write<uint16>(cmit.second[0] + cmit.second[1]);
-		}
-		pcard->counters.clear();
-		return 0;
-	} else {
-		pduel->game_field->remove_counter(reason, pcard, rplayer, 0, 0, countertype, count);
-		return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State* L, int32/* status*/, lua_KContext ctx) {
-			duel* pduel = (duel*)ctx;
-			lua_pushboolean(L, pduel->game_field->returns.at<int32>(0));
-			return 1;
-		});
+	pduel->game_field->remove_counter(reason, pcard, rplayer, 0, 0, countertype, count);
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State* L, int32/* status*/, lua_KContext ctx) {
+		duel* pduel = (duel*)ctx;
+		lua_pushboolean(L, pduel->game_field->returns.at<int32>(0));
+		return 1;
+	});
+}
+int32 scriptlib::card_remove_all_counters(lua_State* L) {
+	check_action_permission(L);
+	check_param_count(L, 1);
+	const auto pduel = lua_get<duel*>(L);
+	auto pcard = lua_get<card*, true>(L, 1);
+	uint32 total = 0;
+	for(const auto& cmit : pcard->counters) {
+		auto message = pduel->new_message(MSG_REMOVE_COUNTER);
+		message->write<uint16>(cmit.first);
+		message->write<uint8>(pcard->current.controler);
+		message->write<uint8>(pcard->current.location);
+		message->write<uint8>(pcard->current.sequence);
+		message->write<uint16>(cmit.second[0] + cmit.second[1]);
+		total += cmit.second[0] + cmit.second[1];
 	}
+	pcard->counters.clear();
+	lua_pushinteger(L, total);
+	return 1;
 }
 int32 scriptlib::card_get_counter(lua_State* L) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto countertype = lua_get<uint16>(L, 2);
 	if(countertype == 0)
-		lua_pushinteger(L, pcard->counters.size());
-	else
-		lua_pushinteger(L, pcard->get_counter(countertype));
+		return luaL_error(L, "Counter type cannot be 0, use Card.GetAllCounters instead");
+	lua_pushinteger(L, pcard->get_counter(countertype));
+	return 1;
+}
+int32 scriptlib::card_get_all_counters(lua_State* L) {
+	check_param_count(L, 1);
+	auto pcard = lua_get<card*, true>(L, 1);
+	lua_newtable(L);
+	for(const auto& counter : pcard->counters) {
+		lua_pushinteger(L, counter.first);
+		lua_pushinteger(L, counter.second[0] + counter.second[1]);
+		lua_settable(L, -3);
+	}
+	return 1;
+}
+int32 scriptlib::card_has_counters(lua_State* L) {
+	check_param_count(L, 1);
+	auto pcard = lua_get<card*, true>(L, 1);
+	lua_pushboolean(L, pcard->counters.size());
 	return 1;
 }
 int32 scriptlib::card_enable_counter_permit(lua_State* L) {

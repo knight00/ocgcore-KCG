@@ -3528,12 +3528,23 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 41: {
 		// normal end of battle step
+		bool optional_twice_battle = true;
+		effect_set eset;
+		filter_player_effect(infos.turn_player, EFFECT_BP_TWICE, &eset, FALSE);
+		for(const auto& peff : eset) {
+			if(!peff->value || peff->get_value() != 1) {
+				optional_twice_battle = false;
+				break;
+			}
+		}
 		////kdiy////////
-		//if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
-		if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE) && !core.forced_attack)			
-		////kdiy////////		
+		if(core.forced_attack)
+		    optional_twice_battle = false;		
+		////kdiy////////
+		if(eset.size()) {
 			core.units.begin()->arg2 = 1;
-		else
+			core.units.begin()->arg3 = optional_twice_battle ? 1 : 0;
+		} else
 			core.units.begin()->arg2 = 0;
 		infos.phase = PHASE_BATTLE;
 		add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
@@ -3543,8 +3554,18 @@ int32 field::process_battle_command(uint16 step) {
 	case 42: {
 		core.attacker = 0;
 		core.attack_target = 0;
+		if(core.units.begin()->arg2 && core.units.begin()->arg3) {
+			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, infos.turn_player, 32);
+			return FALSE;
+		}
 		returns.at<int32>(0) = core.units.begin()->arg1;
 		returns.at<int32>(1) = core.units.begin()->arg2;
+		return TRUE;
+	}
+	case 43: {
+		auto bp_twice = returns.at<int32>(0);
+		returns.at<int32>(0) = core.units.begin()->arg1;
+		returns.at<int32>(1) = bp_twice;
 		return TRUE;
 	}
 	}
