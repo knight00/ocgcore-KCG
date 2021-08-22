@@ -2324,7 +2324,7 @@ int32 card::get_old_union_count() {
 void card::xyz_overlay(card_set* materials) {
 	if(materials->size() == 0)
 		return;
-	card_set des;
+	card_set des, from_grave;
 	field::card_vector cv(materials->begin(), materials->end());
 	std::sort(cv.begin(), cv.end(), card::card_operation_sort);
 	duel::duel_message* decktop[2] = { nullptr, nullptr };
@@ -2346,29 +2346,33 @@ void card::xyz_overlay(card_set* materials) {
 			decktop[1]->write<uint8_t>(1);
 		pcard->current.reason = REASON_XYZ + REASON_MATERIAL;
 		pcard->reset(RESET_LEAVE + RESET_OVERLAY, RESET_EVENT);
-			if(pcard->unique_code)
-				pduel->game_field->remove_unique_card(pcard);
-			if(pcard->equiping_target)
-				pcard->unequip();
-			for(auto cit = pcard->equiping_cards.begin(); cit != pcard->equiping_cards.end();) {
-				card* equipc = *cit++;
-				des.insert(equipc);
-				equipc->unequip();
+		if(pcard->unique_code)
+			pduel->game_field->remove_unique_card(pcard);
+		if(pcard->equiping_target)
+			pcard->unequip();
+		for(auto cit = pcard->equiping_cards.begin(); cit != pcard->equiping_cards.end();) {
+			card* equipc = *cit++;
+			des.insert(equipc);
+			equipc->unequip();
+		}
+		pcard->clear_card_target();
+		auto message = pduel->new_message(MSG_MOVE);
+		message->write<uint32>(pcard->data.code);
+		message->write(pcard->get_info_location());
+		if(pcard->overlay_target) {
+			pcard->overlay_target->xyz_remove(pcard);
+		} else {
+			pcard->enable_field_effect(false);
+			pduel->game_field->remove_card(pcard);
+			pduel->game_field->add_to_disable_check_list(pcard);
+			if(pcard->previous.location == LOCATION_GRAVE) {
+				from_grave.insert(pcard);
+				pduel->game_field->raise_single_event(pcard, 0, EVENT_LEAVE_GRAVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, 0, 0);
 			}
-			pcard->clear_card_target();
-			auto message = pduel->new_message(MSG_MOVE);
-			message->write<uint32>(pcard->data.code);
-			message->write(pcard->get_info_location());
-			if(pcard->overlay_target) {
-				pcard->overlay_target->xyz_remove(pcard);
-			} else {
-				pcard->enable_field_effect(false);
-				pduel->game_field->remove_card(pcard);
-				pduel->game_field->add_to_disable_check_list(pcard);
-			}
-			xyz_add(pcard);
-			message->write(pcard->get_info_location());
-			message->write<uint32>(pcard->current.reason);
+		}
+		xyz_add(pcard);
+		message->write(pcard->get_info_location());
+		message->write<uint32>(pcard->current.reason);
 	}
 	auto writetopcard = [rev=pduel->game_field->core.deck_reversed, &decktop, &player=pduel->game_field->player, &s](int playerid) {
 		if(!decktop[playerid])
@@ -2392,6 +2396,11 @@ void card::xyz_overlay(card_set* materials) {
 		pduel->game_field->destroy(&des, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 	else
 		pduel->game_field->adjust_instant();
+	if(from_grave.size()) {
+		pduel->game_field->raise_event(&from_grave, EVENT_LEAVE_GRAVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, 0, 0);
+		pduel->game_field->process_single_event();
+		pduel->game_field->process_instant_event();
+	}
 }
 void card::xyz_add(card* mat) {
 	if(mat->current.location != 0)
