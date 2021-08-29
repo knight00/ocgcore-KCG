@@ -1334,7 +1334,10 @@ int32 scriptlib::duel_is_environment(lua_State* L) {
 	auto CheckFzone = [&](uint8 player) {
 		if(playerid == player || playerid == PLAYER_ALL) {
 			const auto& pcard = pduel->game_field->player[player].list_szone[5];
-			if(IsEnabled(pcard) && code == pcard->get_code())
+			///kdiy////
+			//if(IsEnabled(pcard) && code == pcard->get_code())
+			if(IsEnabled(pcard) && (code == pcard->get_code() || code == pcard->get_ocode()))
+			///kdiy////
 				return true;
 		}
 		return false;
@@ -1342,7 +1345,10 @@ int32 scriptlib::duel_is_environment(lua_State* L) {
 	auto CheckSzone = [&](uint8 player) {
 		if(playerid == player || playerid == PLAYER_ALL) {
 			for(auto& pcard : pduel->game_field->player[player].list_szone) {
-				if(IsEnabled(pcard) && code == pcard->get_code())
+				///kdiy////
+				//if(IsEnabled(pcard) && code == pcard->get_code())
+				if(IsEnabled(pcard) && (code == pcard->get_code() || code == pcard->get_ocode()))
+				///kdiy////
 					return true;
 			}
 		}
@@ -1351,7 +1357,10 @@ int32 scriptlib::duel_is_environment(lua_State* L) {
 	auto CheckMzone = [&](uint8 player) {
 		if(playerid == player || playerid == PLAYER_ALL) {
 			for(auto& pcard : pduel->game_field->player[player].list_mzone) {
-				if(IsEnabled(pcard) && code == pcard->get_code())
+				///kdiy////
+				//if(IsEnabled(pcard) && code == pcard->get_code())
+				if(IsEnabled(pcard) && (code == pcard->get_code() || code == pcard->get_ocode()))
+				///kdiy////
 					return true;
 			}
 		}
