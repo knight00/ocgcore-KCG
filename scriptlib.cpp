@@ -9,7 +9,7 @@
 #include "lua_obj.h"
 #include "field.h"
 
-int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 retfalse, void* retobj) {
+int32_t scriptlib::check_param(lua_State* L, int32_t param_type, int32_t index, int32_t retfalse, void* retobj) {
 	const char* type = nullptr;
 	lua_obj* obj = nullptr;
 	switch (param_type) {
@@ -22,6 +22,7 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 			return TRUE;
 		} else if(obj && obj->lua_type == PARAM_TYPE_DELETED) {
 			luaL_error(L, "Attempting to access deleted object.");
+			unreachable();
 		}
 		type = param_type == PARAM_TYPE_CARD ? "Card" : param_type == PARAM_TYPE_GROUP ? "Group" : "Effect";
 		break;
@@ -45,6 +46,9 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 			return TRUE;
 		type = "boolean";
 		break;
+	default:
+		unreachable();
+		break;
 	}
 	if(retfalse)
 		return FALSE;
@@ -54,22 +58,27 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 		pduel->handle_message(pduel->lua->format(R"(Parameter %d should be "%s".)", index, type), OCG_LOG_TYPE_ERROR);
 	} else {
 		luaL_error(L, R"(Parameter %d should be "%s".)", index, type);
+		unreachable();
 	}
 	return FALSE;
 }
 
-int32 scriptlib::check_param_count(lua_State* L, int32 count) {
-	if (lua_gettop(L) < count)
+int32_t scriptlib::check_param_count(lua_State* L, int32_t count) {
+	if(lua_gettop(L) < count) {
 		luaL_error(L, "%d Parameters are needed.", count);
+		unreachable();
+	}
 	return TRUE;
 }
-int32 scriptlib::check_action_permission(lua_State* L) {
+int32_t scriptlib::check_action_permission(lua_State* L) {
 	const auto pduel = lua_get<duel*>(L);
-	if(pduel->lua->no_action)
+	if(pduel->lua->no_action) {
 		luaL_error(L, "Action is not allowed here.");
+		unreachable();
+	}
 	return TRUE;
 }
-int32 scriptlib::push_return_cards(lua_State* L, int32/* status*/, lua_KContext ctx) {
+int32_t scriptlib::push_return_cards(lua_State* L, int32_t/* status*/, lua_KContext ctx) {
 	const auto pduel = lua_get<duel*>(L);
 	bool cancelable = (bool)ctx;
 	if(pduel->game_field->return_cards.canceled) {

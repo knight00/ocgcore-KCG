@@ -13,7 +13,8 @@
 /////kdiy//////////
 #include "effect.h"
 /////kdiy//////////
-int32 scriptlib::debug_message(lua_State* L) {
+
+int32_t scriptlib::debug_message(lua_State* L) {
 	const auto pduel = lua_get<duel*>(L);
 	lua_getglobal(L, "tostring");
 	lua_pushvalue(L, -2);
@@ -21,15 +22,15 @@ int32 scriptlib::debug_message(lua_State* L) {
 	pduel->handle_message(lua_tostring_or_empty(L, -1), OCG_LOG_TYPE_FROM_SCRIPT);
 	return 0;
 }
-int32 scriptlib::debug_add_card(lua_State* L) {
+int32_t scriptlib::debug_add_card(lua_State* L) {
 	check_param_count(L, 6);
 	const auto pduel = lua_get<duel*>(L);
-	auto code = lua_get<uint32>(L, 1);
-	auto owner = lua_get<uint8>(L, 2);
-	auto playerid = lua_get<uint8>(L, 3);
-	auto location = lua_get<uint16>(L, 4);
-	auto sequence = lua_get<uint16>(L, 5);
-	auto position = lua_get<uint8>(L, 6);
+	auto code = lua_get<uint32_t>(L, 1);
+	auto owner = lua_get<uint8_t>(L, 2);
+	auto playerid = lua_get<uint8_t>(L, 3);
+	auto location = lua_get<uint16_t>(L, 4);
+	auto sequence = lua_get<uint16_t>(L, 5);
+	auto position = lua_get<uint8_t>(L, 6);
 	bool proc = lua_get<bool, false>(L, 7);
 	if(owner != 0 && owner != 1)
 		return 0;
@@ -42,10 +43,10 @@ int32 scriptlib::debug_add_card(lua_State* L) {
 			position = POS_FACEDOWN_DEFENSE;
 		pcard->sendto_param.position = position;
 		if(location == LOCATION_PZONE) {
-			int32 seq = pduel->game_field->get_pzone_index(sequence);
+			int32_t seq = pduel->game_field->get_pzone_index(sequence);
 			pduel->game_field->add_card(playerid, pcard, LOCATION_SZONE, seq, TRUE);
 		} else if(location == LOCATION_FZONE) {
-			int32 loc = LOCATION_SZONE;
+			int32_t loc = LOCATION_SZONE;
 			pduel->game_field->add_card(playerid, pcard, loc, 5);
 		} else
 			pduel->game_field->add_card(playerid, pcard, location, sequence);
@@ -70,13 +71,13 @@ int32 scriptlib::debug_add_card(lua_State* L) {
 	}
 	return 0;
 }
-int32 scriptlib::debug_set_player_info(lua_State* L) {
+int32_t scriptlib::debug_set_player_info(lua_State* L) {
 	check_param_count(L, 4);
 	const auto pduel = lua_get<duel*>(L);
-	auto playerid = lua_get<uint8>(L, 1);
-	auto lp = lua_get<uint32>(L, 2);
-	auto startcount = lua_get<uint32>(L, 3);
-	auto drawcount = lua_get<uint32>(L, 4);
+	auto playerid = lua_get<uint8_t>(L, 1);
+	auto lp = lua_get<uint32_t>(L, 2);
+	auto startcount = lua_get<uint32_t>(L, 3);
+	auto drawcount = lua_get<uint32_t>(L, 4);
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	pduel->game_field->player[playerid].lp = lp;
@@ -85,15 +86,15 @@ int32 scriptlib::debug_set_player_info(lua_State* L) {
 	pduel->game_field->player[playerid].draw_count = drawcount;
 	return 0;
 }
-int32 scriptlib::debug_pre_summon(lua_State* L) {
+int32_t scriptlib::debug_pre_summon(lua_State* L) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
-	auto summon_type = lua_get<uint32>(L, 2);
-	auto summon_location = lua_get<uint8, 0>(L, 3);
+	auto summon_type = lua_get<uint32_t>(L, 2);
+	auto summon_location = lua_get<uint8_t, 0>(L, 3);
 	pcard->summon_info = summon_type | (summon_location << 16);
 	return 0;
 }
-int32 scriptlib::debug_pre_equip(lua_State* L) {
+int32_t scriptlib::debug_pre_equip(lua_State* L) {
 	check_param_count(L, 2);
 	auto equip_card = lua_get<card*, true>(L, 1);
 	auto target = lua_get<card*, true>(L, 2);
@@ -112,19 +113,19 @@ int32 scriptlib::debug_pre_equip(lua_State* L) {
 	}
 	return 1;
 }
-int32 scriptlib::debug_pre_set_target(lua_State* L) {
+int32_t scriptlib::debug_pre_set_target(lua_State* L) {
 	check_param_count(L, 2);
 	auto t_card = lua_get<card*, true>(L, 1);
 	auto target = lua_get<card*, true>(L, 2);
 	t_card->add_card_target(target);
 	return 0;
 }
-int32 scriptlib::debug_pre_add_counter(lua_State* L) {
+int32_t scriptlib::debug_pre_add_counter(lua_State* L) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
-	auto countertype = lua_get<uint16>(L, 2);
-	auto count = lua_get<uint16>(L, 3);
-	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
+	auto countertype = lua_get<uint16_t>(L, 2);
+	auto count = lua_get<uint16_t>(L, 3);
+	uint16_t cttype = countertype & ~COUNTER_NEED_ENABLE;
 	auto pr = pcard->counters.emplace(cttype, card::counter_map::mapped_type());
 	auto cmit = pr.first;
 	if(pr.second) {
@@ -137,11 +138,11 @@ int32 scriptlib::debug_pre_add_counter(lua_State* L) {
 		cmit->second[1] += count;
 	return 0;
 }
-int32 scriptlib::debug_reload_field_begin(lua_State* L) {
+int32_t scriptlib::debug_reload_field_begin(lua_State* L) {
 	check_param_count(L, 1);
 	const auto pduel = lua_get<duel*>(L);
-	auto flag = lua_get<uint64>(L, 1);
-	auto rule = lua_get<uint8, 3>(L, 2);
+	auto flag = lua_get<uint64_t>(L, 1);
+	auto rule = lua_get<uint8_t, 3>(L, 2);
 	bool build = lua_get<bool, false>(L, 3);
 	pduel->clear();
 #define CHECK(MR) case MR : { flag |= DUEL_MODE_MR##MR; break; }
@@ -158,7 +159,7 @@ int32 scriptlib::debug_reload_field_begin(lua_State* L) {
 	pduel->game_field->core.duel_options = flag;
 	return 0;
 }
-int32 scriptlib::debug_reload_field_end(lua_State* L) {
+int32_t scriptlib::debug_reload_field_end(lua_State* L) {
 	const auto pduel = lua_get<duel*>(L);
 	pduel->game_field->core.shuffle_hand_check[0] = FALSE;
 	pduel->game_field->core.shuffle_hand_check[1] = FALSE;
@@ -167,7 +168,7 @@ int32 scriptlib::debug_reload_field_end(lua_State* L) {
 	pduel->game_field->reload_field_info();
 	return 0;
 }
-int32 scriptlib::debug_set_ai_name(lua_State* L) {
+int32_t scriptlib::debug_set_ai_name(lua_State* L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_STRING, 1);
 	const auto pduel = lua_get<duel*>(L);
@@ -176,12 +177,12 @@ int32 scriptlib::debug_set_ai_name(lua_State* L) {
 	const char* pstr = lua_tolstring(L, 1, &len);
 	if(len > 100)
 		len = 100;
-	message->write<uint16>(static_cast<uint16>(len));
+	message->write<uint16_t>(static_cast<uint16_t>(len));
 	message->write(pstr, len);
-	message->write<uint8>(0);
+	message->write<uint8_t>(0);
 	return 0;
 }
-int32 scriptlib::debug_show_hint(lua_State* L) {
+int32_t scriptlib::debug_show_hint(lua_State* L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_STRING, 1);
 	const auto pduel = lua_get<duel*>(L);
@@ -190,13 +191,13 @@ int32 scriptlib::debug_show_hint(lua_State* L) {
 	const char* pstr = lua_tolstring(L, 1, &len);
 	if(len > 1024)
 		len = 1024;
-	message->write<uint16>(static_cast<uint16>(len));
+	message->write<uint16_t>(static_cast<uint16_t>(len));
 	message->write(pstr, len);
-	message->write<uint8>(0);
+	message->write<uint8_t>(0);
 	return 0;
 }
 
-int32 scriptlib::debug_print_stacktrace(lua_State* L) {
+int32_t scriptlib::debug_print_stacktrace(lua_State* L) {
 	interpreter::print_stacktrace(L);
 	return 0;
 }

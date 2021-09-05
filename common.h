@@ -10,20 +10,15 @@
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4244)
-#elif !defined(__forceinline)
+#define unreachable() __assume(0)
+#else
+#if !defined(__forceinline)
 #define __forceinline __attribute__((always_inline)) inline
+#endif
+#define unreachable() __builtin_unreachable()
 #endif
 
 #include <cstdint>
-
-typedef uint64_t uint64;
-typedef uint32_t uint32;
-typedef uint16_t uint16;
-typedef uint8_t uint8;
-typedef int64_t int64;
-typedef int32_t int32;
-typedef int16_t int16;
-typedef int8_t int8;
 
 /////////////kdiy///////////////
 #define CARDDATA_CODE			1
@@ -39,20 +34,11 @@ typedef int8_t int8;
 #define CARDDATA_RSCALE			11
 #define CARDDATA_LINK_MARKER	12
 /////////////kdiy///////////////
-
-#define MATCH_ALL(x,y) (((x)&(y))==(y))
-#define MATCH_ANY(x,y) ((x)&(y))
-#define ADD_BIT(x,y) ((x)|=(y))
-#define REMOVE_BIT(x,y) ((x)&=~(y))
-
 #define TRUE 1
 #define FALSE 0
 #ifndef NULL
 #define NULL 0
 #endif
-struct card_sort {
-	bool operator()(void* const & c1, void* const & c2) const;
-};
 
 //Locations
 //////kdiy//////

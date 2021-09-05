@@ -12,8 +12,8 @@
 #include "effect.h"
 #include "group.h"
 
-/////////////////////KDIY///
-int32 scriptlib::effect_set_owner(lua_State *L) {
+//////kdiy//////////////////
+int32_t scriptlib::effect_set_owner(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	check_param(L, PARAM_TYPE_CARD, 2);
@@ -22,7 +22,7 @@ int32 scriptlib::effect_set_owner(lua_State *L) {
 	peffect->owner = pcard;
 	return 0;
 }
-int32 scriptlib::effect_get_range(lua_State *L) {
+int32_t scriptlib::effect_get_range(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
@@ -32,7 +32,7 @@ int32 scriptlib::effect_get_range(lua_State *L) {
 	}
 	return 0;
 }
-int32 scriptlib::effect_get_target_range(lua_State *L) {
+int32_t scriptlib::effect_get_target_range(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
@@ -43,9 +43,8 @@ int32 scriptlib::effect_get_target_range(lua_State *L) {
 	}
 	return 0;
 }
-/////////////////////KDIY///
-
-int32 scriptlib::effect_new(lua_State* L) {
+//////kdiy//////////////////
+int32_t scriptlib::effect_new(lua_State* L) {
 	check_param_count(L, 1);
 	const auto pduel = lua_get<duel*>(L);
 	auto pcard = lua_get<card*, true>(L, 1);
@@ -55,7 +54,7 @@ int32 scriptlib::effect_new(lua_State* L) {
 	interpreter::pushobject(L, peffect);
 	return 1;
 }
-int32 scriptlib::effect_newex(lua_State* L) {
+int32_t scriptlib::effect_newex(lua_State* L) {
 	const auto pduel = lua_get<duel*>(L);
 	effect* peffect = pduel->new_effect();
 	peffect->effect_owner = 0;
@@ -63,13 +62,13 @@ int32 scriptlib::effect_newex(lua_State* L) {
 	interpreter::pushobject(L, peffect);
 	return 1;
 }
-int32 scriptlib::effect_clone(lua_State* L) {
+int32_t scriptlib::effect_clone(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	interpreter::pushobject(L, peffect->clone());
 	return 1;
 }
-int32 scriptlib::effect_reset(lua_State* L) {
+int32_t scriptlib::effect_reset(lua_State* L) {
 	check_param_count(L, 1);
 	const auto pduel = lua_get<duel*>(L);
 	auto peffect = lua_get<effect*, true>(L, 1);
@@ -85,44 +84,44 @@ int32 scriptlib::effect_reset(lua_State* L) {
 	}
 	return 0;
 }
-int32 scriptlib::effect_get_field_id(lua_State* L) {
+int32_t scriptlib::effect_get_field_id(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->id);
 	return 1;
 }
-int32 scriptlib::effect_set_description(lua_State* L) {
+int32_t scriptlib::effect_set_description(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	peffect->description = lua_get<uint64>(L, 2);
+	peffect->description = lua_get<uint64_t>(L, 2);
 	return 0;
 }
-int32 scriptlib::effect_set_code(lua_State* L) {
+int32_t scriptlib::effect_set_code(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	peffect->code = lua_get<uint32>(L, 2);
+	peffect->code = lua_get<uint32_t>(L, 2);
 	return 0;
 }
-int32 scriptlib::effect_set_range(lua_State* L) {
+int32_t scriptlib::effect_set_range(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	peffect->range = lua_get<uint16>(L, 2);
+	peffect->range = lua_get<uint16_t>(L, 2);
 	return 0;
 }
-int32 scriptlib::effect_set_target_range(lua_State* L) {
+int32_t scriptlib::effect_set_target_range(lua_State* L) {
 	check_param_count(L, 3);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	peffect->s_range = lua_get<uint16>(L, 2);
-	peffect->o_range = lua_get<uint16>(L, 3);
+	peffect->s_range = lua_get<uint16_t>(L, 2);
+	peffect->o_range = lua_get<uint16_t>(L, 3);
 	peffect->flag[0] &= ~EFFECT_FLAG_ABSOLUTE_TARGET;
 	return 0;
 }
-int32 scriptlib::effect_set_absolute_range(lua_State* L) {
+int32_t scriptlib::effect_set_absolute_range(lua_State* L) {
 	check_param_count(L, 4);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto playerid = lua_get<uint8>(L, 2);
-	auto s = lua_get<uint16>(L, 3);
-	auto o = lua_get<uint16>(L, 4);
+	auto playerid = lua_get<uint8_t>(L, 2);
+	auto s = lua_get<uint16_t>(L, 3);
+	auto o = lua_get<uint16_t>(L, 4);
 	if(playerid == 0) {
 		peffect->s_range = s;
 		peffect->o_range = o;
@@ -133,12 +132,29 @@ int32 scriptlib::effect_set_absolute_range(lua_State* L) {
 	peffect->flag[0] |= EFFECT_FLAG_ABSOLUTE_TARGET;
 	return 0;
 }
-int32 scriptlib::effect_set_count_limit(lua_State* L) {
+int32_t scriptlib::effect_set_count_limit(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto v = lua_get<uint8>(L, 2);
-	auto code = lua_get<uint32, 0>(L, 3);
-	uint32 flag = lua_get<uint32, 0>(L, 4);
+	auto v = lua_get<uint8_t>(L, 2);
+	uint8_t hopt_index = 0;
+	uint32_t code = 0;
+	if(lua_istable(L, 3)) {
+		lua_pushnil(L);
+		if(lua_next(L, 3) != 0) {
+			code = lua_get<uint32_t>(L, -1);
+			lua_pop(L, 1);
+			if(!code) {
+				hopt_index = 0;
+				lua_pop(L, 1); //manually pop the key from the stack as there won't be a next iteration
+			} else if(lua_next(L, 3) != 0) {
+				hopt_index = lua_get<uint32_t>(L, -1);
+				lua_pop(L, 1);
+				lua_pop(L, 1); //manually pop the key from the stack as there won't be a next iteration
+			}
+		}
+	} else
+		code = lua_get<uint32_t, 0>(L, 3);
+	uint8_t flag = lua_get<uint8_t, 0>(L, 4);
 	if(v == 0)
 		v = 1;
 	peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
@@ -146,13 +162,14 @@ int32 scriptlib::effect_set_count_limit(lua_State* L) {
 	peffect->count_limit_max = v;
 	peffect->count_code = code;
 	peffect->count_flag = flag;
+	peffect->count_hopt_index = hopt_index;
 	return 0;
 }
-int32 scriptlib::effect_set_reset(lua_State* L) {
+int32_t scriptlib::effect_set_reset(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto v = lua_get<uint32>(L, 2);
-	auto c = lua_get<uint16, 0>(L, 3);
+	auto v = lua_get<uint32_t>(L, 2);
+	auto c = lua_get<uint16_t, 0>(L, 3);
 	if(c == 0)
 		c = 1;
 	if(v & (RESET_PHASE) && !(v & (RESET_SELF_TURN | RESET_OPPO_TURN)))
@@ -161,10 +178,10 @@ int32 scriptlib::effect_set_reset(lua_State* L) {
 	peffect->reset_count = c;
 	return 0;
 }
-int32 scriptlib::effect_set_type(lua_State* L) {
+int32_t scriptlib::effect_set_type(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto v = lua_get<uint16>(L, 2);
+	auto v = lua_get<uint16_t>(L, 2);
 	if (v & 0x0ff0)
 		v |= EFFECT_TYPE_ACTIONS;
 	else
@@ -181,24 +198,24 @@ int32 scriptlib::effect_set_type(lua_State* L) {
 	peffect->type = v;
 	return 0;
 }
-int32 scriptlib::effect_set_property(lua_State* L) {
+int32_t scriptlib::effect_set_property(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto v1 = lua_get<uint32>(L, 2);
-	auto v2 = lua_get<uint32, 0>(L, 3);
+	auto v1 = lua_get<uint32_t>(L, 2);
+	auto v2 = lua_get<uint32_t, 0>(L, 3);
 	peffect->flag[0] = (peffect->flag[0] & 0x4f) | (v1 & ~0x4f);
 	peffect->flag[1] = v2;
 	return 0;
 }
-int32 scriptlib::effect_set_label(lua_State* L) {
+int32_t scriptlib::effect_set_label(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	peffect->label.clear();
-	for(int32 i = 2; i <= lua_gettop(L); ++i)
-		peffect->label.push_back(lua_get<uint32>(L, i));
+	for(int32_t i = 2; i <= lua_gettop(L); ++i)
+		peffect->label.push_back(lua_get<uint32_t>(L, i));
 	return 0;
 }
-int32 scriptlib::effect_set_label_object(lua_State* L) {
+int32_t scriptlib::effect_set_label_object(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	if(peffect->label_object)
@@ -209,27 +226,29 @@ int32 scriptlib::effect_set_label_object(lua_State* L) {
 	if(lua_get<lua_obj*>(L, 2) != nullptr || lua_istable(L, 2)) {
 		lua_pushvalue(L, 2);
 		peffect->label_object = luaL_ref(L, LUA_REGISTRYINDEX);
-	} else
+	} else {
 		luaL_error(L, "Parameter 2 should be \"Card\" or \"Effect\" or \"Group\" or \"table\".");
+		unreachable();
+	}
 	return 0;
 }
-int32 scriptlib::effect_set_category(lua_State* L) {
+int32_t scriptlib::effect_set_category(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto v = lua_get<uint32>(L, 2);
+	auto v = lua_get<uint32_t>(L, 2);
 	peffect->category = v;
 	return 0;
 }
-int32 scriptlib::effect_set_hint_timing(lua_State* L) {
+int32_t scriptlib::effect_set_hint_timing(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto vs = lua_get<uint32>(L, 2);
-	auto vo = lua_get<uint32>(L, 3, vs);
+	auto vs = lua_get<uint32_t>(L, 2);
+	auto vo = lua_get<uint32_t>(L, 3, vs);
 	peffect->hint_timing[0] = vs;
 	peffect->hint_timing[1] = vo;
 	return 0;
 }
-int32 scriptlib::effect_set_condition(lua_State* L) {
+int32_t scriptlib::effect_set_condition(lua_State* L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_FUNCTION, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
@@ -238,7 +257,7 @@ int32 scriptlib::effect_set_condition(lua_State* L) {
 	peffect->condition = interpreter::get_function_handle(L, 2);
 	return 0;
 }
-int32 scriptlib::effect_set_target(lua_State* L) {
+int32_t scriptlib::effect_set_target(lua_State* L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_FUNCTION, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
@@ -247,7 +266,7 @@ int32 scriptlib::effect_set_target(lua_State* L) {
 	peffect->target = interpreter::get_function_handle(L, 2);
 	return 0;
 }
-int32 scriptlib::effect_set_cost(lua_State* L) {
+int32_t scriptlib::effect_set_cost(lua_State* L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_FUNCTION, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
@@ -256,7 +275,7 @@ int32 scriptlib::effect_set_cost(lua_State* L) {
 	peffect->cost = interpreter::get_function_handle(L, 2);
 	return 0;
 }
-int32 scriptlib::effect_set_value(lua_State* L) {
+int32_t scriptlib::effect_set_value(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	if(peffect->value && peffect->is_flag(EFFECT_FLAG_FUNC_VALUE))
@@ -269,11 +288,11 @@ int32 scriptlib::effect_set_value(lua_State* L) {
 		if(lua_isboolean(L, 2))
 			peffect->value = lua_get<bool>(L, 2);
 		else
-			peffect->value = lua_get<int32>(L, 2);
+			peffect->value = lua_get<int32_t>(L, 2);
 	}
 	return 0;
 }
-int32 scriptlib::effect_set_operation(lua_State* L) {
+int32_t scriptlib::effect_set_operation(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	if(peffect->operation)
@@ -285,57 +304,58 @@ int32 scriptlib::effect_set_operation(lua_State* L) {
 		peffect->operation = 0;
 	return 0;
 }
-int32 scriptlib::effect_set_owner_player(lua_State* L) {
+int32_t scriptlib::effect_set_owner_player(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto p = lua_get<uint8>(L, 2);
+	auto p = lua_get<uint8_t>(L, 2);
 	if(p != 0 && p != 1)
 		return 0;
 	peffect->effect_owner = p;
 	return 0;
 }
-int32 scriptlib::effect_get_description(lua_State* L) {
+int32_t scriptlib::effect_get_description(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->description);
 	return 1;
 }
-int32 scriptlib::effect_get_code(lua_State* L) {
+int32_t scriptlib::effect_get_code(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->code);
 	return 1;
 }
-int32 scriptlib::effect_get_count_limit(lua_State* L) {
+int32_t scriptlib::effect_get_count_limit(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->count_limit);
 	lua_pushinteger(L, peffect->count_limit_max);
 	lua_pushinteger(L, peffect->count_code);
-	lua_pushinteger(L, peffect->count_flag);
-	return 4;
+	lua_pushinteger(L, peffect->count_flag); //return the count_code flags as their shifted representation
+	lua_pushinteger(L, peffect->count_hopt_index);
+	return 5;
 }
-int32 scriptlib::effect_get_reset(lua_State* L) {
+int32_t scriptlib::effect_get_reset(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->reset_flag);
 	lua_pushinteger(L, peffect->reset_count);
 	return 2;
 }
-int32 scriptlib::effect_get_type(lua_State* L) {
+int32_t scriptlib::effect_get_type(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->type);
 	return 1;
 }
-int32 scriptlib::effect_get_property(lua_State* L) {
+int32_t scriptlib::effect_get_property(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->flag[0]);
 	lua_pushinteger(L, peffect->flag[1]);
 	return 2;
 }
-int32 scriptlib::effect_get_label(lua_State* L) {
+int32_t scriptlib::effect_get_label(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	if(peffect->label.empty()) {
@@ -346,7 +366,7 @@ int32 scriptlib::effect_get_label(lua_State* L) {
 		lua_pushinteger(L, lab);
 	return peffect->label.size();
 }
-int32 scriptlib::effect_get_label_object(lua_State* L) {
+int32_t scriptlib::effect_get_label_object(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	if(!peffect->label_object) {
@@ -360,141 +380,141 @@ int32 scriptlib::effect_get_label_object(lua_State* L) {
 	}
 	return 1;
 }
-int32 scriptlib::effect_get_category(lua_State* L) {
+int32_t scriptlib::effect_get_category(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->category);
 	return 1;
 }
-int32 scriptlib::effect_get_owner(lua_State* L) {
+int32_t scriptlib::effect_get_owner(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	interpreter::pushobject(L, peffect->owner);
 	return 1;
 }
-int32 scriptlib::effect_get_handler(lua_State* L) {
+int32_t scriptlib::effect_get_handler(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	interpreter::pushobject(L, peffect->get_handler());
 	return 1;
 }
-int32 scriptlib::effect_get_owner_player(lua_State* L) {
+int32_t scriptlib::effect_get_owner_player(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->get_owner_player());
 	return 1;
 }
-int32 scriptlib::effect_get_handler_player(lua_State* L) {
+int32_t scriptlib::effect_get_handler_player(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->get_handler_player());
 	return 1;
 }
-int32 scriptlib::effect_get_condition(lua_State* L) {
+int32_t scriptlib::effect_get_condition(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	interpreter::pushobject(L, peffect->condition);
 	return 1;
 }
-int32 scriptlib::effect_get_target(lua_State* L) {
+int32_t scriptlib::effect_get_target(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	interpreter::pushobject(L, peffect->target);
 	return 1;
 }
-int32 scriptlib::effect_get_cost(lua_State* L) {
+int32_t scriptlib::effect_get_cost(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	interpreter::pushobject(L, peffect->cost);
 	return 1;
 }
-int32 scriptlib::effect_get_value(lua_State* L) {
+int32_t scriptlib::effect_get_value(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	if(peffect->is_flag(EFFECT_FLAG_FUNC_VALUE))
 		interpreter::pushobject(L, peffect->value);
 	else
-		lua_pushinteger(L, (int32)peffect->value);
+		lua_pushinteger(L, (int32_t)peffect->value);
 	return 1;
 }
-int32 scriptlib::effect_get_operation(lua_State* L) {
+int32_t scriptlib::effect_get_operation(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	interpreter::pushobject(L, peffect->operation);
 	return 1;
 }
-int32 scriptlib::effect_get_active_type(lua_State* L) {
+int32_t scriptlib::effect_get_active_type(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->get_active_type());
 	return 1;
 }
-int32 scriptlib::effect_is_active_type(lua_State* L) {
+int32_t scriptlib::effect_is_active_type(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	lua_pushboolean(L, peffect->get_active_type() & lua_get<uint32>(L, 2));
+	lua_pushboolean(L, peffect->get_active_type() & lua_get<uint32_t>(L, 2));
 	return 1;
 }
-int32 scriptlib::effect_is_has_property(lua_State* L) {
+int32_t scriptlib::effect_is_has_property(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto tflag1 = lua_get<uint32>(L, 2);
-	auto tflag2 = lua_get<uint32, 0>(L, 3);
+	auto tflag1 = lua_get<uint32_t>(L, 2);
+	auto tflag2 = lua_get<uint32_t, 0>(L, 3);
 	lua_pushboolean(L, ((!tflag1 || (peffect->flag[0] & tflag1)) && (!tflag2 || (peffect->flag[1] & tflag2))));
 	return 1;
 }
-int32 scriptlib::effect_is_has_category(lua_State* L) {
+int32_t scriptlib::effect_is_has_category(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	lua_pushboolean(L, peffect->category & lua_get<uint32>(L, 2));
+	lua_pushboolean(L, peffect->category & lua_get<uint32_t>(L, 2));
 	return 1;
 }
-int32 scriptlib::effect_is_has_type(lua_State* L) {
+int32_t scriptlib::effect_is_has_type(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	lua_pushboolean(L, peffect->type & lua_get<uint16>(L, 2));
+	lua_pushboolean(L, peffect->type & lua_get<uint16_t>(L, 2));
 	return 1;
 }
-int32 scriptlib::effect_is_activatable(lua_State* L) {
+int32_t scriptlib::effect_is_activatable(lua_State* L) {
 	check_param_count(L, 2);
 	const auto pduel = lua_get<duel*>(L);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto playerid = lua_get<uint8>(L, 2);
+	auto playerid = lua_get<uint8_t>(L, 2);
 	bool neglect_loc = lua_get<bool, false>(L, 3);
 	bool neglect_target = lua_get<bool, false>(L, 4);
 	lua_pushboolean(L, peffect->is_activateable(playerid, pduel->game_field->nil_event, 0, 0, neglect_target, neglect_loc));
 	return 1;
 }
-int32 scriptlib::effect_is_activated(lua_State* L) {
+int32_t scriptlib::effect_is_activated(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushboolean(L, (peffect->type & 0x7f0));
 	return 1;
 }
-int32 scriptlib::effect_get_activate_location(lua_State* L) {
+int32_t scriptlib::effect_get_activate_location(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->active_location);
 	return 1;
 }
-int32 scriptlib::effect_get_activate_sequence(lua_State* L) {
+int32_t scriptlib::effect_get_activate_sequence(lua_State* L) {
 	check_param_count(L, 1);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	lua_pushinteger(L, peffect->active_sequence);
 	return 1;
 }
-int32 scriptlib::effect_check_count_limit(lua_State* L) {
+int32_t scriptlib::effect_check_count_limit(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto p = lua_get<uint8>(L, 2);
+	auto p = lua_get<uint8_t>(L, 2);
 	lua_pushboolean(L, peffect->check_count_limit(p));
 	return 1;
 }
-int32 scriptlib::effect_use_count_limit(lua_State* L) {
+int32_t scriptlib::effect_use_count_limit(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
-	auto p = lua_get<uint8>(L, 2);
-	auto count = lua_get<uint32, 1>(L, 3);
+	auto p = lua_get<uint8_t>(L, 2);
+	auto count = lua_get<uint32_t, 1>(L, 3);
 	bool oath_only = lua_get<bool, false>(L, 4);
 	if (!oath_only || peffect->count_flag & EFFECT_COUNT_CODE_OATH)
 		while(count) {
