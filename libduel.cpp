@@ -243,7 +243,7 @@ int32_t scriptlib::duel_get_cards_in_zone(lua_State *L) {
 		return 0;
 	uint32_t zone = lua_tointeger(L, 2);
 	const auto pduel = lua_get<duel*>(L);
-	field::card_set cset;
+	card_set cset;
 	pduel->game_field->get_cards_in_zone(&cset, zone, rplayer, LOCATION_MZONE);
 	pduel->game_field->get_cards_in_zone(&cset, zone >> 8, rplayer, LOCATION_SZONE);
 	pduel->game_field->get_cards_in_zone(&cset, zone >> 16, 1 - rplayer, LOCATION_MZONE);
@@ -3421,7 +3421,7 @@ int32_t scriptlib::duel_overlay(lua_State* L) {
 		cset.insert(pcard);
 		/////kdiy////////
 		auto tp = pcard->current.controler;
-		card::card_set tcset;
+		card_set tcset;
 		tcset.insert(target);
 		/////kdiy////////
 		target->xyz_overlay(&cset);
@@ -3434,10 +3434,10 @@ int32_t scriptlib::duel_overlay(lua_State* L) {
 	    /////kdiy////////
 		//target->xyz_overlay(&pgroup->container);
 		{
-			card::card_set tcset;
+			card_set tcset;
 			tcset.insert(target);
 			for(auto& pcard : pgroup->container) {
-				card::card_set cset;
+				card_set cset;
 				cset.insert(pcard);
 				auto tp = pcard->current.controler;
 				target->xyz_overlay(&cset);

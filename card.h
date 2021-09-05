@@ -247,7 +247,6 @@ public:
 	void remove_effect(effect* peffect);
 	void remove_effect(effect* peffect, effect_container::iterator it);
 	int32_t copy_effect(uint32_t code, uint32_t reset, uint32_t count);
-	int32_t replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating = false);
 	/////kdiy//////////
 	//int32_t replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating = false);
 	int32_t replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating = false, bool uncopy = false);

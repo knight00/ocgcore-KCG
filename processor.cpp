@@ -5903,7 +5903,7 @@ int32_t field::adjust_step(uint16_t step) {
 					destroy_set.insert(pcard);
 			}
 			//////kdiy//////
-			for(_t i = 0; i < 5; ++i) {
+			for(uint8_t i = 0; i < 5; ++i) {
 				card* pcard = player[tp].list_mzone[i];
 				if(pcard && pcard->equiping_target && !pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, pcard->equiping_target) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
 					destroy_set.insert(pcard);

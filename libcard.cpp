@@ -945,8 +945,17 @@ int32_t scriptlib::card_is_type(lua_State* L) {
 	lua_pushboolean(L, pcard->get_type(scard, sumtype, playerid) & ttype);
 	return 1;
 }
+////////kdiy///////////
+int32_t scriptlib::card_is_otype(lua_State* L) {
+	check_param_count(L, 2);
+	const auto pduel = lua_get<duel*>(L);
+	auto pcard = lua_get<card*, true>(L, 1);
+	auto ttype = lua_get<uint32_t>(L, 2);
+	lua_pushboolean(L, pcard->data.ot & ttype);
+	return 1;
+}
 //inline int32_t is_prop(lua_State* L, uint32_t val) {	
-inline int32_t is_prop(lua_State* L, int32_t val) {	
+inline int32_t is_prop(lua_State* L, int32_t val) {
 ////////kdiy///////////
 	uint32_t count = lua_gettop(L) - 1;
 	for(uint32_t i = 0; i < count; ++i) {
