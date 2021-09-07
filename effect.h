@@ -230,6 +230,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_INF_ATTACK                   521
 #define EFFECT_INF_DEFENSE                  522
 #define EFFECT_IMMUNE_OVERLAY               523
+#define EFFECT_NOT_EXTRA                    524
 //////////kdiy/////////
 #define EFFECT_IMMUNE_EFFECT                1
 #define EFFECT_DISABLE                      2

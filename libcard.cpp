@@ -234,6 +234,16 @@ int32_t scriptlib::card_get_type(lua_State* L) {
 		playerid = lua_get<uint8_t>(L, 4);
 	else if (sumtype == SUMMON_TYPE_FUSION)
 		playerid = pduel->game_field->core.reason_player;
+	////////kdiy///////////
+	if (!(pcard->current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_GRAVE)) && pcard->is_affected_by_effect(EFFECT_NOT_EXTRA)) {
+		uint32_t ctype = pcard->get_type(scard, sumtype, playerid);
+		if (ctype & TYPE_FUSION) ctype -= TYPE_FUSION;
+		if (ctype & TYPE_SYNCHRO) ctype -= TYPE_SYNCHRO;
+		if (ctype & TYPE_XYZ) ctype -= TYPE_XYZ;
+		if (ctype & TYPE_LINK) ctype -= TYPE_LINK;
+		lua_pushinteger(L, ctype);
+	} else
+	////////kdiy///////////	
 	lua_pushinteger(L, pcard->get_type(scard, sumtype, playerid));
 	return 1;
 }
@@ -942,6 +952,16 @@ int32_t scriptlib::card_is_type(lua_State* L) {
 		playerid = lua_get<uint8_t>(L, 5);
 	else if (sumtype == SUMMON_TYPE_FUSION)
 		playerid = pduel->game_field->core.reason_player;
+	////////kdiy///////////
+	if (!(pcard->current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_GRAVE)) && pcard->is_affected_by_effect(EFFECT_NOT_EXTRA)) {
+		uint32_t ctype = pcard->get_type(scard, sumtype, playerid);
+		if (ctype & TYPE_FUSION) ctype -= TYPE_FUSION;
+		if (ctype & TYPE_SYNCHRO) ctype -= TYPE_SYNCHRO;
+		if (ctype & TYPE_XYZ) ctype -= TYPE_XYZ;
+		if (ctype & TYPE_LINK) ctype -= TYPE_LINK;
+		lua_pushboolean(L, ctype & ttype);
+	} else
+	////////kdiy///////////
 	lua_pushboolean(L, pcard->get_type(scard, sumtype, playerid) & ttype);
 	return 1;
 }
