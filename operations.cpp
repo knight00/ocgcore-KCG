@@ -5297,7 +5297,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		///////kdiy//////
 		if((ret == 1) && (!(target->current.reason & REASON_TEMPORARY) || (target->current.reason_effect->owner != core.reason_effect->owner)))
 			return TRUE;
-		if(location == LOCATION_SZONE && zone == (0x1 << 5) && (target->data.type & TYPE_FIELD)) {
+		if(location == LOCATION_SZONE && zone == (0x1 << 5) && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL | TYPE_TRAP)) {
 			card* pcard = get_field_card(playerid, LOCATION_SZONE, 5);
 			if(pcard) {
 				if(!is_flag(DUEL_1_FACEUP_FIELD))
@@ -5422,8 +5422,8 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		uint32_t seq = returns.at<int8_t>(2);
 		//kdiy///////
 		target->temp.location = returns.at<int8_t>(1);
-		//kdiy///////		
-		if(location == LOCATION_SZONE && zone == 0x1 << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL))
+		//kdiy///////
+		if(location == LOCATION_SZONE && zone == 0x1 << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL | TYPE_TRAP))
 			seq = 5;
 		if(ret != 1) {
 			//kdiy//////
