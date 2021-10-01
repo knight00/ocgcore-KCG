@@ -1890,7 +1890,7 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 				core.select_effects.clear();
 				core.select_options.clear();
 				if(res > 0) {
-					core.select_effects.push_back(0);
+					core.select_effects.push_back(nullptr);
 					core.select_options.push_back(1);
 				}
 				for(const auto& peff : eset) {
@@ -1916,7 +1916,7 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 		//if(target->current.location == LOCATION_MZONE) {
 		if((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))) {
 		///////////kdiy//////////		
-			core.units.begin()->step = 3;
+			core.units.begin()->step = 4;
 			if(!ignore_count && !core.extra_summon[sumplayer]) {
 				for(const auto& peff : eset) {
 					core.units.begin()->ptr1 = peff;
@@ -1933,7 +1933,7 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 		core.select_effects.clear();
 		core.select_options.clear();
 		if(ignore_count || core.summon_count[sumplayer] < get_summon_count_limit(sumplayer)) {
-			core.select_effects.push_back(0);
+			core.select_effects.push_back(nullptr);
 			core.select_options.push_back(1);
 		}
 		if(!ignore_count && !core.extra_summon[sumplayer]) {
@@ -2047,7 +2047,7 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 		uint32_t adv = is_player_can_summon(SUMMON_TYPE_ADVANCE, sumplayer, target, sumplayer);
 		if(max == 0 || !adv) {
 			return_cards.clear();
-			core.units.begin()->step = 3;
+			core.units.begin()->step = 4;
 		} else {
 			core.release_cards.clear();
 			core.release_cards_ex.clear();
@@ -2055,7 +2055,7 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 			int32_t rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex, &core.release_cards_ex_oneof, NULL, 0, releasable);
 			if(rcount == 0) {
 				return_cards.clear();
-				core.units.begin()->step = 3;
+				core.units.begin()->step = 4;
 			} else {
 				int32_t ct = get_tofield_count(target, sumplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone);
 				int32_t fcount = get_mzone_limit(sumplayer, sumplayer, LOCATION_REASON_TOFIELD);
@@ -2071,7 +2071,7 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 						min = -fcount + 1;
 					}
 					select_tribute_cards(target, sumplayer, core.summon_cancelable, min, max, sumplayer, zone);
-					core.units.begin()->step = 3;
+					core.units.begin()->step = 4;
 				}
 			}
 		}
@@ -2084,16 +2084,55 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 			int32_t max = core.units.begin()->arg2;
 			select_tribute_cards(target, sumplayer, core.summon_cancelable, 1, max, sumplayer, zone);
 		}
+		core.units.begin()->step = 4;
 		return FALSE;
 	}
 	case 4: {
-		///////////kdiy//////////				
-		//if(target->current.location == LOCATION_MZONE)
-		if((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE)))
-		///////////kdiy//////////			
+		returns.at<int32_t>(0) = TRUE;
+		if(proc->target) {
+			effect* pextra = (effect*)core.units.begin()->ptr1;
+			int32_t releasable = 0xff00ff;
+			///////kdiy///////
+			if(is_player_affected_by_effect(sumplayer,EFFECT_ORICA))
+			    releasable+= 0x1f00;
+			if(is_player_affected_by_effect(1-sumplayer,EFFECT_ORICA))
+			    releasable+= 0x1f000000;				
+			///////kdiy///////
+			if(pextra) {
+				std::vector<int32_t> retval;
+				pextra->get_value(target, 0, &retval);
+				releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
+				///////kdiy///////
+				if(is_player_affected_by_effect(sumplayer,EFFECT_ORICA)) {
+					if(retval.size() < 0 || retval.size() < 3)
+					   releasable+= 0x1f00;  
+				}
+				if(is_player_affected_by_effect(1-sumplayer,EFFECT_ORICA)) {
+					if(retval.size() < 0 || retval.size() < 3)
+					   releasable+= 0x1f000000; 
+			    }
+			    ///////kdiy///////
+			}
+			pduel->lua->add_param(target, PARAM_TYPE_CARD);
+			pduel->lua->add_param(min_tribute, PARAM_TYPE_INT);
+			pduel->lua->add_param(zone, PARAM_TYPE_INT);
+			pduel->lua->add_param(releasable, PARAM_TYPE_INT);
+			pduel->lua->add_param(pextra, PARAM_TYPE_EFFECT);
+			core.sub_solving_event.push_back(nil_event);
+			add_process(PROCESSOR_EXECUTE_TARGET, 0, proc, 0, sumplayer, 0);
+		}
+		return FALSE;
+	}
+	case 5: {
+		if(target->current.location == LOCATION_MZONE)
 			core.units.begin()->step = 9;
-		else if(proc)
-			core.units.begin()->step = 5;
+		else if(proc) {
+			if(!returns.at<int32_t>(0)) {
+				core.summon_depth--;
+				return TRUE;
+			}
+			core.units.begin()->step = 6;
+		}
 		else {
 			if(return_cards.canceled) {
 				core.summon_depth--;
@@ -2119,7 +2158,7 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 		}
 		return FALSE;
 	}
-	case 5: {
+	case 6: {
 		card_set* tributes = (card_set*)proc;
 		int32_t min = 0;
 		int32_t level = target->get_level();
@@ -2195,47 +2234,7 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 		core.units.begin()->step = 7;
 		return FALSE;
 	}
-	case 6: {
-		returns.at<int32_t>(0) = TRUE;
-		if(proc->target) {
-			effect* pextra = (effect*)core.units.begin()->ptr1;
-			int32_t releasable = 0xff00ff;
-			///////kdiy///////
-			if(is_player_affected_by_effect(sumplayer,EFFECT_ORICA))
-			    releasable+= 0x1f00;
-			if(is_player_affected_by_effect(1-sumplayer,EFFECT_ORICA))
-			    releasable+= 0x1f000000;				
-			///////kdiy///////				
-			if(pextra) {
-				std::vector<int32_t> retval;
-				pextra->get_value(target, 0, &retval);
-				releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
-				///////kdiy///////
-				if(is_player_affected_by_effect(sumplayer,EFFECT_ORICA)) {
-					if(retval.size() < 0 || retval.size() < 3)
-					   releasable+= 0x1f00;  
-				}
-				if(is_player_affected_by_effect(1-sumplayer,EFFECT_ORICA)) {
-					if(retval.size() < 0 || retval.size() < 3)
-					   releasable+= 0x1f000000; 
-			    }
-			    ///////kdiy///////			
-			}
-			pduel->lua->add_param(target, PARAM_TYPE_CARD);
-			pduel->lua->add_param(min_tribute, PARAM_TYPE_INT);
-			pduel->lua->add_param(zone, PARAM_TYPE_INT);
-			pduel->lua->add_param(releasable, PARAM_TYPE_INT);
-			pduel->lua->add_param(pextra, PARAM_TYPE_EFFECT);
-			core.sub_solving_event.push_back(nil_event);
-			add_process(PROCESSOR_EXECUTE_TARGET, 0, proc, 0, sumplayer, 0);
-		}
-		return FALSE;
-	}
 	case 7: {
-		if(!returns.at<int32_t>(0)) {
-			core.summon_depth--;
-			return TRUE;
-		}
 		target->summon_info = (proc->get_value(target) & 0xfffffff) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
 		target->current.reason_effect = proc;
 		target->current.reason_player = sumplayer;
@@ -5314,9 +5313,9 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		//////////kdiy////////////			
 			uint32_t flag = 0;
 			if(is_location_useable(playerid, LOCATION_PZONE, 0) && zone & 1)
-				flag |= 0x1u << (get_pzone_index(0) + 8);
+				flag |= 0x1u << (get_pzone_index(0, playerid) + 8);
 			if(is_location_useable(playerid, LOCATION_PZONE, 1) && zone & 2)
-				flag |= 0x1u << (get_pzone_index(1) + 8);
+				flag |= 0x1u << (get_pzone_index(1, playerid) + 8);
 			if(!flag)
 				return TRUE;
 			if(move_player != playerid)
