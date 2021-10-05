@@ -2441,9 +2441,9 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 		return FALSE;
 	}
 	case 17: {
+		pduel->new_message(MSG_SUMMONED);
 		//kdiy///////
-		//pduel->new_message(MSG_SUMMONED);
-		auto message = pduel->new_message(MSG_SUMMONED);
+		auto message = pduel->new_message(MSG_SUMMONED_KCG);
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
 		//kdiy///////
@@ -2561,9 +2561,9 @@ int32_t field::flip_summon(uint16_t step, uint8_t sumplayer, card* target) {
 		return FALSE;
 	}
 	case 4: {
+		pduel->new_message(MSG_FLIPSUMMONED);
 		//kdiy///////
-		//pduel->new_message(MSG_FLIPSUMMONED);
-		auto message = pduel->new_message(MSG_FLIPSUMMONED);
+		auto message = pduel->new_message(MSG_SUMMONED_KCG);
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
 		//kdiy///////
@@ -3482,9 +3482,9 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		return FALSE;
 	}
 	case 16: {
+		pduel->new_message(MSG_SPSUMMONED);
 		//kdiy///////
-		//pduel->new_message(MSG_SPSUMMONED);
-		auto message = pduel->new_message(MSG_SPSUMMONED);
+		auto message = pduel->new_message(MSG_SUMMONED_KCG);
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
 		//kdiy///////
@@ -3748,10 +3748,10 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 	}
 	case 28: {
 		group* pgroup = core.units.begin()->ptarget;
+		pduel->new_message(MSG_SPSUMMONED);
 		//kdiy///////
-		//pduel->new_message(MSG_SPSUMMONED);
+		auto message = pduel->new_message(MSG_SUMMONED_KCG);
 		card *scard = *pgroup->container.rbegin();
-		auto message = pduel->new_message(MSG_SPSUMMONED);
 		message->write<uint32_t>(scard->data.code);
 		message->write(scard->get_info_location());
 		//kdiy///////
@@ -4047,10 +4047,10 @@ int32_t field::special_summon(uint16_t step, effect* reason_effect, uint8_t reas
 		return FALSE;
 	}
 	case 3: {
+		pduel->new_message(MSG_SPSUMMONED);
 		//kdiy///////
-		//pduel->new_message(MSG_SPSUMMONED);
+		auto message = pduel->new_message(MSG_SUMMONED_KCG);
 		card *scard = *targets->container.rbegin();
-		auto message = pduel->new_message(MSG_SPSUMMONED);
 		message->write<uint32_t>(scard->data.code);
 		message->write(scard->get_info_location());
 		//kdiy///////
