@@ -92,11 +92,11 @@ int32_t scriptlib::card_set_card_data(lua_State *L) {
 		pcard->data.link_marker = lua_tointeger(L, 3);
 		break;
 	}
-	// auto message = pduel->new_message(MSG_MOVE);
-	// message->write<uint32_t>(pcard->data.code);
-	// message->write(pcard->get_info_location());
-	// message->write(pcard->get_info_location());
-	// message->write<uint32_t>(0);		
+	auto message = pduel->new_message(MSG_MOVE);
+	message->write<uint32_t>(pcard->data.code);
+	message->write(pcard->get_info_location());
+	message->write(pcard->get_info_location());
+	message->write<uint32_t>(0);		
 	return 0;
 }
 int32_t scriptlib::card_get_origin_link_marker(lua_State *L) {
