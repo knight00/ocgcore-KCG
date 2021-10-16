@@ -172,10 +172,16 @@ int32_t duel_set_lp(lua_State* L) {
 		return 0;
 	const auto pduel = lua_get<duel*>(L);
     //////////kdiy/////////
-    if (lp > 2000000)
+    if(lp > 2000000)
 	    lp = 8888888;
-    //////////kdiy/////////	
+    //////////kdiy/////////
 	pduel->game_field->player[p].lp = lp;
+	//////////kdiy/////////
+    if(lp == 0) {
+	    pduel->game_field->raise_event((card*)0, EVENT_ZERO_LP, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, p, 0);
+		pduel->game_field->process_instant_event();
+	}
+    //////////kdiy/////////
 	auto message = pduel->new_message(MSG_LPUPDATE);
 	message->write<uint8_t>(p);
 	message->write<uint32_t>(lp);

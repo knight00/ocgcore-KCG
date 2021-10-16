@@ -594,6 +594,12 @@ int32_t field::damage(uint16_t step, effect* reason_effect, uint32_t reason, uin
 		message->write<uint8_t>(playerid);
 		message->write<uint32_t>(amount);
 		raise_event(reason_card, EVENT_DAMAGE, reason_effect, reason, reason_player, playerid, amount);
+		//////kdiy/////////
+		if(player[playerid].lp < 0) {
+		    raise_event(reason_card, EVENT_ZERO_LP, reason_effect, reason, reason_player, playerid, amount);
+			process_instant_event();
+		}
+		//////kdiy/////////
 		if(reason == REASON_BATTLE && reason_card) {
 			if((player[playerid].lp <= 0) && (core.attack_target == 0) && reason_card->is_affected_by_effect(EFFECT_MATCH_KILL) && !is_player_affected_by_effect(playerid, EFFECT_CANNOT_LOSE_LP)) {
 				message = pduel->new_message(MSG_MATCH_KILL);
