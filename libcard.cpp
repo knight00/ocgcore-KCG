@@ -970,7 +970,7 @@ int32_t card_is_type(lua_State* L) {
 	return 1;
 }
 ////////kdiy///////////
-int32_t scriptlib::card_is_otype(lua_State* L) {
+int32_t card_is_otype(lua_State* L) {
 	check_param_count(L, 2);
 	const auto pduel = lua_get<duel*>(L);
 	auto pcard = lua_get<card*, true>(L, 1);
@@ -2975,7 +2975,7 @@ static constexpr luaL_Reg cardlib[] = {
 	{ "IsPreviousSetCard", card_is_pre_set_card },
 	{ "IsType", card_is_type },
 	////////kdiy///////////	
-	{ "IsOType", scriptlib::card_is_otype },
+	{ "IsOType", card_is_otype },
 	////////kdiy///////////	
 	{ "IsLevel", card_is_level },
 	{ "IsRank", card_is_rank },
