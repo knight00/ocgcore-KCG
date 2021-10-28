@@ -20,8 +20,15 @@
 
 #include <cstdint>
 
-/////////////kdiy///////////////
-#define CARDDATA_CODE			1
+#define TRUE 1
+#define FALSE 0
+#ifndef NULL
+#define NULL 0
+#endif
+
+//Locations
+//////kdiy//////
+// #define CARDDATA_CODE			1
 #define CARDDATA_ALIAS			2
 #define CARDDATA_SETCODE		3
 #define CARDDATA_TYPE			4
@@ -33,15 +40,7 @@
 #define CARDDATA_LSCALE			10
 #define CARDDATA_RSCALE			11
 #define CARDDATA_LINK_MARKER	12
-/////////////kdiy///////////////
-#define TRUE 1
-#define FALSE 0
-#ifndef NULL
-#define NULL 0
-#endif
 
-//Locations
-//////kdiy//////
 #define LOCATION_RMZONE   0x400
 #define LOCATION_RSZONE   0x800
 //////kdiy//////
@@ -354,6 +353,9 @@
 #define MSG_MATCH_KILL           170
 #define MSG_CUSTOM_MSG           180
 #define MSG_REMOVE_CARDS         190
+////kdiy/////////
+#define MSG_CHANGE               200
+////kdiy/////////
 
 #define OLD_REPLAY_MODE          231
 

@@ -34,32 +34,32 @@ interpreter::interpreter(duel* pd): coroutines(256), deleted(pd) {
 	//open all libs
 	//////////////kdiy///////////	
 	//card data constants
-	lua_pushinteger(lua_state, CARDDATA_CODE);
-	lua_setglobal(lua_state, "CARDDATA_CODE");
-	lua_pushinteger(lua_state, CARDDATA_ALIAS);
-	lua_setglobal(lua_state, "CARDDATA_ALIAS");
-	lua_pushinteger(lua_state, CARDDATA_SETCODE);
-	lua_setglobal(lua_state, "CARDDATA_SETCODE");
-	lua_pushinteger(lua_state, CARDDATA_TYPE);
-	lua_setglobal(lua_state, "CARDDATA_TYPE");
-	lua_pushinteger(lua_state, CARDDATA_LEVEL);
-	lua_setglobal(lua_state, "CARDDATA_LEVEL");
-	lua_pushinteger(lua_state, CARDDATA_ATTRIBUTE);
-	lua_setglobal(lua_state, "CARDDATA_ATTRIBUTE");
-	lua_pushinteger(lua_state, CARDDATA_ATTRIBUTE);
-	lua_setglobal(lua_state, "CARDDATA_ATTRIBUTE");
-	lua_pushinteger(lua_state, CARDDATA_RACE);
-	lua_setglobal(lua_state, "CARDDATA_RACE");
-	lua_pushinteger(lua_state, CARDDATA_ATTACK);
-	lua_setglobal(lua_state, "CARDDATA_ATTACK");
-	lua_pushinteger(lua_state, CARDDATA_DEFENSE);
-	lua_setglobal(lua_state, "CARDDATA_DEFENSE");
-	lua_pushinteger(lua_state, CARDDATA_LSCALE);
-	lua_setglobal(lua_state, "CARDDATA_LSCALE");
-	lua_pushinteger(lua_state, CARDDATA_RSCALE);
-	lua_setglobal(lua_state, "CARDDATA_RSCALE");
-	lua_pushinteger(lua_state, CARDDATA_LINK_MARKER);
-	lua_setglobal(lua_state, "CARDDATA_LINK_MARKER");			
+	// lua_pushinteger(lua_state, CARDDATA_CODE);
+	// lua_setglobal(lua_state, "CARDDATA_CODE");
+	// lua_pushinteger(lua_state, CARDDATA_ALIAS);
+	// lua_setglobal(lua_state, "CARDDATA_ALIAS");
+	// lua_pushinteger(lua_state, CARDDATA_SETCODE);
+	// lua_setglobal(lua_state, "CARDDATA_SETCODE");
+	// lua_pushinteger(lua_state, CARDDATA_TYPE);
+	// lua_setglobal(lua_state, "CARDDATA_TYPE");
+	// lua_pushinteger(lua_state, CARDDATA_LEVEL);
+	// lua_setglobal(lua_state, "CARDDATA_LEVEL");
+	// lua_pushinteger(lua_state, CARDDATA_ATTRIBUTE);
+	// lua_setglobal(lua_state, "CARDDATA_ATTRIBUTE");
+	// lua_pushinteger(lua_state, CARDDATA_ATTRIBUTE);
+	// lua_setglobal(lua_state, "CARDDATA_ATTRIBUTE");
+	// lua_pushinteger(lua_state, CARDDATA_RACE);
+	// lua_setglobal(lua_state, "CARDDATA_RACE");
+	// lua_pushinteger(lua_state, CARDDATA_ATTACK);
+	// lua_setglobal(lua_state, "CARDDATA_ATTACK");
+	// lua_pushinteger(lua_state, CARDDATA_DEFENSE);
+	// lua_setglobal(lua_state, "CARDDATA_DEFENSE");
+	// lua_pushinteger(lua_state, CARDDATA_LSCALE);
+	// lua_setglobal(lua_state, "CARDDATA_LSCALE");
+	// lua_pushinteger(lua_state, CARDDATA_RSCALE);
+	// lua_setglobal(lua_state, "CARDDATA_RSCALE");
+	// lua_pushinteger(lua_state, CARDDATA_LINK_MARKER);
+	// lua_setglobal(lua_state, "CARDDATA_LINK_MARKER");			
 	//////////////kdiy///////////	
 	scriptlib::push_card_lib(lua_state);
 	scriptlib::push_effect_lib(lua_state);

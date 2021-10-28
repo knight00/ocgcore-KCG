@@ -53,9 +53,9 @@ int32_t card_set_card_data(lua_State *L) {
 	duel* pduel = pcard->pduel;
 	int32_t stype = lua_tointeger(L, 2);
 	switch(stype) {
-	case CARDDATA_CODE:
-		pcard->data.code = lua_tointeger(L, 3);
-		break;
+	// case CARDDATA_CODE:
+	// 	pcard->data.code = lua_tointeger(L, 3);
+	// 	break;
 	case CARDDATA_ALIAS:
 		pcard->data.alias = lua_tointeger(L, 3);
 		break;
@@ -95,12 +95,10 @@ int32_t card_set_card_data(lua_State *L) {
 	case CARDDATA_LINK_MARKER:
 		pcard->data.link_marker = lua_tointeger(L, 3);
 		break;
-	}
-	auto message = pduel->new_message(MSG_MOVE);
-	message->write<uint32_t>(pcard->data.code);
-	message->write(pcard->get_info_location());
-	message->write(pcard->get_info_location());
-	message->write<uint32_t>(0);		
+	}		
+	// auto message = pduel->new_message(MSG_CHANGE);
+	// message->write<uint32_t>(pcard->data.code);
+	// message->write(pcard->get_info_location());
 	return 0;
 }
 int32_t card_get_origin_link_marker(lua_State *L) {

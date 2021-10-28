@@ -49,9 +49,9 @@ int32_t duel_read_card(lua_State *L) {
 	for(uint32_t i = 0; i < args; ++i) {
 		int32_t flag = lua_tointeger(L, 2 + i);
 		switch(flag) {
-		case CARDDATA_CODE:
-			lua_pushinteger(L, dat.code);
-			break;
+		// case CARDDATA_CODE:
+		// 	lua_pushinteger(L, dat.code);
+		// 	break;
 		case CARDDATA_ALIAS:
 			lua_pushinteger(L, dat.alias);
 			break;
