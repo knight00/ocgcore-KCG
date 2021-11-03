@@ -3321,7 +3321,7 @@ int32_t duel_overlay(lua_State* L) {
 		cset.insert(pcard);
 		/////kdiy////////
 		auto tp = pcard->current.controler;
-		if(not reason && pcard->current.reason_effect) reason = REASON_EFFECT;
+		if(!reason && pcard->current.reason_effect) reason = REASON_EFFECT;
 		else reason = REASON_RULE;
 		card_set tcset;
 		tcset.insert(target);
@@ -3342,7 +3342,7 @@ int32_t duel_overlay(lua_State* L) {
 				card_set cset;
 				cset.insert(pcard);
 				auto tp = pcard->current.controler;
-				if(not reason && pcard->current.reason_effect) reason = REASON_EFFECT;
+				if(!reason && pcard->current.reason_effect) reason = REASON_EFFECT;
 				else reason = REASON_RULE;
 				target->xyz_overlay(&cset);
 				pduel->game_field->raise_single_event(pcard, &tcset, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
