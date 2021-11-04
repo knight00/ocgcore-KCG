@@ -103,10 +103,7 @@ int32_t effect::is_available() {
 				return FALSE;
 		}
 	}
-	//ktest//////////
 	if (!condition)
-	//if (!condition && excondition)
-	//ktest//////////
 		return TRUE;
 	pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
 	int32_t res = pduel->lua->check_condition(condition, 1);
@@ -384,10 +381,7 @@ int32_t effect::is_condition_check(uint8_t playerid, const tevent& e) {
 	card* phandler = get_handler();
 	if(!(type & EFFECT_TYPE_ACTIVATE) && (phandler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED)) && !phandler->is_position(POS_FACEUP))
 		return FALSE;
-	//ktest//////////	
 	if(!condition)
-	//if(!condition && excondition)
-	//ktest//////////
 		return TRUE;
 	effect* oreason = pduel->game_field->core.reason_effect;
 	uint8_t op = pduel->game_field->core.reason_player;
@@ -402,10 +396,7 @@ int32_t effect::is_condition_check(uint8_t playerid, const tevent& e) {
 	pduel->lua->add_param(e.reason_effect , PARAM_TYPE_EFFECT);
 	pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 	pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
-	//ktest//////////
 	if(!pduel->lua->check_condition(condition, 8)) {
-	//if(!pduel->lua->check_condition(condition, 8) || !excondition) {
-	//ktest//////////	
 		pduel->game_field->restore_lp_cost();
 		pduel->game_field->core.reason_effect = oreason;
 		pduel->game_field->core.reason_player = op;

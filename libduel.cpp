@@ -4301,10 +4301,7 @@ inline int32_t is_player_can_procedure_summon_group(lua_State* L, uint32_t summo
 		pduel->lua->add_param(TRUE, PARAM_TYPE_BOOLEAN);
 		pduel->lua->add_param(oreason, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-		//ktest//////////	
-		if(pduel->lua->check_condition(peff->condition, 5)) {
-		//if(pduel->lua->check_condition(peff->condition, 5) && peff->excondition) {
-		//ktest//////////		
+		if(pduel->lua->check_condition(peff->condition, 5)) {	
 			pduel->game_field->restore_lp_cost();
 			core.reason_effect = oreason;
 			core.reason_player = op;
