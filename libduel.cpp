@@ -3310,47 +3310,55 @@ int32_t duel_overlay(lua_State* L) {
 	check_param_count(L, 2);
 	const auto pduel = lua_get<duel*>(L);
 	auto target = lua_get<card*, true>(L, 1);
+	if(target->overlay_target != nullptr) {
+		luaL_error(L, "Attempt to overlay materials to a card that is an overlay material.");
+		unreachable();
+	}
 	card* pcard = nullptr;
 	group* pgroup = nullptr;
 	get_card_or_group(L, 2, pcard, pgroup);
 	/////kdiy////////
-	auto reason = lua_get<uint32_t>(L, 3);
+	auto reason = lua_get<uint32_t>(L, 4);
 	/////kdiy////////
 	if(pcard) {
-		card_set cset;
-		cset.insert(pcard);
+		if(pcard == target) {
+			luaL_error(L, "Attempt to overlay a card with itself.");
+			unreachable();
+		}
 		/////kdiy////////
 		auto tp = pcard->current.controler;
-		if(!reason && pcard->current.reason_effect) reason = REASON_EFFECT;
-		else reason = REASON_RULE;
-		card_set tcset;
-		tcset.insert(target);
+		if(!reason && pduel->game_field->core.reason_effect) pcard->current.reason = REASON_EFFECT;
+		else pcard->current.reason = REASON_RULE;
 		/////kdiy////////
-		target->xyz_overlay(&cset);
+		target->xyz_overlay(card_set{ pcard });
 		/////kdiy////////
-		pduel->game_field->raise_single_event(pcard, &tcset, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
+		pduel->game_field->raise_single_event(pcard, &card_set{ pcard }, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
 		pduel->game_field->process_single_event();
 		pduel->game_field->process_instant_event();
 		/////kdiy////////
-	} else
-	    /////kdiy////////
-		//target->xyz_overlay(&pgroup->container);
+	} else {
+		if(pgroup->has_card(target)) {
+			luaL_error(L, "Attempt to overlay a card with itself.");
+			unreachable();
+		}
+		/////kdiy////////
+		//target->xyz_overlay(pgroup->container);
 		{
-			card_set tcset;
-			tcset.insert(target);
 			for(auto& pcard : pgroup->container) {
 				card_set cset;
 				cset.insert(pcard);
 				auto tp = pcard->current.controler;
-				if(!reason && pcard->current.reason_effect) reason = REASON_EFFECT;
-				else reason = REASON_RULE;
-				target->xyz_overlay(&cset);
-				pduel->game_field->raise_single_event(pcard, &tcset, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
+				if(!reason && pduel->game_field->core.reason_effect) pcard->current.reason = REASON_EFFECT;
+				else pcard->current.reason = REASON_RULE;
+				pcard->current.reason = reason;
+				target->xyz_overlay(card_set{ pcard });
+				pduel->game_field->raise_single_event(pcard, &card_set{ pcard }, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
 				pduel->game_field->process_single_event();
 				pduel->game_field->process_instant_event();
 			}
 		}
 	    /////kdiy////////
+	}
 	if(target->current.location & LOCATION_ONFIELD)
 		pduel->game_field->adjust_all();
 	return lua_yield(L, 0);
