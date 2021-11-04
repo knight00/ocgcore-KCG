@@ -3318,7 +3318,7 @@ int32_t duel_overlay(lua_State* L) {
 	group* pgroup = nullptr;
 	get_card_or_group(L, 2, pcard, pgroup);
 	/////kdiy////////
-	auto reason = lua_get<uint32_t>(L, 4);
+	auto reason = lua_get<uint32_t, 0>(L, 4);
 	/////kdiy////////
 	if(pcard) {
 		if(pcard == target) {
