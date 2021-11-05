@@ -3326,13 +3326,14 @@ int32_t duel_overlay(lua_State* L) {
 			unreachable();
 		}
 		/////kdiy////////
+		//target->xyz_overlay(card_set{ pcard });
 		auto tp = pcard->current.controler;
 		if(!reason && pduel->game_field->core.reason_effect) pcard->current.reason = REASON_EFFECT;
 		else pcard->current.reason = REASON_RULE;
-		/////kdiy////////
-		target->xyz_overlay(card_set{ pcard });
-		/////kdiy////////
-		pduel->game_field->raise_single_event(pcard, &card_set{ pcard }, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
+		card_set cset;
+		cset.insert(pcard);
+		target->xyz_overlay(cset);
+		pduel->game_field->raise_single_event(pcard, &cset, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
 		pduel->game_field->process_single_event();
 		pduel->game_field->process_instant_event();
 		/////kdiy////////
@@ -3344,6 +3345,8 @@ int32_t duel_overlay(lua_State* L) {
 		/////kdiy////////
 		//target->xyz_overlay(pgroup->container);
 		{
+			card_set tcset;
+			tcset.insert(target);
 			for(auto& pcard : pgroup->container) {
 				card_set cset;
 				cset.insert(pcard);
@@ -3351,11 +3354,11 @@ int32_t duel_overlay(lua_State* L) {
 				if(!reason && pduel->game_field->core.reason_effect) pcard->current.reason = REASON_EFFECT;
 				else pcard->current.reason = REASON_RULE;
 				pcard->current.reason = reason;
-				target->xyz_overlay(card_set{ pcard });
-				pduel->game_field->raise_single_event(pcard, &card_set{ pcard }, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
-				pduel->game_field->process_single_event();
-				pduel->game_field->process_instant_event();
+				target->xyz_overlay(cset);
+				pduel->game_field->raise_single_event(pcard, &cset, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
 			}
+			pduel->game_field->process_single_event();
+			pduel->game_field->process_instant_event();
 		}
 	    /////kdiy////////
 	}

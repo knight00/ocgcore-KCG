@@ -3595,10 +3595,10 @@ int32_t field::process_forced_battle(uint16_t step) {
 			return TRUE;
 		card_vector cv;
 		get_attack_target(tmp_attacker, &cv);
-		///////kdiy///////
+		///////kdiy//////////
 		// if((cv.size() == 0 && tmp_attacker->direct_attackable == 0) || (tmp_attack_target && std::find(cv.begin(), cv.end(), tmp_attack_target)==cv.end()))		
 		// 	return TRUE;	
-		///////kdiy//////////	
+		///////kdiy//////////
 		core.attacker = tmp_attacker;
 		core.attack_target = tmp_attack_target;
 		for(uint8_t p = 0; p < 2; ++p) {
