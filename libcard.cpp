@@ -1453,7 +1453,7 @@ int32_t card_register_effect(lua_State* L) {
 	int32_t id = -1;
 	if (!peffect->handler)
 	    //////ktest////////
-		id = pcard->add_effect(peffect);
+		//id = pcard->add_effect(peffect);
 		{
 			if (peffect->range && (peffect->range & LOCATION_MZONE) && !(peffect->range & LOCATION_SZONE)) {
 				effect* ceffect = peffect->clone();
