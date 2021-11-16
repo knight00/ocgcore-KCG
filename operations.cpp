@@ -5884,7 +5884,8 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		e.reason_player = target->current.reason_player;
 		if(!replace_effect->is_activateable(replace_effect->get_handler_player(), e))
 			return TRUE;
-		chain newchain;
+		core.continuous_chain.emplace_back();
+		chain& newchain = core.continuous_chain.back();
 		newchain.chain_id = 0;
 		newchain.chain_count = 0;
 		newchain.triggering_effect = replace_effect;
@@ -5897,8 +5898,7 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		newchain.disable_reason = 0;
 		newchain.flag = 0;
 		core.solving_event.push_front(e);
-		core.sub_solving_event.push_back(e);
-		core.continuous_chain.push_back(newchain);
+		core.sub_solving_event.push_back(std::move(e));
 		add_process(PROCESSOR_EXECUTE_TARGET, 0, replace_effect, 0, replace_effect->get_handler_player(), 0);
 		return FALSE;
 	}
@@ -5936,19 +5936,20 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		return TRUE;
 	}
 	case 5: {
+		if(targets->container.size() == 0)
+			return TRUE;
 		tevent e;
 		e.event_cards = targets;
 		e.event_player = replace_effect->get_handler_player();
 		e.event_value = 0;
-		if(targets->container.size() == 0)
-			return TRUE;
 		card* pc = *targets->container.begin();
 		e.reason = pc->current.reason;
 		e.reason_effect = pc->current.reason_effect;
 		e.reason_player = pc->current.reason_player;
 		if(!replace_effect->is_activateable(replace_effect->get_handler_player(), e) || !replace_effect->value)
 			return TRUE;
-		chain newchain;
+		core.continuous_chain.emplace_back();
+		chain& newchain = core.continuous_chain.back();
 		newchain.chain_id = 0;
 		newchain.chain_count = 0;
 		newchain.triggering_effect = replace_effect;
@@ -5961,8 +5962,7 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		newchain.disable_reason = 0;
 		newchain.flag = 0;
 		core.solving_event.push_front(e);
-		core.sub_solving_event.push_back(e);
-		core.continuous_chain.push_back(newchain);
+		core.sub_solving_event.push_back(std::move(e));
 		add_process(PROCESSOR_EXECUTE_TARGET, 0, replace_effect, 0, replace_effect->get_handler_player(), 0);
 		return FALSE;
 	}
@@ -6016,7 +6016,8 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		e.reason_player = target->current.reason_player;
 		if(!replace_effect->is_activateable(replace_effect->get_handler_player(), e))
 			return TRUE;
-		chain newchain;
+		core.continuous_chain.emplace_back();
+		chain& newchain = core.continuous_chain.back();
 		newchain.chain_id = 0;
 		newchain.chain_count = 0;
 		newchain.triggering_effect = replace_effect;
@@ -6028,8 +6029,7 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		newchain.disable_player = PLAYER_NONE;
 		newchain.disable_reason = 0;
 		newchain.flag = 0;
-		core.sub_solving_event.push_back(e);
-		core.continuous_chain.push_back(newchain);
+		core.sub_solving_event.push_back(std::move(e));
 		add_process(PROCESSOR_EXECUTE_TARGET, 0, replace_effect, 0, replace_effect->get_handler_player(), 0);
 		return FALSE;
 	}
@@ -6048,19 +6048,20 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		return TRUE;
 	}
 	case 12: {
+		if(targets->container.size() == 0)
+			return TRUE;
 		tevent e;
 		e.event_cards = targets;
 		e.event_player = replace_effect->get_handler_player();
 		e.event_value = 0;
-		if(targets->container.size() == 0)
-			return TRUE;
 		card* pc = *targets->container.begin();
 		e.reason = pc->current.reason;
 		e.reason_effect = pc->current.reason_effect;
 		e.reason_player = pc->current.reason_player;
 		if(!replace_effect->is_activateable(replace_effect->get_handler_player(), e) || !replace_effect->value)
 			return TRUE;
-		chain newchain;
+		core.continuous_chain.emplace_back();
+		chain& newchain = core.continuous_chain.back();
 		newchain.chain_id = 0;
 		newchain.chain_count = 0;
 		newchain.triggering_effect = replace_effect;
@@ -6072,8 +6073,7 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		newchain.disable_player = PLAYER_NONE;
 		newchain.disable_reason = 0;
 		newchain.flag = 0;
-		core.continuous_chain.push_back(newchain);
-		core.sub_solving_event.push_back(e);
+		core.sub_solving_event.push_back(std::move(e));
 		add_process(PROCESSOR_EXECUTE_TARGET, 0, replace_effect, 0, replace_effect->get_handler_player(), 0);
 		return FALSE;
 	}
@@ -6130,7 +6130,8 @@ int32_t field::activate_effect(uint16_t step, effect* peffect) {
 		nil_event.event_code = EVENT_FREE_CHAIN;
 		if(!peffect->is_activateable(playerid, nil_event))
 			return TRUE;
-		chain newchain;
+		core.new_chains.emplace_back();
+		chain& newchain = core.new_chains.back();
 		newchain.flag = 0;
 		newchain.chain_id = infos.field_id++;
 		newchain.evt.event_code = peffect->code;
@@ -6143,7 +6144,6 @@ int32_t field::activate_effect(uint16_t step, effect* peffect) {
 		newchain.triggering_effect = peffect;
 		newchain.set_triggering_state(phandler);
 		newchain.triggering_player = playerid;
-		core.new_chains.push_back(newchain);
 		phandler->set_status(STATUS_CHAINING, TRUE);
 		peffect->dec_count(playerid);
 		add_process(PROCESSOR_ADD_CHAIN, 0, 0, 0, 0, 0);

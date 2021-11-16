@@ -217,7 +217,7 @@ int32_t field::select_option(uint16_t step, uint8_t playerid) {
 	}
 }
 bool field::parse_response_cards(uint8_t cancelable, uint8_t sort) {
-	int type = returns.at<int32_t>(0);
+	auto type = returns.at<int32_t>(0);
 	if(type == -1) {
 		if(cancelable) {
 			return_cards.canceled = true;
@@ -227,18 +227,18 @@ bool field::parse_response_cards(uint8_t cancelable, uint8_t sort) {
 	}
 	auto& list = return_cards.list;
 	if(type == 3) {
-		for(int32_t i = 0; i < (int32_t)core.select_cards.size(); i++) {
-			if(returns.bitGet(i + (sizeof(int) * 8)))
+		for(size_t i = 0; i < core.select_cards.size(); i++) {
+			if(returns.bitGet(i + (sizeof(uint32_t) * 8)))
 				list.push_back(core.select_cards[i]);
 		}
 	} else {
 		try {
-			uint32_t size = returns.at<int32_t>(1);
+			auto size = returns.at<uint32_t>(1);
 			for(uint32_t i = 0; i < size; ++i) {
 				list.push_back(core.select_cards.at(
-					(type == 0) ? returns.at<int32_t>(i + 2) :
-					(type == 1) ? returns.at<int16_t>(i + 4) :
-					returns.at<int8_t>(i + 8)
+					(type == 0) ? returns.at<uint32_t>(i + 2) :
+					(type == 1) ? returns.at<uint16_t>(i + 4) :
+					returns.at<uint8_t>(i + 8)
 				)
 				);
 			}
@@ -902,12 +902,12 @@ int32_t field::announce_attribute(int16_t step, uint8_t playerid, int32_t count,
 								}\
 								break;\
 							}
-#define UNARY_OP_OP(opcode,val,op) UNARY_OP(opcode,cd->val op)
+#define UNARY_OP_OP(opcode,val,op) UNARY_OP(opcode,cd.val op)
 #define GET_OP(opcode,val) case opcode: {\
-								stack.push(cd->val);\
+								stack.push(cd.val);\
 								break;\
 							}
-static int32_t is_declarable(const card_data* cd, const std::vector<uint64_t>& opcodes) {
+static int32_t is_declarable(const card_data& cd, const std::vector<uint64_t>& opcodes) {
 	std::stack<int64_t> stack;
 	bool alias = false, token = false;
 	for(auto& opcode : opcodes) {
@@ -945,7 +945,7 @@ static int32_t is_declarable(const card_data* cd, const std::vector<uint64_t>& o
 				bool res = false;
 				uint16_t settype = set_code & 0xfff;
 				uint16_t setsubtype = set_code & 0xf000;
-				for(auto& sc : cd->setcodes) {
+				for(auto& sc : cd.setcodes) {
 					if((sc & 0xfff) == settype && (sc & 0xf000 & setsubtype) == setsubtype) {
 						res = true;
 						break;
@@ -971,10 +971,10 @@ static int32_t is_declarable(const card_data* cd, const std::vector<uint64_t>& o
 	}
 	if(stack.size() != 1 || stack.top() == 0)
 		return FALSE;
-	return cd->code == CARD_MARINE_DOLPHIN || cd->code == CARD_TWINKLE_MOSS
+	return cd.code == CARD_MARINE_DOLPHIN || cd.code == CARD_TWINKLE_MOSS
 	    /////////kdiy///////////
-		//|| ((alias || !cd->alias) && (token || ((cd->type & (TYPE_MONSTER + TYPE_TOKEN)) != (TYPE_MONSTER + TYPE_TOKEN))));
-		|| ((alias || !cd->alias) && (token || ((cd->type & (TYPE_TOKEN)) != (TYPE_TOKEN))));
+		//|| ((alias || !cd.alias) && (token || ((cd.type & (TYPE_MONSTER + TYPE_TOKEN)) != (TYPE_MONSTER + TYPE_TOKEN))));
+		|| ((alias || !cd.alias) && (token || ((cd.type & (TYPE_TOKEN)) != (TYPE_TOKEN))));
 	    /////////kdiy///////////	
 }
 #undef BINARY_OP
@@ -991,8 +991,8 @@ int32_t field::announce_card(int16_t step, uint8_t playerid) {
 		return FALSE;
 	} else {
 		int32_t code = returns.at<int32_t>(0);
-		auto data = pduel->read_card(code);
-		if(!data->code || !is_declarable(data, core.select_options)) {
+		const auto& data = pduel->read_card(code);
+		if(!data.code || !is_declarable(data, core.select_options)) {
 			/*auto message = */pduel->new_message(MSG_RETRY);
 			return FALSE;
 		}
