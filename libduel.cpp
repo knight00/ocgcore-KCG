@@ -40,7 +40,7 @@ int32_t duel_read_card(lua_State *L) {
 		dat = pcard->data;
 	} else {
 		int32_t code = lua_tointeger(L, 1);
-		pduel->read_card(code, &dat);
+		dat = pduel->read_card(code);
 	}
 	if(!dat.code)
 		return 0;
