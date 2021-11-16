@@ -2322,7 +2322,7 @@ void card::xyz_overlay(const card_set& materials) {
 	}
 	for(auto& pcard : cv) {
 		//kdiy////////
-		if(pcard->is_affected_by_effect(EFFECT_IMMUNE_OVERLAY) && !(pcard->current.reason & REASON_RULE))
+		if(pcard->is_affected_by_effect(EFFECT_IMMUNE_OVERLAY) && !((pcard->current.reason & REASON_RULE) && !(pcard->is_affected_by_effect(EFFECT_GOD_IMMUNE) && !pcard->is_affect_by_effect(pcard->current.reason_effect))))
 			continue;
 		//kdiy////////
 		pcard->current.reason = REASON_XYZ + REASON_MATERIAL;
@@ -4299,8 +4299,8 @@ int32_t card::is_affect_by_effect(effect* peffect) {
 	if(!peffect || peffect->is_flag(EFFECT_FLAG_IGNORE_IMMUNE))
 		return TRUE;
 	////kdiy///////
-	if(peffect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
-		return TRUE;	
+	if(peffect->owner != this && peffect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
+		return TRUE;
 	////kdiy///////	
 	if(peffect->is_immuned(this))
 		return FALSE;
