@@ -1465,6 +1465,7 @@ int32_t card_register_effect(lua_State* L) {
 			}
 			else if (peffect->range && (peffect->range & LOCATION_SZONE) && !(peffect->range & LOCATION_MZONE)) {
 				effect* ceffect = peffect->clone();
+				ceffect->range = LOCATION_MZONE;
 				if(ceffect->condition)
 				    luaL_unref(L, LUA_REGISTRYINDEX, ceffect->condition);
 				ceffect->condition = pduel->lua->clone_lua_ref(peffect->condition) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0;
