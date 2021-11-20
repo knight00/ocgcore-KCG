@@ -793,11 +793,23 @@ uint8_t effect::get_handler_player() {
 int32_t effect::in_range(card* pcard) {
 	if(type & EFFECT_TYPE_XMATERIAL)
 		return handler->overlay_target ? TRUE : FALSE;
+	//////ktest////////	
+	if((range & LOCATION_MZONE) && !(range & LOCATION_SZONE) && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0)
+	    return pcard->current.is_location(range | LOCATION_SZONE);
+	if((range & LOCATION_SZONE) && !(range & LOCATION_MZONE) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0)
+	    return pcard->current.is_location(range | LOCATION_MZONE);	
+	//////ktest////////	
 	return pcard->current.is_location(range);
 }
 int32_t effect::in_range(const chain& ch) {
 	if(type & EFFECT_TYPE_XMATERIAL)
 		return handler->overlay_target ? TRUE : FALSE;
+	//////ktest////////	
+	if((range & LOCATION_MZONE) && !(range & LOCATION_SZONE) && handler->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0)
+	    return (range | LOCATION_SZONE) & ch.triggering_location;
+	if((range & LOCATION_SZONE) && !(range & LOCATION_MZONE) && handler->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0)
+	    return (range | LOCATION_MZONE) & ch.triggering_location;	
+	//////ktest////////	
 	return range & ch.triggering_location;
 }
 void effect::set_activate_location() {
