@@ -4700,10 +4700,10 @@ int32_t field::add_chain(uint16_t step) {
 					loc = peffect->value;
 				///////kdiy///////
 				phandler->prev_temp.location = phandler->current.location;
-				if(phandler->current.location == LOCATION_SZONE && phandler->is_affected_by_effect(EFFECT_ORICA_SZONE))
-					phandler->prev_temp.location = LOCATION_MZONE;
-				if(phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))
-					phandler->prev_temp.location = LOCATION_SZONE;	
+				if(phandler->current.location == LOCATION_SZONE && phandler->is_affected_by_effect(EFFECT_ORICA_SZONE) && (phandler->get_type() & TYPE_MONSTER) && !phandler->equiping_target)
+				    phandler->prev_temp.location = LOCATION_MZONE;
+				if(phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) || phandler->equiping_target))
+				    phandler->prev_temp.location = LOCATION_SZONE;
 				///////kdiy///////
 				if(loc > 0) {
 					phandler->enable_field_effect(false);
@@ -5895,16 +5895,13 @@ int32_t field::adjust_step(uint16_t step) {
 		for(uint8_t p = 0; p < 2; ++p) {
 			for(uint8_t i = 0; i < 5; ++i) {
 				card* pcard = player[tp].list_szone[i];
-				//////kdiy//////
-				//if(pcard && pcard->equiping_target && !pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, pcard->equiping_target))
-				if(pcard && pcard->equiping_target && !pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, pcard->equiping_target) &&!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
-				//////kdiy//////
+				if(pcard && pcard->equiping_target && !pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, pcard->equiping_target))
 					destroy_set.insert(pcard);
 			}
 			//////kdiy//////
 			for(uint8_t i = 0; i < 5; ++i) {
 				card* pcard = player[tp].list_mzone[i];
-				if(pcard && pcard->equiping_target && !pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, pcard->equiping_target) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
+				if(pcard && pcard->equiping_target && !pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, pcard->equiping_target))
 					destroy_set.insert(pcard);
 			}	
 			//////kdiy//////					

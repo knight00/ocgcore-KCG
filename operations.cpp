@@ -1013,9 +1013,9 @@ int32_t field::get_control(uint16_t step, effect* reason_effect, uint8_t chose_p
 		card* pcard = *targets->it;
 	    ///////kdiy///////
 		pcard->prev_temp.location = pcard->current.location;
-		if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER) && !pcard->equiping_target)
 		    pcard->prev_temp.location = LOCATION_MZONE;
-		if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
+		if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) || pcard->equiping_target))
 		    pcard->prev_temp.location = LOCATION_SZONE;		
 		effect* oeffect = is_player_affected_by_effect(playerid,EFFECT_ORICA);
 	    if(is_player_affected_by_effect(playerid,EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
@@ -1459,10 +1459,10 @@ int32_t field::control_adjust(uint16_t step) {
 		pcard->reset(RESET_CONTROL, RESET_EVENT);
 	    ///////kdiy///////
 		pcard->prev_temp.location = pcard->current.location;
-		if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER) && !pcard->equiping_target)
 		    pcard->prev_temp.location = LOCATION_MZONE;
-		if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		    pcard->prev_temp.location = LOCATION_SZONE;		
+		if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) || pcard->equiping_target))
+		    pcard->prev_temp.location = LOCATION_SZONE;
 		effect* oeffect = is_player_affected_by_effect(1 - pcard->current.controler,EFFECT_ORICA);
 	    if(is_player_affected_by_effect(1 - pcard->current.controler,EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && pcard->current.location == LOCATION_SZONE) {
 		    effect* deffect = pduel->new_effect();
@@ -1704,9 +1704,9 @@ int32_t field::trap_monster_adjust(uint16_t step) {
 					refresh_location_info_instant();
 				///////kdiy///////
 				pcard->prev_temp.location = pcard->current.location;
-				if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
+				if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER) && !pcard->equiping_target)
 				    pcard->prev_temp.location = LOCATION_MZONE;
-				if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
+				if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) || pcard->equiping_target))
 				    pcard->prev_temp.location = LOCATION_SZONE;
 				effect* seffect = is_player_affected_by_effect(tp,EFFECT_SANCT);	
 				if(is_player_affected_by_effect(tp,EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
@@ -1786,10 +1786,10 @@ int32_t field::equip(uint16_t step, uint8_t equip_player, card* equip_card, card
 	    equip_card->current.reason_player = equip_player;
 		///////kdiy///////
 		equip_card->prev_temp.location = equip_card->current.location;
-		if(equip_card->current.location == LOCATION_SZONE && equip_card->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(equip_card->current.location == LOCATION_SZONE && equip_card->is_affected_by_effect(EFFECT_ORICA_SZONE) && (equip_card->get_type() & TYPE_MONSTER) && !equip_card->equiping_target)
 		    equip_card->prev_temp.location = LOCATION_MZONE;
-		if(equip_card->current.location == LOCATION_MZONE && equip_card->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		    equip_card->prev_temp.location = LOCATION_SZONE;		
+		if(equip_card->current.location == LOCATION_MZONE && equip_card->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((equip_card->get_type() & (TYPE_SPELL | TYPE_TRAP)) || equip_card->equiping_target))
+		    equip_card->prev_temp.location = LOCATION_SZONE;
 		effect* seffect = is_player_affected_by_effect(equip_player,EFFECT_SANCT);	
 	    if(is_player_affected_by_effect(equip_player,EFFECT_SANCT) && !equip_card->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 		    effect* deffect = pduel->new_effect();
@@ -2301,10 +2301,10 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 		target->enable_field_effect(false);
 	    ///////kdiy///////
 		target->prev_temp.location = target->current.location;
-		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE) && (target->get_type() & TYPE_MONSTER) && !target->equiping_target)
 		    target->prev_temp.location = LOCATION_MZONE;
-		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		    target->prev_temp.location = LOCATION_SZONE;		
+		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((target->get_type() & (TYPE_SPELL | TYPE_TRAP)) || target->equiping_target))
+		    target->prev_temp.location = LOCATION_SZONE;
 		effect* oeffect = is_player_affected_by_effect(targetplayer,EFFECT_ORICA);	
 	    if(is_player_affected_by_effect(targetplayer,EFFECT_ORICA) && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
@@ -2908,10 +2908,10 @@ int32_t field::mset(uint16_t step, uint8_t setplayer, card* target, effect* proc
 		target->enable_field_effect(false);	
 	    ///////kdiy///////
 		target->prev_temp.location = target->current.location;
-		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE) && (target->get_type() & TYPE_MONSTER) && !target->equiping_target)
 		    target->prev_temp.location = LOCATION_MZONE;
-		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		    target->prev_temp.location = LOCATION_SZONE;		
+		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((target->get_type() & (TYPE_SPELL | TYPE_TRAP)) || target->equiping_target))
+		    target->prev_temp.location = LOCATION_SZONE;	
 		effect* oeffect = is_player_affected_by_effect(targetplayer,EFFECT_ORICA);	
 	    if(is_player_affected_by_effect(targetplayer,EFFECT_ORICA) && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
@@ -2982,10 +2982,10 @@ int32_t field::sset(uint16_t step, uint8_t setplayer, uint8_t toplayer, card* ta
 		target->enable_field_effect(false);	
 	    ///////kdiy///////
 		target->prev_temp.location = target->current.location;
-		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE) && (target->get_type() & TYPE_MONSTER) && !target->equiping_target)
 		    target->prev_temp.location = LOCATION_MZONE;
-		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		    target->prev_temp.location = LOCATION_SZONE;		
+		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((target->get_type() & (TYPE_SPELL | TYPE_TRAP)) || target->equiping_target))
+		    target->prev_temp.location = LOCATION_SZONE;	
 		effect* seffect = is_player_affected_by_effect(toplayer,EFFECT_SANCT);	
 	    if(is_player_affected_by_effect(toplayer,EFFECT_SANCT) && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 		    effect* deffect = pduel->new_effect();
@@ -3123,9 +3123,9 @@ int32_t field::sset_g(uint16_t step, uint8_t setplayer, uint8_t toplayer, group*
 		}	
 		/////kdiy////////////
 		target->prev_temp.location = target->current.location;
-		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE) && (target->get_type() & TYPE_MONSTER) && !target->equiping_target)
 		    target->prev_temp.location = LOCATION_MZONE;
-		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
+		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((target->get_type() & (TYPE_SPELL | TYPE_TRAP)) || target->equiping_target))
 		    target->prev_temp.location = LOCATION_SZONE;
 		/////kdiy////////////
 		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE, 0, zone, FALSE, 0, FALSE);
@@ -3349,10 +3349,10 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		}	
 	    ///////kdiy///////
 		target->prev_temp.location = target->current.location;
-		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE) && (target->get_type() & TYPE_MONSTER) && !target->equiping_target)
 		    target->prev_temp.location = LOCATION_MZONE;
-		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		    target->prev_temp.location = LOCATION_SZONE;		
+		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((target->get_type() & (TYPE_SPELL | TYPE_TRAP)) || target->equiping_target))
+		    target->prev_temp.location = LOCATION_SZONE;	
 		effect* oeffect = is_player_affected_by_effect(targetplayer,EFFECT_ORICA);	
 	    if(is_player_affected_by_effect(targetplayer,EFFECT_ORICA) && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
@@ -3621,10 +3621,10 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		}
 	    ///////kdiy///////
 		pcard->prev_temp.location = pcard->current.location;
-		if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER) && !pcard->equiping_target)
 		    pcard->prev_temp.location = LOCATION_MZONE;
-		if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		    pcard->prev_temp.location = LOCATION_SZONE;		
+		if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) || pcard->equiping_target))
+		    pcard->prev_temp.location = LOCATION_SZONE;
 		effect* oeffect = is_player_affected_by_effect(sumplayer,EFFECT_ORICA);	
 	    if(is_player_affected_by_effect(sumplayer,EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
@@ -3929,10 +3929,10 @@ int32_t field::special_summon_step(uint16_t step, group* targets, card* target, 
 		}
 	    ///////kdiy///////
 		target->prev_temp.location = target->current.location;
-		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE) && (target->get_type() & TYPE_MONSTER) && !target->equiping_target)
 		    target->prev_temp.location = LOCATION_MZONE;
-		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		    target->prev_temp.location = LOCATION_SZONE;		
+		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((target->get_type() & (TYPE_SPELL | TYPE_TRAP)) || target->equiping_target))
+		    target->prev_temp.location = LOCATION_SZONE;
 		effect* oeffect = is_player_affected_by_effect(playerid,EFFECT_ORICA);	
 	    if(is_player_affected_by_effect(playerid, EFFECT_ORICA) && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
@@ -5550,7 +5550,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		//if((target->previous.location == LOCATION_SZONE) && target->equiping_target)
 			//target->unequip();
 		//if(target->current.location == LOCATION_MZONE) {
-		if(((target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE))) && target->equiping_target)
+		if((target->previous.location == LOCATION_SZONE || target->previous.location == LOCATION_MZONE) && target->equiping_target)
 			target->unequip();			
 		if((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))) {
 		////kdiy///////				
@@ -5558,7 +5558,10 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 			filter_player_effect(0, EFFECT_MUST_USE_MZONE, &eset, FALSE);
 			filter_player_effect(1, EFFECT_MUST_USE_MZONE, &eset, FALSE);
 			target->filter_effect(EFFECT_MUST_USE_MZONE, &eset);
-			uint32_t lreason = reason ? reason : (target->current.location == LOCATION_MZONE) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
+			////kdiy///////
+			//uint32_t lreason = reason ? reason : (target->current.location == LOCATION_MZONE) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
+			uint32_t lreason = reason ? reason : ((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
+			////kdiy///////
 			for(const auto& peff : eset) {
 				if(peff->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peff->count_limit == 0)
 					continue;
@@ -5606,6 +5609,11 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 					peffect = pduel->new_effect();
 					peffect->owner = target;
 					peffect->type = EFFECT_TYPE_FIELD;
+					////ktest///////
+					if(target->current.location == LOCATION_SZONE)
+					peffect->range = LOCATION_SZONE;
+					else
+					////ktest///////
 					peffect->range = LOCATION_MZONE;
 					////kdiy///////
 					if(target->previous.location == LOCATION_MZONE)
@@ -5615,11 +5623,6 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 					peffect->code = EFFECT_USE_EXTRA_SZONE;
 					peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 					peffect->reset_flag = RESET_EVENT + 0x1fe0000;
-					////kdiy///////
-					if(target->previous.location == LOCATION_MZONE)
-					peffect->value = 1 + (0x10000 << target->previous.sequence);
-					else
-					////kdiy///////
 					peffect->value = 1 + (0x10000 << target->previous.sequence);
 					target->add_effect(peffect);
 				}
@@ -5819,9 +5822,9 @@ int32_t field::change_position(uint16_t step, group* targets, effect* reason_eff
 				refresh_location_info_instant();
 				///////kdiy///////
 				pcard->prev_temp.location = pcard->current.location;
-				if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
+				if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER) && !pcard->equiping_target)
 				    pcard->prev_temp.location = LOCATION_MZONE;
-				if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
+				if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) || pcard->equiping_target))
 				    pcard->prev_temp.location = LOCATION_SZONE;
 				effect* seffect = is_player_affected_by_effect(pcard->current.controler,EFFECT_SANCT);	
 				if(is_player_affected_by_effect(pcard->current.controler,EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
