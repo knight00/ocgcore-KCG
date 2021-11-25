@@ -2465,8 +2465,8 @@ void card::enable_field_effect(bool enabled) {
 		}
 		//kdiy/////////
 		//if(current.location == LOCATION_SZONE) {
-		if((current.location == LOCATION_SZONE && !is_affected_by_effect(EFFECT_ORICA_SZONE)) || (current.location == LOCATION_MZONE && is_affected_by_effect(EFFECT_SANCT_MZONE))) {	
-		//kdiy/////////	
+		if(current.location == LOCATION_SZONE || current.location == LOCATION_MZONE) {	
+		//kdiy/////////
 			for (auto& it : equip_effect)
 				it.second->id = pduel->game_field->infos.field_id++;
 		}

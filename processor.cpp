@@ -4700,9 +4700,9 @@ int32_t field::add_chain(uint16_t step) {
 					loc = peffect->value;
 				///////kdiy///////
 				phandler->prev_temp.location = phandler->current.location;
-				if(phandler->current.location == LOCATION_SZONE && phandler->is_affected_by_effect(EFFECT_ORICA_SZONE) && (phandler->get_type() & TYPE_MONSTER) && !phandler->equiping_target)
+				if(phandler->current.location == LOCATION_SZONE && phandler->is_affected_by_effect(EFFECT_ORICA_SZONE))
 				    phandler->prev_temp.location = LOCATION_MZONE;
-				if(phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE) && (((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & (TYPE_TRAPMONSTER))) || phandler->equiping_target))
+				if(phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))
 				    phandler->prev_temp.location = LOCATION_SZONE;
 				///////kdiy///////
 				if(loc > 0) {

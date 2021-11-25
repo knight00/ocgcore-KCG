@@ -105,7 +105,7 @@ int32_t debug_pre_equip(lua_State* L) {
 	auto target = lua_get<card*, true>(L, 2);
 	/////////kdiy////////
 	//if((equip_card->current.location != LOCATION_SZONE)
-	if(!((equip_card->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (equip_card->current.location == LOCATION_SZONE &&!target->is_affected_by_effect(EFFECT_ORICA_SZONE)))    
+	if(!((equip_card->current.location == LOCATION_MZONE && equip_card->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (equip_card->current.location == LOCATION_SZONE &&!equip_card->is_affected_by_effect(EFFECT_ORICA_SZONE)))    
 	    //|| (target->current.location != LOCATION_MZONE)
 	    || !((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE &&target->is_affected_by_effect(EFFECT_ORICA_SZONE)))
 	/////////kdiy////////
