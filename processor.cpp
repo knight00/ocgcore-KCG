@@ -4667,7 +4667,7 @@ int32_t field::add_chain(uint16_t step) {
 			}
 			/////////kdiy//////////
 			//if(phandler->current.location == LOCATION_SZONE) {
-			if((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & TYPE_TRAPMONSTER) && ((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE)))) {
+			if(((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))) && (phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & TYPE_TRAPMONSTER)) {
 			/////////kdiy//////////	
 				phandler->set_status(STATUS_ACT_FROM_HAND, FALSE);
 				change_position(phandler, 0, phandler->current.controler, POS_FACEUP, 0);
@@ -4702,7 +4702,7 @@ int32_t field::add_chain(uint16_t step) {
 				phandler->prev_temp.location = phandler->current.location;
 				if(phandler->current.location == LOCATION_SZONE && phandler->is_affected_by_effect(EFFECT_ORICA_SZONE) && (phandler->get_type() & TYPE_MONSTER) && !phandler->equiping_target)
 				    phandler->prev_temp.location = LOCATION_MZONE;
-				if(phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) || phandler->equiping_target))
+				if(phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE) && (((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & (TYPE_TRAPMONSTER))) || phandler->equiping_target))
 				    phandler->prev_temp.location = LOCATION_SZONE;
 				///////kdiy///////
 				if(loc > 0) {

@@ -875,7 +875,7 @@ int32_t duel_move_to_field(lua_State* L) {
 	pcard->prev_temp.location = pcard->current.location;
 	if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER) && !pcard->equiping_target)
 		pcard->prev_temp.location = LOCATION_MZONE;
-	if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) || pcard->equiping_target))
+	if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && (((pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(pcard->get_type() & (TYPE_TRAPMONSTER))) || pcard->equiping_target))
 		pcard->prev_temp.location = LOCATION_SZONE;   
 	//kdiy///////	
 	pduel->game_field->move_to_field(pcard, move_player, playerid, destination, positions, enable, 0, zone);
@@ -921,7 +921,7 @@ int32_t duel_return_to_field(lua_State* L) {
 	pcard->prev_temp.location = pcard->current.location;
 	if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER) && !pcard->equiping_target)
 		pcard->prev_temp.location = LOCATION_MZONE;
-	if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && ((pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) || pcard->equiping_target))
+	if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && (((pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(pcard->get_type() & (TYPE_TRAPMONSTER))) || pcard->equiping_target))
 		pcard->prev_temp.location = LOCATION_SZONE;
 	//kdiy///////	
 	if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA) && (pcard->get_type() & TYPE_MONSTER)) {

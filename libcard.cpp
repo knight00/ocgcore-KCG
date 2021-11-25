@@ -2086,11 +2086,12 @@ int32_t card_is_location(lua_State* L) {
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);
-	//////kdiy/////////		
+	//////kdiy/////////
 	//} else if(pcard->current.location == LOCATION_SZONE) {
-	} else if(pcard->current.location == LOCATION_SZONE && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) || (pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))) {	
-	//////kdiy/////////		
-		if(pcard->current.is_location(loc) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
+	} else if(pcard->current.location == LOCATION_SZONE && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) || (pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))) {
+		//if(pcard->current.is_location(loc) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
+		if(((pcard->current.is_location(loc) && !(loc & LOCATION_SZONE)) || ((pcard->current.location & loc) && (loc & LOCATION_SZONE) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (pcard->current.is_location(loc | LOCATION_MZONE) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
+	//////kdiy/////////
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);

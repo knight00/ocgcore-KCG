@@ -347,10 +347,10 @@ void field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_t s
 				} else
 					remove_card(pcard);
 			} else if(location & LOCATION_ONFIELD) {
-				///kdiy//////
+				///ktest//////
 				if (playerid == preplayer && sequence == presequence)
 				//if(playerid == preplayer && sequence == presequence && pcard->current.location == location)
-				///kdiy//////
+				///ktest//////
 					return;
 				if(location == LOCATION_MZONE) {
 					if(sequence >= player[playerid].list_mzone.size() || player[playerid].list_mzone[sequence])
@@ -360,10 +360,10 @@ void field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_t s
 						return;
 				}
 				duel::duel_message* message = nullptr;
-				/////kdiy///////////
+				/////ktest///////////
 				if(preplayer == playerid) {
 				//if(preplayer == playerid && location == pcard->current.location) {	
-				/////kdiy///////////	
+				/////ktest///////////	
 					message = pduel->new_message(MSG_MOVE);
 					message->write<uint32_t>(pcard->data.code);
 					message->write(pcard->get_info_location());
