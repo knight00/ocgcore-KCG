@@ -5406,7 +5406,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		if(ret != 1) {
 			//kdiy//////
 			//if(location != target->current.location) {
-			if(location != target->prev_temp.location) {
+			if(location != target->prev_temp.location && Rloc==0) {
 			//kdiy//////
 				uint32_t resetflag = 0;
 				///kdiy////////
@@ -5418,43 +5418,15 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 				   orica = 1;
 				if(target->temp.location == LOCATION_MZONE && location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
 				   sanct = 1;  
-				//if(location & LOCATION_ONFIELD)		
-				if((location & LOCATION_ONFIELD) && !((target->current.location & LOCATION_ONFIELD) && (Rloc==4 || Rloc==8)))
-				///kdiy////////			
+				if(location & LOCATION_ONFIELD)				
 					resetflag |= RESET_TOFIELD;
-				///kdiy////////
-				//if(target->current.location & LOCATION_ONFIELD)
-				if((target->current.location & LOCATION_ONFIELD) && Rloc!=4 && Rloc!=8)
-				///kdiy////////				
+				if(target->current.location & LOCATION_ONFIELD)
 					resetflag |= RESET_LEAVE;
 				effect* peffect = target->is_affected_by_effect(EFFECT_PRE_MONSTER);
-				///kdiy////////	
-				//if((location & LOCATION_ONFIELD) && (target->current.location & LOCATION_ONFIELD)
-				if((location & LOCATION_ONFIELD) && (target->current.location & LOCATION_ONFIELD) && !((target->current.location & LOCATION_ONFIELD) && (Rloc==4 || Rloc==8))
-				///kdiy////////
+				if((location & LOCATION_ONFIELD) && (target->current.location & LOCATION_ONFIELD)
 					&& !(peffect && (peffect->value & TYPE_TRAP)) && ret != 2)
 					resetflag |= RESET_MSCHANGE;
-				target->reset(resetflag, RESET_EVENT); 	
-				///kdiy////////
-				if(oeffect && orica==1 && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
-					effect* deffect = pduel->new_effect();
-					deffect->owner = oeffect->owner;
-					deffect->code = EFFECT_ORICA_SZONE;
-					deffect->type = EFFECT_TYPE_SINGLE;
-					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-					deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-					target->add_effect(deffect);
-				}	
-				if(seffect && sanct==1 && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
-					effect* deffect = pduel->new_effect();
-					deffect->owner = seffect->owner;
-					deffect->code = EFFECT_SANCT_MZONE;
-					deffect->type = EFFECT_TYPE_SINGLE;
-					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-					deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-					target->add_effect(deffect);
-				}						
-				///kdiy////////								
+				target->reset(resetflag, RESET_EVENT);							
 				target->clear_card_target();
 			}  
 			if(!(target->current.location & LOCATION_ONFIELD))
@@ -5463,7 +5435,9 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		if(ret == 1)
 			target->current.reason &= ~REASON_TEMPORARY;
 		////kdiy/////
-		if((ret == 0 && location != target->current.location)
+		//if((ret == 0 && location != target->current.location)
+		if((ret == 0 && location != target->prev_temp.location && Rloc==0)
+		////kdiy/////
 			|| (ret == 1 && target->turnid != infos.turn_id)) {
 			target->set_status(STATUS_SUMMON_TURN, FALSE);
 			target->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);

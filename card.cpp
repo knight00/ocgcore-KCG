@@ -4298,10 +4298,6 @@ int32_t card::is_affect_by_effect(effect* peffect) {
 		return FALSE;
 	if(!peffect || peffect->is_flag(EFFECT_FLAG_IGNORE_IMMUNE))
 		return TRUE;
-	////kdiy///////
-	if(peffect->owner != this && peffect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
-		return TRUE;
-	////kdiy///////	
 	if(peffect->is_immuned(this))
 		return FALSE;
 	return TRUE;
