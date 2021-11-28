@@ -103,10 +103,16 @@ int32_t effect::is_available() {
 				return FALSE;
 		}
 	}
+	///ktest/////////
 	if (!condition)
+	// if (!condition && excondition)
+	///ktest/////////
 		return TRUE;
 	pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
+	///ktest/////////
 	int32_t res = pduel->lua->check_condition(condition, 1);
+	//int32_t res = pduel->lua->check_condition(condition, 1) && excondition;
+	///ktest/////////
 	if(res) {
 		if(!(status & EFFECT_STATUS_AVAILABLE))
 			id = pduel->game_field->infos.field_id++;
@@ -330,6 +336,11 @@ int32_t effect::is_action_check(uint8_t playerid) {
 }
 // check functions: condition, cost(chk=0), target(chk=0)
 int32_t effect::is_activate_ready(effect* reason_effect, uint8_t playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target) {
+	///ktest/////////
+	// bool excondition = !get_handler() || (get_handler() && ((get_handler()->current.location != LOCATION_SZONE) || (get_handler()->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0)));
+	// if(!neglect_cond && !condition && !excondition)
+	//     return FALSE;
+	///ktest/////////
 	if(!neglect_cond && condition) {
 		pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
@@ -339,7 +350,10 @@ int32_t effect::is_activate_ready(effect* reason_effect, uint8_t playerid, const
 		pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
+		///ktest/////////
 		if(!pduel->lua->check_condition(condition, 8)) {
+		// if(!(pduel->lua->check_condition(condition, 8) && excondition)) {
+		///ktest/////////	
 			return FALSE;
 		}
 	}
@@ -381,7 +395,10 @@ int32_t effect::is_condition_check(uint8_t playerid, const tevent& e) {
 	card* phandler = get_handler();
 	if(!(type & EFFECT_TYPE_ACTIVATE) && (phandler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED)) && !phandler->is_position(POS_FACEUP))
 		return FALSE;
+	///ktest/////////	
 	if(!condition)
+	// if(!condition && excondition)
+	///ktest/////////
 		return TRUE;
 	effect* oreason = pduel->game_field->core.reason_effect;
 	uint8_t op = pduel->game_field->core.reason_player;
@@ -396,7 +413,10 @@ int32_t effect::is_condition_check(uint8_t playerid, const tevent& e) {
 	pduel->lua->add_param(e.reason_effect , PARAM_TYPE_EFFECT);
 	pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 	pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
-	if(!pduel->lua->check_condition(condition, 8)) {
+	///ktest/////////
+	if(!(pduel->lua->check_condition(condition, 8))) {
+	//if(!(pduel->lua->check_condition(condition, 8) && excondition)) {
+	///ktest/////////	
 		pduel->game_field->restore_lp_cost();
 		pduel->game_field->core.reason_effect = oreason;
 		pduel->game_field->core.reason_player = op;
@@ -522,6 +542,8 @@ int32_t effect::is_immuned(card* pcard) {
 	////kdiy///////
 	if(code == EFFECT_ULTIMATE_IMMUNE)
 		return FALSE;
+	if(owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
+		return FALSE;	
 	////kdiy///////	
 	for (const auto& peffect : pcard->immune_effect) {
 		if(peffect->is_available() && peffect->value) {
@@ -798,29 +820,29 @@ int32_t effect::in_range(card* pcard) {
 	if(type & EFFECT_TYPE_XMATERIAL)
 		return handler->overlay_target ? TRUE : FALSE;
 	//////ktest////////	
-	if((range & LOCATION_MZONE) && !(range & LOCATION_SZONE) && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0 && !(pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)))
-	    return pcard->current.is_location(range | LOCATION_SZONE);
-	if((range & LOCATION_SZONE) && !(range & LOCATION_MZONE) && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0 && !(pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)))
-	    return pcard->current.is_location(range - LOCATION_SZONE);
-	if((range & LOCATION_SZONE) && !(range & LOCATION_MZONE) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0 && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) || pcard->equiping_target)
-	    return pcard->current.is_location(range | LOCATION_MZONE);
-	if((range & LOCATION_MZONE) && !(range & LOCATION_SZONE) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0 && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) || pcard->equiping_target)
-	    return pcard->current.is_location(range - LOCATION_MZONE);
-	//////ktest////////	
+	// if((range & LOCATION_MZONE) && !(range & LOCATION_SZONE) && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0)
+	//     return pcard->current.is_location(range | LOCATION_SZONE);
+	// if((range & LOCATION_SZONE) && !(range & LOCATION_MZONE) && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0)
+	//     return pcard->current.is_location(range - LOCATION_SZONE);
+	// if((range & LOCATION_SZONE) && !(range & LOCATION_MZONE) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0 && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)))
+	//     return pcard->current.is_location(range | LOCATION_MZONE);
+	// if((range & LOCATION_MZONE) && !(range & LOCATION_SZONE) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0 && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)))
+	//     return pcard->current.is_location(range - LOCATION_MZONE);
+	// //////ktest////////	
 	return pcard->current.is_location(range);
 }
 int32_t effect::in_range(const chain& ch) {
 	if(type & EFFECT_TYPE_XMATERIAL)
 		return handler->overlay_target ? TRUE : FALSE;
 	//////ktest////////	
-	if((range & LOCATION_MZONE) && !(range & LOCATION_SZONE) && handler->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0 && (handler->get_type() & TYPE_MONSTER) && !handler->equiping_target)
-	    return (range | LOCATION_SZONE) & ch.triggering_location;
-	if((range & LOCATION_SZONE) && !(range & LOCATION_MZONE) && handler->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0 && (handler->get_type() & TYPE_MONSTER) && !handler->equiping_target)
-	    return (range - LOCATION_SZONE) & ch.triggering_location;
-	if((range & LOCATION_SZONE) && !(range & LOCATION_MZONE) && handler->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0 && (handler->get_type() & (TYPE_SPELL | TYPE_TRAP)) || handler->equiping_target)
-	    return (range | LOCATION_MZONE) & ch.triggering_location;
-	if((range & LOCATION_MZONE) && !(range & LOCATION_SZONE) && handler->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0 && (handler->get_type() & (TYPE_SPELL | TYPE_TRAP)) || handler->equiping_target)
-	    return (range - LOCATION_MZONE) & ch.triggering_location;
+	// if((range & LOCATION_MZONE) && !(range & LOCATION_SZONE) && handler->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0 )
+	//     return (range | LOCATION_SZONE) & ch.triggering_location;
+	// if((range & LOCATION_SZONE) && !(range & LOCATION_MZONE) && handler->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0 )
+	//     return (range - LOCATION_SZONE) & ch.triggering_location;
+	// if((range & LOCATION_SZONE) && !(range & LOCATION_MZONE) && handler->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0 && (handler->get_type() & (TYPE_SPELL | TYPE_TRAP)))
+	//     return (range | LOCATION_MZONE) & ch.triggering_location;
+	// if((range & LOCATION_MZONE) && !(range & LOCATION_SZONE) && handler->is_affected_by_effect(EFFECT_SANCT_MZONE) != 0 && (handler->get_type() & (TYPE_SPELL | TYPE_TRAP)))
+	//     return (range - LOCATION_MZONE) & ch.triggering_location;
 	//////ktest////////	
 	return range & ch.triggering_location;
 }

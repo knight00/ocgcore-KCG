@@ -109,7 +109,15 @@ int32_t effect_set_code(lua_State* L) {
 int32_t effect_set_range(lua_State* L) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
+	///ktest/////////
 	peffect->range = lua_get<uint16_t>(L, 2);
+	// uint16_t trange = lua_get<uint16_t>(L, 2);
+	// if((trange & LOCATION_MZONE) && !(trange & LOCATION_SZONE) && peffect->handler) {
+	//     peffect->range = trange | LOCATION_SZONE;
+	// 	peffect->excondition = peffect->handler->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0;
+	// } else
+	//     peffect->range = trange;
+	///ktest/////////
 	return 0;
 }
 int32_t effect_set_target_range(lua_State* L) {

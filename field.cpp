@@ -470,8 +470,12 @@ void field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_t s
 		} else {
 			if((pcard->data.type & TYPE_PENDULUM) && (location == LOCATION_GRAVE)
 			        && pcard->is_capable_send_to_extra(playerid)
-			        && (((pcard->current.location == LOCATION_MZONE) && !pcard->is_status(STATUS_SUMMON_DISABLED))
-			        || ((pcard->current.location == LOCATION_SZONE) && !pcard->is_status(STATUS_ACTIVATE_DISABLED)))) {
+					///kdiy//////	
+			        // && (((pcard->current.location == LOCATION_MZONE) && !pcard->is_status(STATUS_SUMMON_DISABLED))
+			        // || ((pcard->current.location == LOCATION_SZONE) && !pcard->is_status(STATUS_ACTIVATE_DISABLED)))) {
+					&& ((((pcard->current.location == LOCATION_MZONE && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))) && !pcard->is_status(STATUS_SUMMON_DISABLED))
+			        || (((pcard->current.location == LOCATION_SZONE && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))) && !pcard->is_status(STATUS_ACTIVATE_DISABLED)))) {	
+					///kdiy//////		
 				location = LOCATION_EXTRA;
 				pcard->sendto_param.position = POS_FACEUP_DEFENSE;
 			}

@@ -4724,10 +4724,7 @@ int32_t field::add_chain(uint16_t step) {
 						move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP);	
 						///////kdiy///////
 					} else {	
-						///////kdiy///////				
-						//move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP, FALSE, 0, zone);
-						move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP, FALSE, 0, zone, FALSE, 0, TRUE, 2);
-						/////kdiy///////	
+						move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP, FALSE, 0, zone);
 					}
 				}
 			}

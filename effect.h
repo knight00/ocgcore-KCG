@@ -34,6 +34,9 @@ public:
 	uint16_t type{};
 	uint16_t copy_id{};
 	uint16_t range{};
+	//kdiy///////
+	// bool excondition{true};
+	//kdiy///////
 	uint16_t s_range{};
 	uint16_t o_range{};
 	uint8_t count_limit{};

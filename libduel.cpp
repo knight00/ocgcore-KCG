@@ -897,7 +897,12 @@ int32_t duel_return_to_field(lua_State* L) {
 	pcard->enable_field_effect(false);
 	pduel->game_field->adjust_instant();
 	pduel->game_field->refresh_location_info_instant();
-	///////kdiy///////	
+	///////kdiy///////
+	pcard->prev_temp.location = pcard->current.location;
+	if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		pcard->prev_temp.location = LOCATION_MZONE;
+	if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
+		pcard->prev_temp.location = LOCATION_SZONE;
 	effect* oeffect = pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA);
 	effect* seffect = pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_SANCT);		
 	if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER)) {
@@ -918,16 +923,11 @@ int32_t duel_return_to_field(lua_State* L) {
 		deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 		pcard->add_effect(deffect);
 	}
-	pcard->prev_temp.location = pcard->current.location;
-	if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
-		pcard->prev_temp.location = LOCATION_MZONE;
-	if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		pcard->prev_temp.location = LOCATION_SZONE;
 	//kdiy///////	
 	if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA) && (pcard->get_type() & TYPE_MONSTER)) {
-	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, LOCATION_MZONE, pos, TRUE, 1, zone, FALSE, LOCATION_REASON_TOFIELD | LOCATION_REASON_RETURN,TRUE,1);
+	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, LOCATION_MZONE, pos, TRUE, 1, zone, FALSE, LOCATION_REASON_TOFIELD | LOCATION_REASON_RETURN);
 	} else if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_SANCT) && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(pcard->get_type() & TYPE_TRAPMONSTER)) {
-	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, LOCATION_SZONE, pos, TRUE, 1, zone, FALSE, LOCATION_REASON_TOFIELD | LOCATION_REASON_RETURN,TRUE,2);
+	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, LOCATION_SZONE, pos, TRUE, 1, zone, FALSE, LOCATION_REASON_TOFIELD | LOCATION_REASON_RETURN);
 	} else
 	///////kdiy///////	
 	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, pcard->previous.location, pos, TRUE, 1, zone, FALSE, LOCATION_REASON_TOFIELD | LOCATION_REASON_RETURN);
