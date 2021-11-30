@@ -236,6 +236,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_NOT_EXTRA                    2024
 #define EFFECT_ASSUME_ZERO                  2025
 #define EVENT_ZERO_LP                       2026
+#define EFFECT_CHANGE_RECOVER				2027
 //////////kdiy/////////
 #define EFFECT_IMMUNE_EFFECT                1
 #define EFFECT_DISABLE                      2

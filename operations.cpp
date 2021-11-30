@@ -647,6 +647,20 @@ int32_t field::recover(uint16_t step, effect* reason_effect, uint32_t reason, ui
 				}
 			}
 		}
+		uint32_t val = amount;
+		eset.clear();
+		filter_player_effect(playerid, EFFECT_CHANGE_RECOVER, &eset);
+		for (const auto& peff : eset) {
+			pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(val, PARAM_TYPE_INT);
+			pduel->lua->add_param(reason, PARAM_TYPE_INT);
+			pduel->lua->add_param(reason_player, PARAM_TYPE_INT);
+			val = peff->get_value(4);
+			returns.at<int32_t>(0) = val;
+			if (val == 0)
+				return TRUE;
+		}
+		core.units.begin()->arg2 = (core.units.begin()->arg2 & 0xff000000) | (val & 0xffffff);
 		if(is_step) {
 			core.units.begin()->step = 9;
 			return TRUE;
