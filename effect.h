@@ -35,7 +35,7 @@ public:
 	uint16_t copy_id{};
 	uint16_t range{};
 	//kdiy///////
-	// bool excondition{true};
+	uint8_t oscondition{ 0 };
 	//kdiy///////
 	uint16_t s_range{};
 	uint16_t o_range{};

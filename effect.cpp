@@ -104,14 +104,18 @@ int32_t effect::is_available() {
 		}
 	}
 	///ktest/////////
-	if (!condition)
-	// if (!condition && excondition)
+	//if (!condition)
+	if (!condition && (!oscondition 
+	|| (oscondition == 1 && (handler->current.location != LOCATION_ONFIELD || (handler->current.location == LOCATION_MZONE && !handler->is_affected_by_effect(EFFECT_SANCT_MZONE)) || handler->is_affected_by_effect(EFFECT_ORICA_SZONE)))
+	|| (oscondition == 2 && (handler->current.location != LOCATION_ONFIELD || (handler->current.location == LOCATION_SZONE && !handler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || handler->is_affected_by_effect(EFFECT_SANCT_MZONE)))))
 	///ktest/////////
 		return TRUE;
 	pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
 	///ktest/////////
-	int32_t res = pduel->lua->check_condition(condition, 1);
-	//int32_t res = pduel->lua->check_condition(condition, 1) && excondition;
+	//int32_t res = pduel->lua->check_condition(condition, 1);
+	int32_t res = pduel->lua->check_condition(condition, 1) && (!oscondition 
+	|| (oscondition == 1 && (handler->current.location != LOCATION_ONFIELD || (handler->current.location == LOCATION_MZONE && !handler->is_affected_by_effect(EFFECT_SANCT_MZONE)) || handler->is_affected_by_effect(EFFECT_ORICA_SZONE)))
+	|| (oscondition == 2 && (handler->current.location != LOCATION_ONFIELD || (handler->current.location == LOCATION_SZONE && !handler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || handler->is_affected_by_effect(EFFECT_SANCT_MZONE))));
 	///ktest/////////
 	if(res) {
 		if(!(status & EFFECT_STATUS_AVAILABLE))
@@ -337,9 +341,10 @@ int32_t effect::is_action_check(uint8_t playerid) {
 // check functions: condition, cost(chk=0), target(chk=0)
 int32_t effect::is_activate_ready(effect* reason_effect, uint8_t playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target) {
 	///ktest/////////
-	// bool excondition = !get_handler() || (get_handler() && ((get_handler()->current.location != LOCATION_SZONE) || (get_handler()->is_affected_by_effect(EFFECT_ORICA_SZONE) != 0)));
-	// if(!neglect_cond && !condition && !excondition)
-	//     return FALSE;
+	if(!(!oscondition 
+	|| (oscondition == 1 && (handler->current.location != LOCATION_ONFIELD || (handler->current.location == LOCATION_MZONE && !handler->is_affected_by_effect(EFFECT_SANCT_MZONE)) || handler->is_affected_by_effect(EFFECT_ORICA_SZONE)))
+	|| (oscondition == 2 && (handler->current.location != LOCATION_ONFIELD || (handler->current.location == LOCATION_SZONE && !handler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || handler->is_affected_by_effect(EFFECT_SANCT_MZONE)))))
+	    return FALSE;
 	///ktest/////////
 	if(!neglect_cond && condition) {
 		pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
@@ -350,10 +355,7 @@ int32_t effect::is_activate_ready(effect* reason_effect, uint8_t playerid, const
 		pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
-		///ktest/////////
 		if(!pduel->lua->check_condition(condition, 8)) {
-		// if(!(pduel->lua->check_condition(condition, 8) && excondition)) {
-		///ktest/////////	
 			return FALSE;
 		}
 	}
@@ -396,8 +398,10 @@ int32_t effect::is_condition_check(uint8_t playerid, const tevent& e) {
 	if(!(type & EFFECT_TYPE_ACTIVATE) && (phandler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED)) && !phandler->is_position(POS_FACEUP))
 		return FALSE;
 	///ktest/////////	
-	if(!condition)
-	// if(!condition && excondition)
+	//if(!condition)
+	if(!condition && (!oscondition 
+	|| (oscondition == 1 && (handler->current.location != LOCATION_ONFIELD || (handler->current.location == LOCATION_MZONE && !handler->is_affected_by_effect(EFFECT_SANCT_MZONE)) || handler->is_affected_by_effect(EFFECT_ORICA_SZONE)))
+	|| (oscondition == 2 && (handler->current.location != LOCATION_ONFIELD || (handler->current.location == LOCATION_SZONE && !handler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || handler->is_affected_by_effect(EFFECT_SANCT_MZONE)))))
 	///ktest/////////
 		return TRUE;
 	effect* oreason = pduel->game_field->core.reason_effect;
@@ -414,8 +418,10 @@ int32_t effect::is_condition_check(uint8_t playerid, const tevent& e) {
 	pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 	pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
 	///ktest/////////
-	if(!(pduel->lua->check_condition(condition, 8))) {
-	//if(!(pduel->lua->check_condition(condition, 8) && excondition)) {
+	//if(!(pduel->lua->check_condition(condition, 8))) {
+	if(!(pduel->lua->check_condition(condition, 8) && (!oscondition 
+	|| (oscondition == 1 && (handler->current.location != LOCATION_ONFIELD || (handler->current.location == LOCATION_MZONE && !handler->is_affected_by_effect(EFFECT_SANCT_MZONE)) || handler->is_affected_by_effect(EFFECT_ORICA_SZONE)))
+	|| (oscondition == 2 && (handler->current.location != LOCATION_ONFIELD || (handler->current.location == LOCATION_SZONE && !handler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || handler->is_affected_by_effect(EFFECT_SANCT_MZONE)))))) {
 	///ktest/////////	
 		pduel->game_field->restore_lp_cost();
 		pduel->game_field->core.reason_effect = oreason;
