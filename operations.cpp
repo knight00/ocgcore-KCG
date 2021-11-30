@@ -647,6 +647,7 @@ int32_t field::recover(uint16_t step, effect* reason_effect, uint32_t reason, ui
 				}
 			}
 		}
+		//EFFECT_CHANGE_RECOVER
 		uint32_t val = amount;
 		eset.clear();
 		filter_player_effect(playerid, EFFECT_CHANGE_RECOVER, &eset);
@@ -661,6 +662,7 @@ int32_t field::recover(uint16_t step, effect* reason_effect, uint32_t reason, ui
 				return TRUE;
 		}
 		core.units.begin()->arg2 = (core.units.begin()->arg2 & 0xff000000) | (val & 0xffffff);
+		//EFFECT_CHANGE_RECOVER
 		if(is_step) {
 			core.units.begin()->step = 9;
 			return TRUE;
