@@ -2322,7 +2322,7 @@ void card::xyz_overlay(const card_set& materials) {
 	}
 	for(auto& pcard : cv) {
 		//kdiy////////
-		if(pcard->is_affected_by_effect(EFFECT_IMMUNE_OVERLAY) && !((pcard->current.reason & REASON_RULE) && !(pcard->is_affected_by_effect(EFFECT_GOD_IMMUNE) && !pcard->is_affect_by_effect(pcard->current.reason_effect))))
+		if(pcard->is_affected_by_effect(EFFECT_IMMUNE_OVERLAY) && !((pcard->current.reason & REASON_RULE) && !(pcard->is_affected_by_effect(EFFECT_GOD_IMMUNE) && pcard->current.reason_effect && !pcard->is_affect_by_effect(pcard->current.reason_effect))))
 			continue;
 		//kdiy////////
 		pcard->current.reason = REASON_XYZ + REASON_MATERIAL;
