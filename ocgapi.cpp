@@ -17,15 +17,15 @@ OCGAPI void OCG_GetVersion(int* major, int* minor) {
 		*minor = OCG_VERSION_MINOR;
 }
 
-OCGAPI int OCG_CreateDuel(OCG_Duel* duel, OCG_DuelOptions options) {
-	if(duel == nullptr)
+OCGAPI int OCG_CreateDuel(OCG_Duel* return_duel_ptr, OCG_DuelOptions options) {
+	if(return_duel_ptr == nullptr)
 		return OCG_DUEL_CREATION_NO_OUTPUT;
 	if(options.cardReader == nullptr) {
-		*duel = nullptr;
+		*return_duel_ptr = nullptr;
 		return OCG_DUEL_CREATION_NULL_DATA_READER;
 	}
 	if(options.scriptReader == nullptr) {
-		*duel = nullptr;
+		*return_duel_ptr = nullptr;
 		return OCG_DUEL_CREATION_NULL_SCRIPT_READER;
 	}
 	if(options.logHandler == nullptr) {
@@ -36,19 +36,10 @@ OCGAPI int OCG_CreateDuel(OCG_Duel* duel, OCG_DuelOptions options) {
 		options.cardReaderDone = DefaultCardReaderDone;
 		options.payload4 = nullptr;
 	}
-	auto duelPtr = new class duel(options);
+	auto* duelPtr = new (std::nothrow) duel(options);
 	if(duelPtr == nullptr)
 		return OCG_DUEL_CREATION_NOT_CREATED;
-	duelPtr->random.seed(options.seed);
-	duelPtr->game_field->core.duel_options = options.flags;
-	auto& team = options.team1;
-	for(int i = 0; i < 2; i++, team = options.team2) {
-		duelPtr->game_field->player[i].lp = team.startingLP;
-		duelPtr->game_field->player[i].start_lp = team.startingLP;
-		duelPtr->game_field->player[i].start_count = team.startingDrawCount;
-		duelPtr->game_field->player[i].draw_count = team.drawCountPerTurn;
-	}
-	*duel = static_cast<OCG_Duel>(duelPtr);
+	*return_duel_ptr = static_cast<OCG_Duel>(duelPtr);
 	return OCG_DUEL_CREATION_SUCCESS;
 }
 

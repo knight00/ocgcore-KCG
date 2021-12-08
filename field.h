@@ -74,10 +74,10 @@ struct chain {
 };
 
 struct player_info {
-	int32_t lp{ 8000 };
-	int32_t start_lp{ 8000 };
-	int32_t start_count{ 5 };
-	int32_t draw_count{ 1 };
+	int32_t lp;
+	int32_t start_lp;
+	int32_t start_count;
+	int32_t draw_count;
 	uint32_t used_location{ 0 };
 	uint32_t disabled_location{ 0 };
 	uint32_t extra_p_count{ 0 };
@@ -95,7 +95,9 @@ struct player_info {
 	std::vector<card_vector> extra_lists_hand;
 	std::vector<card_vector> extra_lists_extra;
 	std::vector<uint32_t> extra_extra_p_count;
-	player_info() {
+	player_info(const OCG_Player& team) :
+		lp(team.startingLP), start_lp(team.startingLP),
+		start_count(team.startingDrawCount), draw_count(team.drawCountPerTurn) {
 		list_mzone.resize(7, nullptr);
 		list_szone.resize(8, nullptr);
 		list_main.reserve(45);
@@ -183,16 +185,21 @@ struct processor_unit {
 	void* ptr1;
 	void* ptr2;
 };
-class return_card {
+template<typename T>
+class return_card_generic {
 public:
 	bool canceled;
-	std::vector<card*> list;
-	return_card():canceled(false) {};
+	std::vector<T> list;
+	return_card_generic():canceled(false) {};
 	void clear() {
 		canceled = false;
 		list.clear();
 	}
 };
+
+using return_card = return_card_generic<card*>;
+using return_card_code = return_card_generic<std::pair<uint32_t, uint32_t>>;
+
 struct processor {
 	using option_vector = std::vector<uint64_t>;
 	using processor_list = std::list<processor_unit>;
@@ -211,6 +218,7 @@ struct processor {
 	processor_unit reserved;
 	card_set just_sent_cards;
 	card_vector select_cards;
+	std::vector<std::pair<uint32_t, uint32_t>> select_cards_codes;
 	card_vector unselect_cards;
 	card_vector summonable_cards;
 	card_vector spsummonable_cards;
@@ -374,7 +382,7 @@ struct processor {
 class field {
 public:
 	duel* pduel;
-	player_info player[2];
+	std::array<player_info,2> player;
 	card* temp_card;
 	field_info infos;
 	//lpcost cost[2];
@@ -382,10 +390,11 @@ public:
 	processor core{};
 	ProgressiveBuffer returns;
 	return_card return_cards;
+	return_card_code return_card_codes;
 	tevent nil_event;
 
 	static int32_t field_used_count[32];
-	explicit field(duel* pduel);
+	explicit field(duel* pduel, const OCG_DuelOptions& options);
 	~field() = default;
 	void reload_field_info();
 
@@ -638,8 +647,9 @@ public:
 	int32_t select_effect_yes_no(uint16_t step, uint8_t playerid, uint64_t description, card* pcard);
 	int32_t select_yes_no(uint16_t step, uint8_t playerid, uint64_t description);
 	int32_t select_option(uint16_t step, uint8_t playerid);
-	bool parse_response_cards(uint8_t cancelable = FALSE, uint8_t sort = TRUE);
-	int32_t select_card(uint16_t step, uint8_t playerid, uint8_t cancelable, uint8_t min, uint8_t max, uint8_t use_code);
+	bool parse_response_cards(bool cancelable);
+	int32_t select_card(uint16_t step, uint8_t playerid, uint8_t cancelable, uint8_t min, uint8_t max);
+	int32_t select_card_codes(uint16_t step, uint8_t playerid, uint8_t cancelable, uint8_t min, uint8_t max);
 	int32_t select_unselect_card(uint16_t step, uint8_t playerid, uint8_t cancelable, uint8_t min, uint8_t max, uint8_t finishable);
 	int32_t select_chain(uint16_t step, uint8_t playerid, uint8_t spe_count, uint8_t forced);
 	int32_t select_place(uint16_t step, uint8_t playerid, uint32_t flag, uint8_t count);
@@ -760,6 +770,7 @@ public:
 #define PROCESSOR_SORT_CARD			25
 #define PROCESSOR_SELECT_RELEASE	26
 #define PROCESSOR_SELECT_TRIBUTE	27
+#define PROCESSOR_SELECT_CARD_CODES	28
 #define PROCESSOR_POINT_EVENT		30
 #define PROCESSOR_QUICK_EFFECT		31
 #define PROCESSOR_IDLE_COMMAND		32
