@@ -4114,7 +4114,7 @@ int32_t field::destroy(uint16_t step, group* targets, effect* reason_effect, uin
 			////////kdiy//////////
 			//if(!(pcard->current.reason & (REASON_RULE | REASON_COST))) {
 			if((!(pcard->current.reason & REASON_COST))
-			  && (!(pcard->current.reason & REASON_RULE) || (pcard->is_affected_by_effect(EFFECT_GOD_IMMUNE) && pcard->current.reason_effect && !pcard->current.reason_effect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE)))) {	
+			  && ((!(pcard->current.reason & REASON_RULE)) || (pcard->is_affected_by_effect(EFFECT_GOD_IMMUNE) && pcard->current.reason_effect && !pcard->current.reason_effect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE)))) {	
 			////////kdiy//////////	
 				bool is_destructable = true;
 				if(!pcard->current.reason_effect || pcard->is_affect_by_effect(pcard->current.reason_effect)) {
@@ -4463,7 +4463,7 @@ int32_t field::release(uint16_t step, group* targets, effect* reason_effect, uin
 				////////kdiy//////////
 				//|| (!(pcard->current.reason & (REASON_RULE | REASON_SUMMON | REASON_COST))
 				|| (((!(pcard->current.reason & (REASON_SUMMON | REASON_COST)))
-				  && (!(pcard->current.reason & REASON_RULE) || (pcard->is_affected_by_effect(EFFECT_GOD_IMMUNE) && pcard->current.reason_effect && !pcard->current.reason_effect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))))
+				  && ((!(pcard->current.reason & REASON_RULE)) || (pcard->is_affected_by_effect(EFFECT_GOD_IMMUNE) && pcard->current.reason_effect && !pcard->current.reason_effect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))))
 	            ////////kdiy//////////
 					&& (!pcard->is_affect_by_effect(pcard->current.reason_effect) || !pcard->is_releasable_by_nonsummon(reason_player)))) {
 				pcard->current.reason = pcard->temp.reason;
@@ -4475,7 +4475,7 @@ int32_t field::release(uint16_t step, group* targets, effect* reason_effect, uin
 		}
 		/////////kdiy////////
 		//if(reason & REASON_RULE)
-		if((reason & REASON_RULE) && targets->container.size() == 0)
+		if((reason & REASON_RULE) && targets->container.size() > 0)
 		/////////kdiy////////
 			return FALSE;
 		operation_replace(EFFECT_RELEASE_REPLACE, 5, targets);
@@ -4574,7 +4574,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 			uint8_t dest = pcard->sendto_param.location;
 			/////////kdiy////////
 			//if(!(reason & REASON_RULE) &&
-			if((!(reason & REASON_RULE) || (pcard->is_affected_by_effect(EFFECT_GOD_IMMUNE) && pcard->current.reason_effect && !pcard->current.reason_effect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))) &&
+			if(((!(reason & REASON_RULE)) || (pcard->is_affected_by_effect(EFFECT_GOD_IMMUNE) && pcard->current.reason_effect && !pcard->current.reason_effect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))) &&
 			/////////kdiy////////
 				(pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
 					|| (!(pcard->current.reason & (REASON_COST | REASON_SUMMON | REASON_MATERIAL)) && !pcard->is_affect_by_effect(pcard->current.reason_effect))
@@ -4592,7 +4592,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 		}
 		/////////kdiy////////
 		//if(reason & REASON_RULE)
-		if((reason & REASON_RULE) && targets->container.size() == 0)
+		if((reason & REASON_RULE) && targets->container.size() > 0)
 		/////////kdiy////////
 			return FALSE;
 		operation_replace(EFFECT_SEND_REPLACE, 5, targets);
