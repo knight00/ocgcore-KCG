@@ -2661,7 +2661,7 @@ int32_t field::process_battle_command(uint16_t step) {
 					continue;
 				if(!pcard->is_capable_attack_announce(infos.turn_player))
 					continue;
-				if(!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
+				if(!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && !pcard->is_affected_by_effect(EFFECT_EQUIP_MONSTER))
 					continue;				
 				uint8_t chain_attack = FALSE;
 				if(core.chain_attack && core.chain_attacker_id == pcard->fieldid)
