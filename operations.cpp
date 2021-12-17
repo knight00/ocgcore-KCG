@@ -1212,7 +1212,6 @@ int32_t field::swap_control(uint16_t step, effect* reason_effect, uint8_t reason
         }		
 	    ///////kdiy///////		
 		get_useable_count(nullptr, p1, LOCATION_MZONE, reason_player, LOCATION_REASON_CONTROL, 0xff, &flag);
-		flag = (flag & ~(1 << s1) & 0xff) | ~0x1f;
 		///////////kdiy//////////	
 		if(is_player_affected_by_effect(p1, EFFECT_ORICA))  {
 			if(pcard1->current.location == LOCATION_MZONE)
@@ -1239,7 +1238,6 @@ int32_t field::swap_control(uint16_t step, effect* reason_effect, uint8_t reason
 		//kdiy///////			
 		uint32_t flag;
 		get_useable_count(nullptr, p2, LOCATION_MZONE, reason_player, LOCATION_REASON_CONTROL, 0xff, &flag);
-		flag = (flag & ~(1 << s2) & 0xff) | ~0x1f;
 		//kdiy///////
 		card* pcard1 = *targets1->it;
 		if(is_player_affected_by_effect(p2, EFFECT_ORICA))  {
