@@ -18,12 +18,12 @@ using namespace scriptlib;
 
 ////kdiy////////////////////
 int32_t card_set_entity_code(lua_State *L) {
-	check_param_count(L, 3);
+	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto code = lua_get<uint32_t>(L, 2);
 	if (pcard->recreate(code)) {
 		lua_pushinteger(L, pcard->set_entity_code(code));
-		if(!lua_isnoneornil(L, 3)) pcard->data.alias = lua_get<uint32_t>(L, 3, pcard->data.alias);
+		pcard->data.alias = lua_get<uint32_t>(L, 3, pcard->data.alias);
 		if(lua_gettop(L) > 3 && !lua_isnoneornil(L, 4)) {
 			if(lua_istable(L, 4)) {
 				lua_table_iterate(L, 4, [&setcodes = pcard->data.setcodes, &L] {
