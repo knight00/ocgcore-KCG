@@ -18,7 +18,7 @@ using namespace scriptlib;
 
 ////kdiy////////////////////
 int32_t card_set_entity_code(lua_State *L) {
-	check_param_count(L, 2);
+	check_param_count(L, 3);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto code = lua_get<uint32_t>(L, 2);
 	if (pcard->recreate(code)) {
