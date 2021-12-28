@@ -836,7 +836,7 @@ int32_t card_is_code(lua_State* L) {
 	uint32_t code1 = pcard->get_code();
 	uint32_t code2 = pcard->get_another_code();
 	////kdiy/////
-	uint32_t code3 = pcard->get_ocode();	
+	uint32_t code3 = pcard->get_ocode();
 	////kdiy/////	
 	uint32_t count = lua_gettop(L) - 1;
 	for(uint32_t i = 0; i < count; ++i) {
@@ -846,6 +846,9 @@ int32_t card_is_code(lua_State* L) {
 		////kdiy/////	
 		//if(code1 == tcode || (code2 && code2 == tcode)) {
 		if(code1 == tcode || code3 == tcode || (code2 && code2 == tcode)) {
+			if(pcard->is_affected_by_effect(EFFECT_IS_NOT_CODE))
+				lua_pushboolean(L, FALSE);
+			else
 		////kdiy/////
 			lua_pushboolean(L, TRUE);
 			return 1;
@@ -903,6 +906,11 @@ int32_t card_is_summon_code(lua_State* L) {
 			continue;
 		auto tcode = lua_get<uint32_t>(L, i + 5);
 		if(codes.find(tcode) != codes.end()) {
+			////kdiy/////////////
+			if(pcard->is_affected_by_effect(EFFECT_IS_NOT_CODE))
+				lua_pushboolean(L, FALSE);
+			else
+			////kdiy/////////////
 			lua_pushboolean(L, TRUE);
 			return 1;
 		}
