@@ -837,18 +837,45 @@ int32_t card_is_code(lua_State* L) {
 	uint32_t code2 = pcard->get_another_code();
 	////kdiy/////
 	uint32_t code3 = pcard->get_ocode();
-	////kdiy/////	
+	////kdiy/////
 	uint32_t count = lua_gettop(L) - 1;
+	////kdiy/////
+	uint32_t ocode = pcard->data.code;
+	uint32_t alias = pcard->data.alias;
+	if(pcard->is_affected_by_effect(EFFECT_IS_NOT_CODE) && alias && alias != ) {
+		bool chk1 = false;
+		bool chk2 = false;
+		for(uint32_t i = 0; i < count; ++i) {
+			if(lua_isnoneornil(L, i + 2))
+			    continue;
+			uint32_t tcode = lua_get<uint32_t>(L, i + 2);
+			if(ocode == tcode)
+			    chk1 = true;
+			if(alias == tcode)
+			    chk2 = true;
+			if(chk1 && chk2) {
+				lua_pushboolean(L, TRUE);
+				return 1;
+			}
+		}
+	}
+	////kdiy/////
 	for(uint32_t i = 0; i < count; ++i) {
 		if(lua_isnoneornil(L, i + 2))
 			continue;
 		uint32_t tcode = lua_get<uint32_t>(L, i + 2);
-		////kdiy/////	
+		////kdiy/////
 		//if(code1 == tcode || (code2 && code2 == tcode)) {
 		if(code1 == tcode || code3 == tcode || (code2 && code2 == tcode)) {
-			if(pcard->is_affected_by_effect(EFFECT_IS_NOT_CODE))
-				lua_pushboolean(L, FALSE);
-			else
+			if(pcard->is_affected_by_effect(EFFECT_IS_NOT_CODE)) {
+				if(tcode != ocode && tcode != alias) {
+					lua_pushboolean(L, TRUE);
+					return 1;
+				} else {
+					lua_pushboolean(L, FALSE);
+					return 1;
+				}
+			}
 		////kdiy/////
 			lua_pushboolean(L, TRUE);
 			return 1;
