@@ -42,6 +42,7 @@ struct card_data {
 	uint32_t link_marker{};
 	///////kdiy///////
 	uint32_t ot{};
+	uint32_t realcode{};	
 	///////kdiy///////	
 	card_data(const OCG_CardData& data);
 	card_data() {};

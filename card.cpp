@@ -125,7 +125,10 @@ insert_value<type>(pduel->query_buffer, value);\
 void card::get_infos(int32_t query_flag) {
 	CHECK_AND_INSERT(QUERY_CODE, data.code);
 	CHECK_AND_INSERT(QUERY_POSITION, get_info_location().position);
-	CHECK_AND_INSERT(QUERY_ALIAS, get_code());
+	//////kdiy//////////
+	//CHECK_AND_INSERT(QUERY_ALIAS, get_code());
+	CHECK_AND_INSERT(QUERY_ALIAS, (data.realcode && get_code() == 0) ? data.realcode : get_code());
+	//////kdiy//////////
 	CHECK_AND_INSERT(QUERY_TYPE, get_type());
 	CHECK_AND_INSERT(QUERY_LEVEL, get_level());
 	CHECK_AND_INSERT(QUERY_RANK, get_rank());
@@ -265,7 +268,16 @@ uint32_t card::get_code() {
 			}
 		}
 		if(data.alias && !addcode)
-			code = data.alias;
+		/////////kdiy////////
+			//code = data.alias;
+		{	
+			uint32_t realcode = data.realcode;
+			if(realcode)
+			    code = 0;
+			else
+			    code = data.alias;
+		}
+		/////////kdiy////////	
 	} else {
 		const auto& dat = pduel->read_card(code);
 		if (dat.alias && !second_code(code))

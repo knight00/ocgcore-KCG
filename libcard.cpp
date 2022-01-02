@@ -43,6 +43,9 @@ int32_t card_set_entity_code(lua_State *L) {
 		pcard->data.link_marker = lua_get<uint32_t>(L, 13, pcard->data.link_marker);
 		if (lua_get<bool, false>(L, 14))
 			pcard->replace_effect(code, 0, 0, true, true);
+		pcard->data.realcode = lua_get<uint32_t>(L, 15, pcard->data.realcode);
+		if (pcard->data.realcode)
+		    pcard->data.alias = pcard->data.realcode;
 	}
 	return 1;
 }
@@ -151,9 +154,9 @@ int32_t card_get_origin_code(lua_State* L) {
 		if(dif > -10 && dif < 10)
 			lua_pushinteger(L, pcard->data.alias);
 		else
-			lua_pushinteger(L, pcard->data.code);
+		    lua_pushinteger(L, pcard->data.code);
 	} else
-		lua_pushinteger(L, pcard->data.code);
+	    lua_pushinteger(L, pcard->data.code);
 	return 1;
 }
 // GetOriginalCodeRule(): get the original code in duel (can be different from printed code)
@@ -837,28 +840,9 @@ int32_t card_is_code(lua_State* L) {
 	uint32_t code2 = pcard->get_another_code();
 	////kdiy/////
 	uint32_t code3 = pcard->get_ocode();
+	uint32_t realcode = pcard->data.realcode;
 	////kdiy/////
 	uint32_t count = lua_gettop(L) - 1;
-	////kdiy/////
-	uint32_t ocode = pcard->data.code;
-	uint32_t alias = pcard->data.alias;
-	if(pcard->is_affected_by_effect(EFFECT_IS_NOT_CODE) && alias && alias != ) {
-		bool chk1 = false;
-		bool chk2 = false;
-		for(uint32_t i = 0; i < count; ++i) {
-			if(lua_isnoneornil(L, i + 2))
-			    continue;
-			uint32_t tcode = lua_get<uint32_t>(L, i + 2);
-			if(ocode == tcode)
-			    chk1 = true;
-			if(alias == tcode)
-			    chk2 = true;
-			if(chk1 && chk2) {
-				lua_pushboolean(L, TRUE);
-				return 1;
-			}
-		}
-	}
 	////kdiy/////
 	for(uint32_t i = 0; i < count; ++i) {
 		if(lua_isnoneornil(L, i + 2))
@@ -866,16 +850,7 @@ int32_t card_is_code(lua_State* L) {
 		uint32_t tcode = lua_get<uint32_t>(L, i + 2);
 		////kdiy/////
 		//if(code1 == tcode || (code2 && code2 == tcode)) {
-		if(code1 == tcode || code3 == tcode || (code2 && code2 == tcode)) {
-			if(pcard->is_affected_by_effect(EFFECT_IS_NOT_CODE)) {
-				if(tcode != ocode && tcode != alias) {
-					lua_pushboolean(L, TRUE);
-					return 1;
-				} else {
-					lua_pushboolean(L, FALSE);
-					return 1;
-				}
-			}
+		if(!realcode && (code1 == tcode || code3 == tcode || (code2 && code2 == tcode))) {
 		////kdiy/////
 			lua_pushboolean(L, TRUE);
 			return 1;
@@ -899,7 +874,7 @@ int32_t card_is_summon_code(lua_State* L) {
 	uint32_t code1 = pcard->get_code();
 	uint32_t code2 = pcard->get_another_code();
 	////kdiy/////
-	uint32_t code3 = pcard->get_ocode();	
+	uint32_t code3 = pcard->get_ocode();
 	////kdiy/////
 	codes.insert(code1);
 	if (code2)
@@ -933,11 +908,6 @@ int32_t card_is_summon_code(lua_State* L) {
 			continue;
 		auto tcode = lua_get<uint32_t>(L, i + 5);
 		if(codes.find(tcode) != codes.end()) {
-			////kdiy/////////////
-			if(pcard->is_affected_by_effect(EFFECT_IS_NOT_CODE))
-				lua_pushboolean(L, FALSE);
-			else
-			////kdiy/////////////
 			lua_pushboolean(L, TRUE);
 			return 1;
 		}
