@@ -421,8 +421,9 @@ int32_t effect::is_condition_check(uint8_t playerid, const tevent& e) {
 	//if(!(pduel->lua->check_condition(condition, 8))) {
 	if(!(pduel->lua->check_condition(condition, 8) && (!oscondition 
 	|| (oscondition == 1 && (!(handler->current.location & LOCATION_ONFIELD) || (handler->current.location == LOCATION_MZONE && !handler->is_affected_by_effect(EFFECT_SANCT_MZONE)) || handler->is_affected_by_effect(EFFECT_ORICA_SZONE)))
-	|| (oscondition == 2 && (!(handler->current.location & LOCATION_ONFIELD) || (handler->current.location == LOCATION_SZONE && !handler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || handler->is_affected_by_effect(EFFECT_SANCT_MZONE)))))) {
-	///ktest/////////	
+	|| (oscondition == 2 && (!(handler->current.location & LOCATION_ONFIELD) || (handler->current.location == LOCATION_SZONE && !handler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || handler->is_affected_by_effect(EFFECT_SANCT_MZONE))))) 
+	    || (handler->data.realcode && handler->data.realcode == 213 && code != EVENT_DESTROYED && (type == EFFECT_TYPE_QUICK_O || type == EFFECT_TYPE_TRIGGER_O || type == EFFECT_TYPE_IGNITION))) {
+	///ktest/////////
 		pduel->game_field->restore_lp_cost();
 		pduel->game_field->core.reason_effect = oreason;
 		pduel->game_field->core.reason_player = op;

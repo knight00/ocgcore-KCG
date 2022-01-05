@@ -44,8 +44,10 @@ int32_t card_set_entity_code(lua_State *L) {
 		if (lua_get<bool, false>(L, 14))
 			pcard->replace_effect(code, 0, 0, true, true);
 		pcard->data.realcode = lua_get<uint32_t>(L, 15, pcard->data.realcode);
-		if (pcard->data.realcode)
-		    pcard->data.alias = pcard->data.realcode;
+		if (pcard->data.realcode) {
+			pcard->data.realalias = pcard->data.alias;
+			pcard->data.alias = pcard->data.realcode;
+		}
 	}
 	return 1;
 }
@@ -113,6 +115,15 @@ int32_t card_get_origin_link_marker(lua_State *L) {
 	else
 		lua_pushinteger(L, pcard->data.link_marker);
 	return 1;
+}
+int32_t card_get_real_code(lua_State* L) {
+	check_param_count(L, 1);
+	const auto pduel = lua_get<duel*>(L);
+	auto pcard = lua_get<card*, true>(L, 1);
+	lua_pushinteger(L, pcard->data.realcode);
+	lua_pushinteger(L, pcard->data.code);
+	lua_pushinteger(L, pcard->data.realalias);
+	return 3;
 }
 ////kdiy////////////////////
 int32_t card_get_code(lua_State* L) {
@@ -2882,6 +2893,7 @@ static constexpr luaL_Reg cardlib[] = {
 	{ "SetEntityCode", card_set_entity_code },
 	{ "SetCardData", card_set_card_data },
 	{ "GetOriginalLinkMarker", card_get_origin_link_marker },
+	{ "GetRealCode", card_get_real_code },
 	///////kdiy///////
 	{ "GetCode", card_get_code },
 	{ "GetOriginalCode", card_get_origin_code },
