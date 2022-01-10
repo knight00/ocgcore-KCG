@@ -1743,19 +1743,19 @@ int32_t card::check_xyz_level(card* pcard, int32_t lv) {
 	effect_set eset;
 	filter_effect(EFFECT_XYZ_LEVEL, &eset);
 	for(auto& eff : eset) {
-		std::vector<int32_t> res;
+		std::vector<lua_Integer> res;
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
-		eff->get_value(2, &res);
+		eff->get_value(2, res);
 		if(res.size() == 1) {
 			///////kdiy///////
-			//uint32_t lev = res[0];
+			//uint32_t lev = static_cast<uint32_t>(res[0]);
 			int32_t lev = res[0];
 			///////kdiy///////
 			if((lev & 0xfff) == lv || ((lev >> 16) & 0xfff) == lv)
 				return TRUE;
 		} else {
-			if(std::find(res.begin(), res.end(), (int32_t)lv) != res.end())
+			if(std::find(res.begin(), res.end(), lv) != res.end())
 				return TRUE;
 		}
 	}
@@ -3385,8 +3385,8 @@ int32_t card::filter_summon_procedure(uint8_t playerid, effect_set* peset, uint8
 	if(pduel->game_field->check_unique_onfield(this, playerid, LOCATION_MZONE))
 		return FALSE;
 	int32_t rcount = get_summon_tribute_count();
-	int32_t min = rcount & 0xffff;
-	int32_t max = (rcount >> 16) & 0xffff;
+	uint8_t min = rcount & 0xffff;
+	uint8_t max = (rcount >> 16) & 0xffff;
 	if(!pduel->game_field->is_player_can_summon(SUMMON_TYPE_ADVANCE, playerid, this, playerid))
 		max = 0;
 	if(min < min_tribute)
@@ -3398,15 +3398,21 @@ int32_t card::filter_summon_procedure(uint8_t playerid, effect_set* peset, uint8
 		eset.clear();
 		filter_effect(EFFECT_EXTRA_SUMMON_COUNT, &eset);
 		for(const auto& peffect : eset) {
-			std::vector<int32_t> retval;
-			peffect->get_value(this, 0, &retval);
-			int32_t new_min = retval.size() > 0 ? retval[0] : 0;
-			int32_t new_zone = retval.size() > 1 ? retval[1] : 0x1f;
+			std::vector<lua_Integer> retval;
+			peffect->get_value(this, 0, retval);
+			uint8_t new_min = retval.size() > 0 ? static_cast<uint8_t>(retval[0]) : 0;
+			uint32_t new_zone = retval.size() > 1 ? static_cast<uint32_t>(retval[1]) : 0x1f;
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA) && retval.size()<2)
 				new_zone+= 0x1f00;			  
-			///////kdiy///////			
-			int32_t releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
+			///////kdiy///////
+			uint32_t releasable = 0xff00ffu;
+			if(retval.size() > 2) {
+				if(retval[2] < 0)
+					releasable += static_cast<int32_t>(retval[2]);
+				else
+					releasable = static_cast<uint32_t>(retval[2]);
+			}
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA)) {
 				if(retval.size() < 0 || retval.size() < 3)
@@ -3416,7 +3422,7 @@ int32_t card::filter_summon_procedure(uint8_t playerid, effect_set* peset, uint8
 				if(retval.size() < 0 || retval.size() < 3)
 					releasable+= 0x1f000000; 
 			}
-			///////kdiy///////			
+			///////kdiy//////
 			if(new_min < min)
 				new_min = min;
 			new_zone &= zone;
@@ -3445,17 +3451,23 @@ int32_t card::check_summon_procedure(effect* peffect, uint8_t playerid, uint8_t 
 		effect_set eset;
 		filter_effect(EFFECT_EXTRA_SUMMON_COUNT, &eset);
 		for(const auto& peff : eset) {
-			std::vector<int32_t> retval;
-			peff->get_value(this, 0, &retval);
-			int32_t new_min_tribute = retval.size() > 0 ? retval[0] : 0;
-			int32_t new_zone = retval.size() > 1 ? retval[1] : 0x1f001f;
+			std::vector<lua_Integer> retval;
+			peff->get_value(this, 0, retval);
+			uint8_t new_min_tribute = retval.size() > 0 ? static_cast<uint8_t>(retval[0]) : 0;
+			uint32_t new_zone = retval.size() > 1 ? static_cast<uint32_t>(retval[1]) : 0x1f001f;
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA) && retval.size()<2)
 				new_zone+= 0x1f00;
 			if(pduel->game_field->is_player_affected_by_effect(1-playerid,EFFECT_ORICA) && retval.size()<2)
 				new_zone+= 0x1f0000;				  
-			///////kdiy///////			
-			int32_t releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
+			///////kdiy///////
+			uint32_t releasable = 0xff00ffu;
+			if(retval.size() > 2) {
+				if(retval[2] < 0)
+					releasable += static_cast<int32_t>(retval[2]);
+				else
+					releasable = static_cast<uint32_t>(retval[2]);
+			}
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA)) {
 				if(retval.size() < 0 || retval.size() < 3)
@@ -3465,8 +3477,8 @@ int32_t card::check_summon_procedure(effect* peffect, uint8_t playerid, uint8_t 
 				if(retval.size() < 0 || retval.size() < 3)
 					releasable+= 0x1f000000; 
 			}
-			///////kdiy///////			
-			if(new_min_tribute < (int32_t)min_tribute)
+			///////kdiy///////
+			if(new_min_tribute < min_tribute)
 				new_min_tribute = min_tribute;
 			if (peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM) && peffect->o_range)
 				new_zone = (new_zone >> 16) | (new_zone & 0xffff << 16);
@@ -3513,15 +3525,21 @@ int32_t card::filter_set_procedure(uint8_t playerid, effect_set* peset, uint8_t 
 		eset.clear();
 		filter_effect(EFFECT_EXTRA_SET_COUNT, &eset);
 		for(const auto& peff : eset) {
-			std::vector<int32_t> retval;
-			peff->get_value(this, 0, &retval);
-			int32_t new_min = retval.size() > 0 ? retval[0] : 0;
-			int32_t new_zone = retval.size() > 1 ? retval[1] : 0x1f;
+			std::vector<lua_Integer> retval;
+			peff->get_value(this, 0, retval);
+			uint8_t new_min = retval.size() > 0 ? static_cast<uint8_t>(retval[0]) : 0;
+			uint32_t new_zone = retval.size() > 1 ? static_cast<uint32_t>(retval[1]) : 0x1f;
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA) && retval.size()<2)
 				new_zone+= 0x1f00;			  
-			///////kdiy///////				
-			int32_t releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
+			///////kdiy///////
+			uint32_t releasable = 0xff00ffu;
+			if(retval.size() > 2) {
+				if(retval[2] < 0)
+					releasable += static_cast<int32_t>(retval[2]);
+				else
+					releasable = static_cast<uint32_t>(retval[2]);
+			}
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA)) {
 				if(retval.size() < 0 || retval.size() < 3)
@@ -3531,7 +3549,7 @@ int32_t card::filter_set_procedure(uint8_t playerid, effect_set* peset, uint8_t 
 				if(retval.size() < 0 || retval.size() < 3)
 					releasable+= 0x1f000000; 
 			}
-			///////kdiy///////				
+			///////kdiy///////
 			if(new_min < min)
 				new_min = min;
 			new_zone &= zone;
@@ -3557,17 +3575,23 @@ int32_t card::check_set_procedure(effect* peffect, uint8_t playerid, uint8_t ign
 		effect_set eset;
 		filter_effect(EFFECT_EXTRA_SET_COUNT, &eset);
 		for(const auto& peff : eset) {
-			std::vector<int32_t> retval;
-			peff->get_value(this, 0, &retval);
-			int32_t new_min_tribute = retval.size() > 0 ? retval[0] : 0;
-			int32_t new_zone = retval.size() > 1 ? retval[1] : 0x1f001f;
+			std::vector<lua_Integer> retval;
+			peff->get_value(this, 0, retval);
+			uint8_t new_min_tribute = retval.size() > 0 ? static_cast<uint8_t>(retval[0]) : 0;
+			uint32_t new_zone = retval.size() > 1 ? static_cast<uint32_t>(retval[1]) : 0x1f001f;
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA) && retval.size()<2)
 				new_zone+= 0x1f00;
 			if(pduel->game_field->is_player_affected_by_effect(1-playerid,EFFECT_ORICA) && retval.size()<2)
 				new_zone+= 0x1f0000;				  
-			///////kdiy///////				
-			int32_t releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
+			///////kdiy///////
+			uint32_t releasable = 0xff00ffu;
+			if(retval.size() > 2) {
+				if(retval[2] < 0)
+					releasable += static_cast<int32_t>(retval[2]);
+				else
+					releasable = static_cast<uint32_t>(retval[2]);
+			}
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA)) {
 				if(retval.size() < 0 || retval.size() < 3)
@@ -3577,7 +3601,7 @@ int32_t card::check_set_procedure(effect* peffect, uint8_t playerid, uint8_t ign
 				if(retval.size() < 0 || retval.size() < 3)
 					releasable+= 0x1f000000; 
 			}
-			///////kdiy///////				
+			///////kdiy///////
 			if (peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM) && peffect->o_range)
 				new_zone = (new_zone >> 16) | (new_zone & 0xffff << 16);
 			if(new_min_tribute < (int32_t)min_tribute)
@@ -3614,10 +3638,10 @@ void card::filter_spsummon_procedure(uint8_t playerid, effect_set* peset, uint32
 			effect* sumeffect = pduel->game_field->core.reason_effect;
 			if(!sumeffect)
 				sumeffect = peffect;
-			std::vector<int32_t> retval;
-			peffect->get_value(this, 0, &retval);
-			uint32_t sumtype = retval.size() > 0 ? retval[0] : 0;
-			uint32_t zone = retval.size() > 1 ? retval[1] : 0xff;
+			std::vector<lua_Integer> retval;
+			peffect->get_value(this, 0, retval);
+			uint32_t sumtype = retval.size() > 0 ? static_cast<uint32_t>(retval[0]) : 0;
+			uint32_t zone = retval.size() > 1 ? static_cast<uint32_t>(retval[1]) : 0xff;
 			if(zone != 0xff && pduel->game_field->get_useable_count(this, toplayer, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD, zone, nullptr) <= 0)
 				continue;
 			if(summon_type != 0 && summon_type != sumtype)
@@ -4389,8 +4413,6 @@ int32_t card::is_destructable_by_effect(effect* peffect, uint8_t playerid) {
 	return TRUE;
 }
 int32_t card::is_removeable(uint8_t playerid, int32_t pos, uint32_t reason) {
-	if(current.location == LOCATION_REMOVED)
-		return FALSE;
 	if(!pduel->game_field->is_player_can_remove(playerid, this, reason))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_REMOVE))
