@@ -356,9 +356,9 @@ int32_t effect::is_activate_ready(effect* reason_effect, uint8_t playerid, const
 		pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
 		///kdiy/////////
-		//if(!(pduel->lua->check_condition(condition, 8))) {
-		if(!(pduel->lua->check_condition(condition, 8) || (handler->data.realcode && handler->data.realcode == 213 && code != EVENT_DESTROYED && ((type & EFFECT_TYPE_QUICK_O) || (type & EFFECT_TYPE_TRIGGER_O) || (type & EFFECT_TYPE_IGNITION))))) {
-		///kdiy/////////	
+		if(!(pduel->lua->check_condition(condition, 8))) {
+		// if(!(pduel->lua->check_condition(condition, 8) || (handler->data.realcode && handler->data.realcode == 213 && code != EVENT_DESTROYED && ((type & EFFECT_TYPE_QUICK_O) || (type & EFFECT_TYPE_TRIGGER_O) || (type & EFFECT_TYPE_IGNITION))))) {
+		///kdiy/////////
 			return FALSE;
 		}
 	}
