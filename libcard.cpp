@@ -865,7 +865,7 @@ int32_t card_is_code(lua_State* L) {
 		effect_set eset;	
 		pcard->filter_effect(EFFECT_INCLUDE_CODE, &eset);
 		for (const auto& peff : eset) {
-			if(!realcode && peff->get_value(pcard) == tcode) {
+			if(peff->get_value(pcard) == tcode) {
 				lua_pushboolean(L, TRUE);
 				return 1;
 			}

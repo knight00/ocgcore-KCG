@@ -373,6 +373,14 @@ int32_t card::is_set_card(uint32_t set_code) {
 			    return TRUE;
 		}
 	}
+	effect_set eset1;	
+	filter_effect(EFFECT_INCLUDE_CODE, &eset1);
+	for (const auto& peff : eset1) {
+		for(auto& setcode : pduel->read_card(peff->get_value(this)).setcodes) {
+			if((setcode & 0xfffu) == settype && (setcode & 0xf000u & setsubtype) == setsubtype)
+			    return TRUE;
+		}
+	}
 	///kdiy/////////
 	for(auto& setcode : (code != data.code) ? pduel->read_card(code).setcodes : data.setcodes) {
 		if ((setcode & 0xfffu) == settype && (setcode & 0xf000u & setsubtype) == setsubtype)
