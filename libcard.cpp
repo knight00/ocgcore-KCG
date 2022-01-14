@@ -862,7 +862,15 @@ int32_t card_is_code(lua_State* L) {
 		uint32_t tcode = lua_get<uint32_t>(L, i + 2);
 		////kdiy/////
 		//if(code1 == tcode || (code2 && code2 == tcode)) {
-		if(!realcode && (code1 == tcode || code3 == tcode || (code2 && code2 == tcode))) {
+		effect_set eset;	
+		pcard->filter_effect(EFFECT_INCLUDE_CODE, &eset);
+		for (const auto& peff : eset) {
+			if(!realcode && peff->get_value(pcard) == tcode) {
+				lua_pushboolean(L, TRUE);
+				return 1;
+			}
+		}
+		if(code1 == tcode || code3 == tcode || (code2 && code2 == tcode)) {
 		////kdiy/////
 			lua_pushboolean(L, TRUE);
 			return 1;
@@ -1425,6 +1433,44 @@ int32_t card_get_activate_effect(lua_State* L) {
 	}
 	return count;
 }
+/////kdiy///////////////
+int32_t card_get_trigger_effect(lua_State* L) {
+	check_param_count(L, 1);
+	auto pcard = lua_get<card*, true>(L, 1);
+	int32_t count = 0;
+	for(auto& eit : pcard->field_effect) {
+		if((eit.second->type & EFFECT_TYPE_IGNITION) || (eit.second->type & EFFECT_TYPE_QUICK_F) || (eit.second->type & EFFECT_TYPE_QUICK_O) || (eit.second->type & EFFECT_TYPE_TRIGGER_F) || (eit.second->type & EFFECT_TYPE_TRIGGER_O) || (eit.second->type & EFFECT_TYPE_ACTIVATE)) {
+			interpreter::pushobject(L, eit.second);
+			count++;
+		}
+	}
+	for(auto& eit : pcard->single_effect) {
+		if((eit.second->type & EFFECT_TYPE_IGNITION) || (eit.second->type & EFFECT_TYPE_QUICK_F) || (eit.second->type & EFFECT_TYPE_QUICK_O) || (eit.second->type & EFFECT_TYPE_TRIGGER_F) || (eit.second->type & EFFECT_TYPE_TRIGGER_O) || (eit.second->type & EFFECT_TYPE_ACTIVATE)) {
+			interpreter::pushobject(L, eit.second);
+			count++;
+		}
+	}
+	return count;
+}
+int32_t card_get_field_effect(lua_State* L) {
+	check_param_count(L, 1);
+	auto pcard = lua_get<card*, true>(L, 1);
+	int32_t count = 0;
+	for(auto& eit : pcard->field_effect) {
+		if(!((eit.second->type & EFFECT_TYPE_IGNITION) || (eit.second->type & EFFECT_TYPE_QUICK_F) || (eit.second->type & EFFECT_TYPE_QUICK_O) || (eit.second->type & EFFECT_TYPE_TRIGGER_F) || (eit.second->type & EFFECT_TYPE_TRIGGER_O) || (eit.second->type & EFFECT_TYPE_ACTIVATE) || (eit.second->type & EFFECT_TYPE_CONTINUOUS))) {
+			interpreter::pushobject(L, eit.second);
+			count++;
+		}
+	}
+	for(auto& eit : pcard->single_effect) {
+		if(!((eit.second->type & EFFECT_TYPE_IGNITION) || (eit.second->type & EFFECT_TYPE_QUICK_F) || (eit.second->type & EFFECT_TYPE_QUICK_O) || (eit.second->type & EFFECT_TYPE_TRIGGER_F) || (eit.second->type & EFFECT_TYPE_TRIGGER_O) || (eit.second->type & EFFECT_TYPE_ACTIVATE) || (eit.second->type & EFFECT_TYPE_CONTINUOUS))) {
+			interpreter::pushobject(L, eit.second);
+			count++;
+		}
+	}
+	return count;
+}
+/////kdiy///////////////
 int32_t card_check_activate_effect(lua_State* L) {
 	check_param_count(L, 4);
 	const auto pduel = lua_get<duel*>(L);
@@ -3033,6 +3079,10 @@ static constexpr luaL_Reg cardlib[] = {
 	{ "GetOwnerTarget", card_get_owner_target },
 	{ "GetOwnerTargetCount", card_get_owner_target_count },
 	{ "GetActivateEffect", card_get_activate_effect },
+	/////kdiy///////////////
+	{ "GetTriggerEffect", card_get_trigger_effect },
+	{ "GetFieldEffect", card_get_field_effect },
+	/////kdiy///////////////
 	{ "CheckActivateEffect", card_check_activate_effect },
 	{ "RegisterEffect", card_register_effect },
 	{ "IsHasEffect", card_is_has_effect },
