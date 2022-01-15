@@ -367,7 +367,7 @@ int32_t card::is_set_card(uint32_t set_code) {
 	uint32_t setsubtype = set_code & 0xf000;
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
-	if (data.alias && ocode && ocode != data.alias) {
+	if ((data.alias && ocode && ocode == data.code) || data.realcode) {
 		for(auto& setcode : data.setcodes) {
 			if ((setcode & 0xfffu) == settype && (setcode & 0xf000u & setsubtype) == setsubtype)
 			    return TRUE;
@@ -419,7 +419,7 @@ int32_t card::is_pre_set_card(uint32_t set_code) {
 	uint32_t setsubtype = set_code & 0xf000;
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
-	if (data.alias && ocode && ocode != data.alias) {
+	if ((data.alias && ocode && ocode == data.code) || data.realcode) {
 		for(auto& setcode : data.setcodes) {
 			if ((setcode & 0xfffu) == settype && (setcode & 0xf000u & setsubtype) == setsubtype)
 			    return TRUE;
@@ -484,7 +484,7 @@ int32_t card::is_sumon_set_card(uint32_t set_code, card* scard, uint64_t sumtype
 	std::set<uint16_t> setcodes;
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
-	if (data.alias && ocode && ocode != data.alias) {
+	if ((data.alias && ocode && ocode == data.code) || data.realcode) {
 		const auto& sets = data.setcodes;
 		if(sets.size())
 			setcodes.insert(sets.begin(), sets.end());
@@ -525,7 +525,7 @@ uint32_t card::get_set_card() {
 	uint32_t code = get_code();
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
-	if (data.alias && ocode && ocode != data.alias) {
+	if ((data.alias && ocode && ocode == data.code) || data.realcode) {
 		for(auto& setcode : data.setcodes) {
 			count++;
 			lua_pushinteger(pduel->lua->current_state, setcode);
@@ -562,7 +562,7 @@ uint32_t card::get_pre_set_card() {
 	uint32_t code = previous.code;
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
-	if (data.alias && ocode && ocode != data.alias) {
+	if ((data.alias && ocode && ocode == data.code) || data.realcode) {
 		for(auto& setcode : data.setcodes) {
 			count++;
 			lua_pushinteger(pduel->lua->current_state, setcode);
