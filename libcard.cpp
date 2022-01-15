@@ -1439,13 +1439,13 @@ int32_t card_get_trigger_effect(lua_State* L) {
 	auto pcard = lua_get<card*, true>(L, 1);
 	int32_t count = 0;
 	for(auto& eit : pcard->field_effect) {
-		if((eit.second->type & EFFECT_TYPE_IGNITION) || (eit.second->type & EFFECT_TYPE_QUICK_F) || (eit.second->type & EFFECT_TYPE_QUICK_O) || (eit.second->type & EFFECT_TYPE_TRIGGER_F) || (eit.second->type & EFFECT_TYPE_TRIGGER_O) || (eit.second->type & EFFECT_TYPE_ACTIVATE)) {
+		if(eit.second->type & (EFFECT_TYPE_IGNITION | EFFECT_TYPE_QUICK_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_ACTIVATE)) {
 			interpreter::pushobject(L, eit.second);
 			count++;
 		}
 	}
 	for(auto& eit : pcard->single_effect) {
-		if((eit.second->type & EFFECT_TYPE_IGNITION) || (eit.second->type & EFFECT_TYPE_QUICK_F) || (eit.second->type & EFFECT_TYPE_QUICK_O) || (eit.second->type & EFFECT_TYPE_TRIGGER_F) || (eit.second->type & EFFECT_TYPE_TRIGGER_O) || (eit.second->type & EFFECT_TYPE_ACTIVATE)) {
+		if(eit.second->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O)) {
 			interpreter::pushobject(L, eit.second);
 			count++;
 		}
@@ -1457,13 +1457,13 @@ int32_t card_get_field_effect(lua_State* L) {
 	auto pcard = lua_get<card*, true>(L, 1);
 	int32_t count = 0;
 	for(auto& eit : pcard->field_effect) {
-		if(!((eit.second->type & EFFECT_TYPE_IGNITION) || (eit.second->type & EFFECT_TYPE_QUICK_F) || (eit.second->type & EFFECT_TYPE_QUICK_O) || (eit.second->type & EFFECT_TYPE_TRIGGER_F) || (eit.second->type & EFFECT_TYPE_TRIGGER_O) || (eit.second->type & EFFECT_TYPE_ACTIVATE) || (eit.second->type & EFFECT_TYPE_CONTINUOUS))) {
+		if(!(eit.second->type & (EFFECT_TYPE_IGNITION | EFFECT_TYPE_QUICK_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_ACTIVATE))) {
 			interpreter::pushobject(L, eit.second);
 			count++;
 		}
 	}
 	for(auto& eit : pcard->single_effect) {
-		if(!((eit.second->type & EFFECT_TYPE_IGNITION) || (eit.second->type & EFFECT_TYPE_QUICK_F) || (eit.second->type & EFFECT_TYPE_QUICK_O) || (eit.second->type & EFFECT_TYPE_TRIGGER_F) || (eit.second->type & EFFECT_TYPE_TRIGGER_O) || (eit.second->type & EFFECT_TYPE_ACTIVATE) || (eit.second->type & EFFECT_TYPE_CONTINUOUS))) {
+		if(!(eit.second->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O))) {
 			interpreter::pushobject(L, eit.second);
 			count++;
 		}
@@ -2176,7 +2176,7 @@ int32_t card_is_level_below(lua_State* L) {
 	    || (is_link && !(pcard->is_affected_by_effect(EFFECT_LINK_LEVEL) || pcard->is_affected_by_effect(EFFECT_LINK_LEVEL_S))))
 		&& !(pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 	    lv = false;
-	lua_pushboolean(L, plvl <= lvl && lv);
+	lua_pushboolean(L, plvl <= lvl && lv && (pcard->get_type() & TYPE_MONSTER));
 	//////kdiy/////////
 	return 1;
 }
@@ -2196,7 +2196,7 @@ int32_t card_is_level_above(lua_State* L) {
 	    || (is_link && !(pcard->is_affected_by_effect(EFFECT_LINK_LEVEL) || pcard->is_affected_by_effect(EFFECT_LINK_LEVEL_S))))
 		&& !(pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 	    lv = false;
-	lua_pushboolean(L, plvl >= lvl && lv);
+	lua_pushboolean(L, plvl >= lvl && lv && (pcard->get_type() & TYPE_MONSTER));
 	//////kdiy/////////
 	return 1;
 }
@@ -2216,7 +2216,7 @@ int32_t card_is_rank_below(lua_State* L) {
 	    || (is_link && !(pcard->is_affected_by_effect(EFFECT_LINK_RANK) || pcard->is_affected_by_effect(EFFECT_LINK_RANK_S))))
 		&& !(pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 	    lv = false;	
-	lua_pushboolean(L, prnk <= rnk && lv);
+	lua_pushboolean(L, prnk <= rnk && lv && (pcard->get_type() & TYPE_MONSTER));
 	//////kdiy/////////	
 	return 1;
 }
@@ -2236,7 +2236,7 @@ int32_t card_is_rank_above(lua_State* L) {
 	    || (is_link && !(pcard->is_affected_by_effect(EFFECT_LINK_RANK) || pcard->is_affected_by_effect(EFFECT_LINK_RANK_S))))
 		&& !(pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 	    lv = false;		
-	lua_pushboolean(L, prnk >= rnk && lv);
+	lua_pushboolean(L, prnk >= rnk && lv && (pcard->get_type() & TYPE_MONSTER));
 	//////kdiy/////////	
 	return 1;
 }
@@ -2257,7 +2257,7 @@ int32_t card_is_link_below(lua_State* L) {
 		&& !(pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 	    lv = false;		
 	//lua_pushboolean(L, plnk > 0 && plnk <= lnk);
-	lua_pushboolean(L, plnk <= lnk && lv);
+	lua_pushboolean(L, plnk <= lnk && lv && (pcard->get_type() & TYPE_MONSTER));
 	//kdiy////////
 	return 1;
 }
@@ -2277,7 +2277,7 @@ int32_t card_is_link_above(lua_State* L) {
 		&& !(pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || pcard->is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 	    lv = false;	
 	//lua_pushboolean(L, plnk > 0 && plnk >= lnk);
-	lua_pushboolean(L, plnk >= lnk && lv);
+	lua_pushboolean(L, plnk >= lnk && lv && (pcard->get_type() & TYPE_MONSTER));
 	//kdiy////////
 	return 1;
 }
