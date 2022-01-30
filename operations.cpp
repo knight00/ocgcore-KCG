@@ -3543,7 +3543,11 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		if(!is_flag(DUEL_SPSUMMON_ONCE_OLD_NEGATE) && target->spsummon_code)
 			core.spsummon_once_map[sumplayer][target->spsummon_code]++;
 		raise_single_event(target, 0, EVENT_SPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);	
-		process_single_event();		
+		process_single_event();	
+		////kdiy////////
+		raise_event(target, EVENT_PRESPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
+		process_instant_event();
+		////kdiy////////
 		raise_event(target, EVENT_SPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);		
 		process_instant_event();
 		if(core.current_chain.size() == 0) {
@@ -3808,6 +3812,10 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		for(auto& pcard : pgroup->container)
 			raise_single_event(pcard, 0, EVENT_SPSUMMON_SUCCESS, pcard->current.reason_effect, 0, pcard->current.reason_player, pcard->summon_player, 0);
 		process_single_event();
+		////kdiy////////
+		raise_event(&pgroup->container, EVENT_PRESPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
+		process_instant_event();
+		////kdiy////////
 		raise_event(&pgroup->container, EVENT_SPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
 		if(core.current_chain.size() == 0) {
@@ -4109,6 +4117,10 @@ int32_t field::special_summon(uint16_t step, effect* reason_effect, uint8_t reas
 		return FALSE;
 	}
 	case 4: {
+		////kdiy////////
+		raise_event(&targets->container, EVENT_PRESPSUMMON_SUCCESS, reason_effect, 0, reason_player, PLAYER_NONE, 0);
+		process_instant_event();
+		////kdiy////////
 		raise_event(&targets->container, EVENT_SPSUMMON_SUCCESS, reason_effect, 0, reason_player, PLAYER_NONE, 0);		
 		process_instant_event();
 		return FALSE;

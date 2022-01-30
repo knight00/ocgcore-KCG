@@ -2941,18 +2941,21 @@ int32_t field::process_battle_command(uint16_t step) {
 			///////kdiy///////
 			// if(pcard)
 			if(pcard && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-			///////kdiy///////					
+			///////kdiy///////			
 				core.opp_mzone.insert(pcard->fieldid_r);
 		}
-		///////kdiy///////		
+		///////kdiy///////
 		for(auto& pcard : player[1 - infos.turn_player].list_szone) {
 			if(pcard && (pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) || pcard->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))	
 				core.opp_mzone.insert(pcard->fieldid_r);
 		}
-		///////kdiy///////	
+		///////kdiy///////
 		//core.units.begin()->arg1 ---> is rollbacked
 		if(!core.units.begin()->arg1) {
 			raise_single_event(core.attacker, 0, EVENT_ATTACK_ANNOUNCE, 0, 0, 0, infos.turn_player, 0);
+			///////kdiy///////
+			raise_event(core.attacker, EVENT_PREATTACK_ANNOUNCE, 0, 0, 0, infos.turn_player, 0);
+			///////kdiy///////
 			raise_event(core.attacker, EVENT_ATTACK_ANNOUNCE, 0, 0, 0, infos.turn_player, 0);
 		}
 		core.attacker->attack_controler = core.attacker->current.controler;
@@ -4940,6 +4943,10 @@ int32_t field::add_chain(uint16_t step) {
 		}
 		auto message = pduel->new_message(MSG_CHAINED);
 		message->write<uint8_t>(clit.chain_count);
+		////kdiy///////////
+		raise_event(phandler, EVENT_PRECHAINING, peffect, 0, clit.triggering_player, clit.triggering_player, clit.chain_count);
+		process_instant_event();
+		////kdiy///////////
 		raise_event(phandler, EVENT_CHAINING, peffect, 0, clit.triggering_player, clit.triggering_player, clit.chain_count);
 		process_instant_event();
 		core.just_sent_cards.clear();

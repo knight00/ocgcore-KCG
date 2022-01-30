@@ -208,6 +208,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 	return static_cast<effect_flag>(static_cast<uint32_t>(flag1) | static_cast<uint32_t>(flag2));
 }
 //========== Codes ==========
+
 //////////kdiy/////////
 #define EFFECT_GOD_IMMUNE				    2000
 #define EFFECT_ULTIMATE_IMMUNE				2001
@@ -238,7 +239,11 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_ZERO_LP                       2026
 #define EFFECT_CHANGE_RECOVER				2027
 #define EFFECT_INCLUDE_CODE				    2028
+#define EVENT_PRECHAINING                   2029
+#define EVENT_PREATTACK_ANNOUNCE            2030
+#define EVENT_PRESPSUMMON_SUCCESS           2031
 //////////kdiy/////////
+
 #define EFFECT_IMMUNE_EFFECT                1
 #define EFFECT_DISABLE                      2
 #define EFFECT_CANNOT_DISABLE               3
