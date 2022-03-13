@@ -36,17 +36,6 @@ int32_t effect_get_range(lua_State *L) {
 	}
 	return 0;
 }
-int32_t effect_get_target_range(lua_State *L) {
-	check_param_count(L, 1);
-	check_param(L, PARAM_TYPE_EFFECT, 1);
-	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	if (peffect) {
-		lua_pushinteger(L, peffect->s_range);
-		lua_pushinteger(L, peffect->o_range);
-		return 2;
-	}
-	return 0;
-}
 //////kdiy//////////////////
 int32_t effect_new(lua_State* L) {
 	check_param_count(L, 1);
@@ -532,7 +521,6 @@ static constexpr luaL_Reg effectlib[] = {
 	/////////////kdiy/////////////////
 	{ "SetOwner", effect_set_owner },
 	{ "GetRange", effect_get_range },
-	{ "GetTargetRange", effect_get_target_range },
 	/////////////kdiy/////////////////
 	{ "CreateEffect", effect_new },
 	{ "GlobalEffect", effect_newex },
