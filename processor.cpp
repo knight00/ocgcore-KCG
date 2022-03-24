@@ -4283,18 +4283,16 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		for(auto& peffect : effects.rechargeable)
 			if(!peffect->is_flag(EFFECT_FLAG_NO_TURN_RESET))
 				peffect->recharge();
-		for(auto& iter : core.summon_counter)
-			iter.second.second = 0;
-		for(auto& iter : core.normalsummon_counter)
-			iter.second.second = 0;
-		for(auto& iter : core.spsummon_counter)
-			iter.second.second = 0;
-		for(auto& iter : core.flipsummon_counter)
-			iter.second.second = 0;
-		for(auto& iter : core.attack_counter)
-			iter.second.second = 0;
-		for(auto& iter : core.chain_counter)
-			iter.second.second = 0;
+		auto clear_counter = [](processor::action_counter_t& counter) {
+			for(auto& iter : counter)
+				iter.second.player_amount[0] = iter.second.player_amount[1] = 0;
+		};
+		clear_counter(core.summon_counter);
+		clear_counter(core.normalsummon_counter);
+		clear_counter(core.spsummon_counter);
+		clear_counter(core.flipsummon_counter);
+		clear_counter(core.attack_counter);
+		clear_counter(core.chain_counter);
 		if(core.global_flag & GLOBALFLAG_SPSUMMON_COUNT) {
 			for(auto& peffect : effects.spsummon_count_eff) {
 				card* pcard = peffect->get_handler();
@@ -4777,7 +4775,7 @@ int32_t field::add_chain(uint16_t step) {
 		if(phandler->current.location == LOCATION_HAND)
 			clit.flag |= CHAIN_HAND_EFFECT;
 		core.current_chain.push_back(clit);
-		check_chain_counter(peffect, clit.triggering_player, clit.chain_count);
+		core.current_chain.back().applied_chain_counters = check_chain_counter(peffect, clit.triggering_player, clit.chain_count);
 		// triggered events which are not caused by RaiseEvent create relation with the handler
 		if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (!(peffect->type & 0x2a0) || (peffect->code & EVENT_PHASE) == EVENT_PHASE)) {
 			phandler->create_relation(clit);
@@ -5133,13 +5131,21 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 			if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (peffect->count_flag & EFFECT_COUNT_CODE_OATH)) {
 				dec_effect_code(peffect->count_code, peffect->count_flag, peffect->count_hopt_index, cait->triggering_player);
 			}
-			check_chain_counter(peffect, cait->triggering_player, cait->chain_count, true);
+			if(cait->applied_chain_counters != nullptr) {
+				restore_chain_counter(cait->triggering_player, *cait->applied_chain_counters);
+				delete cait->applied_chain_counters;
+				cait->applied_chain_counters = nullptr;
+			}
 			core.new_fchain.remove_if([chaincount = cait->chain_count](const chain& ch) { return ch.evt.event_code == EVENT_CHAINING && ch.evt.event_value == chaincount; });
 			core.new_ochain.remove_if([chaincount = cait->chain_count](const chain& ch) { return ch.evt.event_code == EVENT_CHAINING && ch.evt.event_value == chaincount; });
 			raise_event((card*)0, EVENT_CHAIN_NEGATED, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
 			process_instant_event();
 			core.units.begin()->step = 9;
 			return FALSE;
+		}
+		if(cait->applied_chain_counters != nullptr) {
+			delete cait->applied_chain_counters;
+			cait->applied_chain_counters = nullptr;
 		}
 		release_oath_relation(peffect);
 		break_effect();

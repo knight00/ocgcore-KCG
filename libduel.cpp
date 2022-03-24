@@ -4446,30 +4446,16 @@ int32_t duel_add_custom_activity_counter(lua_State* L) {
 	check_param(L, PARAM_TYPE_FUNCTION, 3);
 	auto counter_id = lua_get<uint32_t>(L, 1);
 	auto activity_type = static_cast<ActivityType>(lua_get<uint8_t>(L, 2));
+	if(activity_type == ACTIVITY_BATTLE_PHASE || activity_type > ACTIVITY_CHAIN){
+		luaL_error(L, "Passed invalid ACTIVITY counter.");
+		unreachable();
+	}
 	int32_t counter_filter = interpreter::get_function_handle(L, 3);
 	const auto pduel = lua_get<duel*>(L);
-	auto& counter_map = [&, &core = pduel->game_field->core]()->processor::action_counter_t& {
-		switch(activity_type) {
-		case ACTIVITY_SUMMON:
-			return core.summon_counter;
-		case ACTIVITY_NORMALSUMMON:
-			return core.normalsummon_counter;
-		case ACTIVITY_SPSUMMON:
-			return core.spsummon_counter;
-		case ACTIVITY_FLIPSUMMON:
-			return core.flipsummon_counter;
-		case ACTIVITY_ATTACK:
-			return core.attack_counter;
-		case ACTIVITY_CHAIN:
-			return core.chain_counter;
-		default:
-			luaL_error(L, "Passed invalid ACTIVITY counter.");
-			unreachable();
-		}
-	}();
+	auto& counter_map = pduel->game_field->core.get_counter_map(activity_type);
 	if(counter_map.find(counter_id) != counter_map.end())
 		return 0;
-	counter_map.emplace(counter_id, std::make_pair(counter_filter, 0));
+	counter_map.emplace(counter_id, processor::action_value_t{ counter_filter, 0, 0 });
 	return 0;
 }
 int32_t duel_get_custom_activity_count(lua_State* L) {
@@ -4477,34 +4463,17 @@ int32_t duel_get_custom_activity_count(lua_State* L) {
 	auto counter_id = lua_get<uint32_t>(L, 1);
 	auto playerid = lua_get<uint8_t>(L, 2);
 	auto activity_type = static_cast<ActivityType>(lua_get<uint8_t>(L, 3));
+	if(activity_type == ACTIVITY_BATTLE_PHASE || activity_type > ACTIVITY_CHAIN || activity_type == 0) {
+		luaL_error(L, "Passed invalid ACTIVITY counter.");
+		unreachable();
+	}
 	const auto pduel = lua_get<duel*>(L);
-	auto& counter_map = [&, &core = pduel->game_field->core]()->processor::action_counter_t& {
-		switch(activity_type) {
-		case ACTIVITY_SUMMON:
-			return core.summon_counter;
-		case ACTIVITY_NORMALSUMMON:
-			return core.normalsummon_counter;
-		case ACTIVITY_SPSUMMON:
-			return core.spsummon_counter;
-		case ACTIVITY_FLIPSUMMON:
-			return core.flipsummon_counter;
-		case ACTIVITY_ATTACK:
-			return core.attack_counter;
-		case ACTIVITY_CHAIN:
-			return core.chain_counter;
-		default:
-			luaL_error(L, "Passed invalid ACTIVITY counter.");
-			unreachable();
-		}
-	}();
+	auto& counter_map = pduel->game_field->core.get_counter_map(activity_type);
 	int32_t val = 0;
 	auto it = counter_map.find(counter_id);
 	if(it != counter_map.end())
-		val = it->second.second;
-	if(playerid == 0)
-		lua_pushinteger(L, val & 0xffff);
-	else
-		lua_pushinteger(L, (val >> 16) & 0xffff);
+		val = it->second.player_amount[playerid];
+	lua_pushinteger(L, val);
 	return 1;
 }
 

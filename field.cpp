@@ -246,8 +246,8 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 	}
 	if (pcard->current.location) {
 		///kdiy///////////
-		//if (pcard->current.location == location && pcard->current.pzone == pzone) {
-		if (pcard->current.location == location && pcard->prev_temp.location == pcard->temp.location && pcard->current.pzone == pzone) {
+		//if (pcard->current.location == location && pcard->current.pzone == !!pzone) {
+		if (pcard->current.location == location && pcard->prev_temp.location == pcard->temp.location && pcard->current.pzone == !!pzone) {
 		///kdiy///////////
 			if (pcard->current.location == LOCATION_DECK) {
 				if(preplayer == playerid) {
@@ -2670,83 +2670,53 @@ int32_t field::check_spsummon_once(card* pcard, uint8_t playerid) {
 	auto iter = core.spsummon_once_map[playerid].find(pcard->spsummon_code);
 	return (iter == core.spsummon_once_map[playerid].end()) || (iter->second == 0);
 }
-static auto& get_counter_map(processor& core, ActivityType counter_type) {
-	switch(counter_type) {
-	case ACTIVITY_SUMMON:
-		return core.summon_counter;
-	case ACTIVITY_NORMALSUMMON:
-		return core.normalsummon_counter;
-	case ACTIVITY_SPSUMMON:
-		return core.spsummon_counter;
-	case ACTIVITY_FLIPSUMMON:
-		return core.flipsummon_counter;
-	default:
-		return core.attack_counter;
-	}
-}
 // increase the binary custom counter 1~5
 void field::check_card_counter(card* pcard, ActivityType counter_type, int32_t playerid) {
-	for(auto& iter : get_counter_map(core, counter_type)) {
+	for(auto& iter : core.get_counter_map(counter_type)) {
 		auto& info = iter.second;
-		if((playerid == 0) && (info.second & 0xffff) != 0)
+		auto& player_counter = info.player_amount[playerid];
+		if(player_counter != 0)
 			continue;
-		if((playerid == 1) && (info.second & 0xffff0000) != 0)
-			continue;
-		if(info.first) {
-			pduel->lua->add_param<PARAM_TYPE_CARD>(pcard);
-			if(!pduel->lua->check_condition(info.first, 1)) {
-				if(playerid == 0)
-					info.second += 0x1;
-				else
-					info.second += 0x10000;
-			}
-		}
+		pduel->lua->add_param<PARAM_TYPE_CARD>(pcard);
+		if(!pduel->lua->check_condition(info.check_function, 1))
+			++player_counter;
 	}
 }
 void field::check_card_counter(group* pgroup, ActivityType counter_type, int32_t playerid) {
-	for(auto& iter : get_counter_map(core, counter_type)) {
+	for(auto& iter : core.get_counter_map(counter_type)) {
 		auto& info = iter.second;
-		if((playerid == 0) && (info.second & 0xffff) != 0)
+		auto& player_counter = info.player_amount[playerid];
+		if(player_counter != 0)
 			continue;
-		if((playerid == 1) && (info.second & 0xffff0000) != 0)
-			continue;
-		if(info.first) {
-			for(auto& pcard : pgroup->container) {
-				pduel->lua->add_param<PARAM_TYPE_CARD>(pcard);
-				if(!pduel->lua->check_condition(info.first, 1)) {
-					if(playerid == 0)
-						info.second += 0x1;
-					else
-						info.second += 0x10000;
-					break;
-				}
+		for(auto& pcard : pgroup->container) {
+			pduel->lua->add_param<PARAM_TYPE_CARD>(pcard);
+			if(!pduel->lua->check_condition(info.check_function, 1)) {
+				++player_counter;
+				break;
 			}
 		}
 	}
 }
 
-void field::check_chain_counter(effect* peffect, int32_t playerid, int32_t chainid, bool cancel) {
+chain::applied_chain_counter_t* field::check_chain_counter(effect* peffect, int32_t playerid, int32_t chainid) {
+	chain::applied_chain_counter_t* ret = nullptr;
 	for(auto& iter : core.chain_counter) {
 		auto& info = iter.second;
-		if(info.first) {
-			pduel->lua->add_param<PARAM_TYPE_EFFECT>(peffect);
-			pduel->lua->add_param<PARAM_TYPE_INT>(playerid);
-			pduel->lua->add_param<PARAM_TYPE_INT>(chainid);
-			if(!pduel->lua->check_condition(info.first, 3)) {
-				if(playerid == 0) {
-					if(!cancel)
-						info.second += 0x1;
-					else if(info.second & 0xffff)
-						info.second -= 0x1;
-				} else {
-					if(!cancel)
-						info.second += 0x10000;
-					else if(info.second & 0xffff0000)
-						info.second -= 0x10000;
-				}
-			}
+		pduel->lua->add_param<PARAM_TYPE_EFFECT>(peffect);
+		pduel->lua->add_param<PARAM_TYPE_INT>(playerid);
+		pduel->lua->add_param<PARAM_TYPE_INT>(chainid);
+		if(!pduel->lua->check_condition(info.check_function, 3)) {
+			if(ret == nullptr)
+				ret = new chain::applied_chain_counter_t;
+			++info.player_amount[playerid];
+			ret->push_back(iter.first);
 		}
 	}
+	return ret;
+}
+void field::restore_chain_counter(uint8_t playerid, const chain::applied_chain_counter_t& counters) {
+	for(auto& id : counters)
+		--core.chain_counter[id].player_amount[playerid];
 }
 void field::set_spsummon_counter(uint8_t playerid, bool add, bool chain) {
 	if(is_flag(DUEL_CANNOT_SUMMON_OATH_OLD)) {

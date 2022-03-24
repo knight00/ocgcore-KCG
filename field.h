@@ -69,6 +69,8 @@ struct chain {
 	uint32_t flag;
 	uint32_t event_id;
 	bool was_just_sent{ false };
+	using applied_chain_counter_t = std::vector<uint32_t>;
+	applied_chain_counter_t* applied_chain_counters;
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
 	void set_triggering_state(card* pcard);
 };
@@ -211,7 +213,11 @@ struct processor {
 		int32_t player;
 	};
 	using chain_limit_list = std::vector<chain_limit_t>;
-	using action_counter_t = std::unordered_map<uint32_t, std::pair<uint32_t, uint32_t>>;
+	struct action_value_t {
+		int32_t check_function;
+		uint16_t player_amount[2];
+	};
+	using action_counter_t = std::unordered_map<uint32_t, action_value_t>;
 
 	processor_list units;
 	processor_list subunits;
@@ -377,6 +383,24 @@ struct processor {
 	action_counter_t chain_counter;
 	processor_list recover_damage_reserve;
 	effect_vector dec_count_reserve;
+	action_counter_t& get_counter_map(ActivityType counter_type) {
+		switch(counter_type) {
+			case ACTIVITY_SUMMON:
+				return summon_counter;
+			case ACTIVITY_NORMALSUMMON:
+				return normalsummon_counter;
+			case ACTIVITY_SPSUMMON:
+				return spsummon_counter;
+			case ACTIVITY_FLIPSUMMON:
+				return flipsummon_counter;
+			case ACTIVITY_ATTACK:
+				return attack_counter;
+			case ACTIVITY_CHAIN:
+				return chain_counter;
+			default:
+				unreachable();
+		}
+	}
 };
 class field {
 public:
@@ -477,7 +501,8 @@ public:
 	int32_t check_spsummon_once(card* pcard, uint8_t playerid);
 	void check_card_counter(card* pcard, ActivityType counter_type, int32_t playerid);
 	void check_card_counter(group* pgroup, ActivityType counter_type, int32_t playerid);
-	void check_chain_counter(effect* peffect, int32_t playerid, int32_t chainid, bool cancel = false);
+	chain::applied_chain_counter_t* check_chain_counter(effect* peffect, int32_t playerid, int32_t chainid);
+	void restore_chain_counter(uint8_t playerid, const chain::applied_chain_counter_t& counters);
 	void set_spsummon_counter(uint8_t playerid, bool add = true, bool chain = false);
 	int32_t check_spsummon_counter(uint8_t playerid, uint8_t ct = 1);
 
