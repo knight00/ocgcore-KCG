@@ -21,7 +21,7 @@ int32_t card_set_entity_code(lua_State *L) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto code = lua_get<uint32_t>(L, 2);
-	if (pcard->recreate(code)) {
+    if (pcard->recreate(code)) {
 		pcard->data.alias = lua_get<uint32_t>(L, 3, pcard->data.alias);
 		if(lua_gettop(L) > 3 && !lua_isnoneornil(L, 4)) {
 			pcard->data.setcodes.clear();
@@ -56,7 +56,7 @@ int32_t card_set_card_data(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	duel* pduel = pcard->pduel;
+	const auto pduel = lua_get<duel*>(L);
 	int32_t stype = lua_tointeger(L, 2);
 	switch(stype) {
 	// case CARDDATA_CODE:
