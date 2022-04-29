@@ -126,6 +126,15 @@ int32_t card_get_real_code(lua_State* L) {
 	lua_pushinteger(L, pcard->data.realalias);
 	return 3;
 }
+int32_t card_get_origin_alias(lua_State* L) {
+	check_param_count(L, 1);
+	auto pcard = lua_get<card*, true>(L, 1);
+	if(pcard->data.alias)
+		lua_pushinteger(L, pcard->data.alias);
+	else
+	    lua_pushinteger(L, pcard->data.code);
+	return 1;
+}
 ////kdiy////////////////////
 int32_t card_get_code(lua_State* L) {
 	check_param_count(L, 1);
@@ -2934,6 +2943,7 @@ static constexpr luaL_Reg cardlib[] = {
 	{ "SetCardData", card_set_card_data },
 	{ "GetOriginalLinkMarker", card_get_origin_link_marker },
 	{ "GetRealCode", card_get_real_code },
+	{ "GetOriginalAlias", card_get_origin_alias },
 	///////kdiy///////
 	{ "GetCode", card_get_code },
 	{ "GetOriginalCode", card_get_origin_code },
