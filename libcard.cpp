@@ -333,7 +333,10 @@ int32_t card_is_xyz_level(lua_State* L) {
 	check_param_count(L, 3);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto xyzcard = lua_get<card*, true>(L, 2);
-	auto lv = lua_get<uint32_t>(L, 3);
+    ///kdiy/////
+    //auto lv = lua_get<uint32_t>(L, 3);
+    auto lv = lua_get<int32_t>(L, 3);
+    ///kdiy/////
 	lua_pushboolean(L, pcard->check_xyz_level(xyzcard, lv));
 	return 1;
 }

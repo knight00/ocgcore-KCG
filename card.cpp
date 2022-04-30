@@ -1776,7 +1776,7 @@ int32_t card::get_ritual_level(card* pcard) {
 }
 ///////////kdiy///////////////	
 //uint32_t card::check_xyz_level(card* pcard, uint32_t lv) {
-int32_t card::check_xyz_level(card* pcard, int32_t lv) {
+uint32_t card::check_xyz_level(card* pcard, int32_t lv) {
 ///////////kdiy///////////////		
 	if(status & STATUS_NO_LEVEL)
 		return FALSE;
@@ -1790,7 +1790,7 @@ int32_t card::check_xyz_level(card* pcard, int32_t lv) {
 		if(res.size() == 1) {
 			///////kdiy///////
 			//uint32_t lev = static_cast<uint32_t>(res[0]);
-			int32_t lev = res[0];
+			int32_t lev = static_cast<int32_t>(res[0]);
 			///////kdiy///////
 			if((lev & 0xfff) == lv || ((lev >> 16) & 0xfff) == lv)
 				return TRUE;
