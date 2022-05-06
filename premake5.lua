@@ -16,10 +16,10 @@ local ocgcore_config=function()
 end
 
 if not subproject then
-newoption {
-	trigger = "oldwindows",
-	description = "Use some tricks to support up to windows 2000"
-}
+	newoption {
+		trigger = "oldwindows",
+		description = "Use some tricks to support up to windows 2000"
+	}
 	workspace "ocgcore"
 	location "build"
 	language "C++"
@@ -37,9 +37,10 @@ newoption {
 		architecture "x64"
 
 	if _OPTIONS["oldwindows"] then
-		filter { "architecture:not *64" , "action:vs*" }
+		filter { "action:vs2015" }
+			toolset "v140_xp"
+		filter { "action:not vs2015" }
 			toolset "v141_xp"
-
 		filter {}
 	end
 	
@@ -48,12 +49,13 @@ newoption {
 		libdirs "/usr/local/lib"
 	
 	filter "action:vs*"
+		flags "MultiProcessorCompile"
 		vectorextensions "SSE2"
 		buildoptions "-wd4996"
 		defines "_CRT_SECURE_NO_WARNINGS"
-	
+
 	filter "action:not vs*"
-		buildoptions { "-fno-strict-aliasing", "-Wno-multichar" }
+		buildoptions "-fno-strict-aliasing"
 	
 	filter "configurations:Debug"
 		symbols "On"
@@ -65,7 +67,6 @@ newoption {
 		targetdir "bin/x64/debug"
 	
 	filter { "configurations:Release" , "action:not vs*" }
-		symbols "On"
 		defines "NDEBUG"
 	
 	filter "configurations:Release"
@@ -79,12 +80,24 @@ newoption {
 		premake.w('<VcpkgTriplet Condition="\'$(Platform)\'==\'Win32\'">x86-windows-static</VcpkgTriplet>')
 		premake.w('<VcpkgTriplet Condition="\'$(Platform)\'==\'x64\'">x64-windows-static</VcpkgTriplet>')
 	end
+
+	local function disableWinXPWarnings(prj)
+		premake.w('<XPDeprecationWarning>false</XPDeprecationWarning>')
+	end
+
+	local function vcpkgStaticTriplet202006(prj)
+		premake.w('<VcpkgEnabled>true</VcpkgEnabled>')
+		premake.w('<VcpkgUseStatic>true</VcpkgUseStatic>')
+		premake.w('<VcpkgAutoLink>true</VcpkgAutoLink>')
+	end
 	
 	require('vstudio')
 	
 	premake.override(premake.vstudio.vc2010.elements, "globals", function(base, prj)
 		local calls = base(prj)
 		table.insertafter(calls, premake.vstudio.vc2010.targetPlatformVersionGlobal, vcpkgStaticTriplet)
+		table.insertafter(calls, premake.vstudio.vc2010.targetPlatformVersionGlobal, disableWinXPWarnings)
+		table.insertafter(calls, premake.vstudio.vc2010.globals, vcpkgStaticTriplet202006)
 		return calls
 	end)
 end
@@ -108,8 +121,5 @@ project "ocgcoreshared"
 		filter {}
 	end
 	
-	filter "system:linux"
-		links "lua:static"
-
-	filter "system:macosx or ios"
+	filter "system:linux or macosx or ios"
 		links "lua"
