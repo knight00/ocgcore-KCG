@@ -1723,8 +1723,10 @@ int32_t card::get_link() {
 ///////////kdiy///////////////
 //uint32_t card::get_synchro_level(card* pcard) {
 int32_t card::get_synchro_level(card* pcard) {
-	//if(((data.type & TYPE_XYZ) || ((status & STATUS_NO_LEVEL) && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S))))	
-	//|| (data.type & TYPE_LINK))
+	//if(data.type & TYPE_LINK)
+		//return 0;
+	//if(((data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL))
+		//&& !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
 	bool is_xyz = ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK)) || ((data.type & TYPE_LINK) && (is_affected_by_effect(EFFECT_LINK_RANK) || is_affected_by_effect(EFFECT_LINK_RANK_S)));
 	bool is_link = ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ)) || ((data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S)));
 	if ( ((is_xyz && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
@@ -1749,9 +1751,11 @@ int32_t card::get_synchro_level(card* pcard) {
 }
 ///////////kdiy///////////////	
 //uint32_t card::get_ritual_level(card* pcard) {
-int32_t card::get_ritual_level(card* pcard) {				
-	//if(((data.type & TYPE_XYZ) || ((status & STATUS_NO_LEVEL) && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S))))
-	//|| (data.type & TYPE_LINK))
+int32_t card::get_ritual_level(card* pcard) {
+	// if(data.type & TYPE_LINK)
+	// 	return 0;
+	// if(((data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL))
+	// 	&& !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
 	bool is_xyz = ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK)) || ((data.type & TYPE_LINK) && (is_affected_by_effect(EFFECT_LINK_RANK) || is_affected_by_effect(EFFECT_LINK_RANK_S)));
 	bool is_link = ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ)) || ((data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S)));
 	if ( ((is_xyz && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
@@ -1760,9 +1764,9 @@ int32_t card::get_ritual_level(card* pcard) {
 		|| (status & STATUS_NO_LEVEL)
 	    || (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)) 
 		|| is_affected_by_effect(EFFECT_SANCT_MZONE))
-////////kdiy///////////			
-		return 0;	
-	////////kdiy///////////		
+////////kdiy///////////
+		return 0;
+	////////kdiy///////////
 	//uint32_t lev;
 	int32_t lev;
     ////////kdiy///////////	
@@ -4261,22 +4265,22 @@ int32_t card::is_can_be_special_summoned(effect* reason_effect, uint32_t sumtype
 	////////kdiy////////
 	//if(current.location == LOCATION_MZONE)
 	if ((current.location == LOCATION_MZONE && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || (current.location == LOCATION_SZONE && is_affected_by_effect(EFFECT_ORICA_SZONE)))
-	////////kdiy////////	
+	////////kdiy////////
 		return FALSE;
 	if(current.location == LOCATION_REMOVED && (current.position & POS_FACEDOWN))
 		return FALSE;
-	if(is_affected_by_effect(EFFECT_REVIVE_LIMIT) && !is_status(STATUS_PROC_COMPLETE)) {
-		////////kdiy////////	
-		//if((!nolimit && (current.location & (LOCATION_GRAVE | LOCATION_REMOVED | LOCATION_SZONE)))
-		if((!nolimit && (current.location & (LOCATION_GRAVE | LOCATION_REMOVED)) || (current.location & LOCATION_SZONE) && !is_affected_by_effect(EFFECT_ORICA_SZONE) || (current.location & LOCATION_MZONE) && is_affected_by_effect(EFFECT_SANCT_MZONE))
-		////////kdiy////////	
-			|| (!nocheck && !nolimit && (current.location & (LOCATION_DECK | LOCATION_HAND))))
+	if(!nolimit && is_affected_by_effect(EFFECT_REVIVE_LIMIT) && !is_status(STATUS_PROC_COMPLETE)) {
+		////////kdiy////////
+		//if((current.location & (LOCATION_GRAVE | LOCATION_REMOVED | LOCATION_SZONE))
+		if(((current.location & (LOCATION_GRAVE | LOCATION_REMOVED)) || (current.location & LOCATION_SZONE) && !is_affected_by_effect(EFFECT_ORICA_SZONE) || (current.location & LOCATION_MZONE) && is_affected_by_effect(EFFECT_SANCT_MZONE))
+		////////kdiy////////
+			|| (!nocheck && (current.location & (LOCATION_DECK | LOCATION_HAND))))
 			return FALSE;
-		if(!nolimit && (data.type & TYPE_PENDULUM) && current.location == LOCATION_EXTRA && (current.position & POS_FACEUP))
+		if((data.type & TYPE_PENDULUM) && current.location == LOCATION_EXTRA && (current.position & POS_FACEUP))
+			return FALSE;
+		if(current.location == LOCATION_OVERLAY)
 			return FALSE;
 	}
-	if(current.location == LOCATION_OVERLAY && !is_status(STATUS_PROC_COMPLETE))
-		return FALSE;
 	if((data.type & TYPE_PENDULUM) && current.location == LOCATION_EXTRA && (current.position & POS_FACEUP)
 		&& (sumtype == SUMMON_TYPE_FUSION || sumtype == SUMMON_TYPE_SYNCHRO || sumtype == SUMMON_TYPE_XYZ))
 		return FALSE;
