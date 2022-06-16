@@ -41,6 +41,8 @@ namespace scriptlib {
 	template<typename T, typename type>
 	using EnableIf = typename std::enable_if_t<std::is_same<T, type>::value, T>;
 
+	struct function{};
+
 	template<typename T>
 	inline duel* lua_get(lua_State* L) {
 		duel* pduel = nullptr;
@@ -48,12 +50,20 @@ namespace scriptlib {
 		return pduel;
 	}
 
+	template<typename T, bool forced = false>
+	std::enable_if_t<std::is_same<T, function>::value, int32_t> lua_get(lua_State* L, int idx) {
+		if(lua_isnoneornil(L, idx) && !forced)
+			return 0;
+		check_param(L, PARAM_TYPE_FUNCTION, idx);
+		return idx;
+	}
+
 	template<typename T>
 	EnableIf<T, lua_obj*> lua_get(lua_State* L, int idx) {
 		if(lua_gettop(L) < idx)
 			return nullptr;
 		if(auto obj = lua_touserdata(L, idx)) {
-			auto* ret = *reinterpret_cast<lua_obj**>(obj);
+			auto* ret = *static_cast<lua_obj**>(obj);
 			if(ret->lua_type == PARAM_TYPE_DELETED) {
 				luaL_error(L, "Attempting to access deleted object.");
 				unreachable();
