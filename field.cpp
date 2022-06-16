@@ -2019,7 +2019,7 @@ int32_t field::get_release_list(uint8_t playerid, card_set* release_list, card_s
 		if(!pcard || !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
 		  continue;			
 		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid)
-		        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
+			    && (!fun || pduel->lua->check_matching(pcard, fun, exarg))) {
 			if(release_list)
 				release_list->insert(pcard);
 			pcard->release_param = 1;
@@ -2057,8 +2057,8 @@ int32_t field::get_release_list(uint8_t playerid, card_set* release_list, card_s
 		for(auto& pcard : player[1 - playerid].list_szone) {
 		    if(!pcard || !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
 			  continue;
-			if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (pcard->is_position(POS_FACEUP) || !use_con)
-			   && pcard->is_releasable_by_nonsummon(playerid) && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {						   
+			if (pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (pcard->is_position(POS_FACEUP) || !fun)
+				&& pcard->is_releasable_by_nonsummon(playerid) && (!fun || pduel->lua->check_matching(pcard, fun, exarg))) {
 				if(release_list)
 					release_list->insert(pcard);
 				pcard->release_param = 1;
@@ -2098,8 +2098,8 @@ int32_t field::get_release_list(uint8_t playerid, card_set* release_list, card_s
 		for(auto& pcard : player[1 - playerid].list_szone) {
 			if(!pcard || !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
 			  continue;
-			if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (pcard->is_position(POS_FACEUP) || !use_con)
-			   && pcard->is_releasable_by_nonsummon(playerid) && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
+			if (pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (pcard->is_position(POS_FACEUP) || !fun)
+				&& pcard->is_releasable_by_nonsummon(playerid) && (!fun || pduel->lua->check_matching(pcard, fun, exarg))) {
 				pcard->release_param = 1;
 				if(pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
 					if(ex_list)
