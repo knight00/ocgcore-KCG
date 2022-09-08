@@ -50,7 +50,7 @@ struct card_state {
 	uint32_t lscale{};
 	uint32_t rscale{};
 	uint32_t attribute{};
-	uint32_t race{};
+	uint64_t race{};
 	int32_t attack{};
 	int32_t defense{};
 	int32_t base_attack{};
@@ -146,7 +146,7 @@ public:
 	uint32_t spsummon_code{};
 	uint16_t spsummon_counter[2]{};
 	uint16_t spsummon_counter_rst[2]{};
-	std::map<uint32_t, uint32_t> assume;
+	std::map<uint32_t, uint64_t> assume;
 	card* equiping_target{};
 	card* pre_equip_target{};
 	card* overlay_target{};
@@ -213,7 +213,7 @@ public:
 	uint32_t check_xyz_level(card* pcard, int32_t lv);
 	///////kdiy//////////
 	uint32_t get_attribute(card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
-	uint32_t get_race(card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
+	uint64_t get_race(card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
 	uint32_t get_lscale();
 	uint32_t get_rscale();
 	uint32_t get_link_marker();

@@ -12,7 +12,7 @@
 #include "ocgapi.h"
 #include "group.h"
 #include "interpreter.h"
-#include <random>
+#include "RNG/Xoshiro256.hpp"
 #include <set>
 #include <unordered_set>
 #include <unordered_map>
@@ -34,7 +34,7 @@ struct card_data {
 	int32_t level{};
 	///////kdiy///////		
 	uint32_t attribute{};
-	uint32_t race{};
+	uint64_t race{};
 	int32_t attack{};
 	int32_t defense{};
 	uint32_t lscale{};
@@ -127,7 +127,7 @@ public:
 	}
 private:
 	std::deque<duel_message> messages;
-	std::mt19937 random;
+	RNG::Xoshiro256StarStar random;
 	OCG_DataReader read_card_callback;
 	OCG_ScriptReader read_script_callback;
 	OCG_LogHandler handle_message_callback;
