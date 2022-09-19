@@ -564,7 +564,7 @@ int32_t field::process() {
 			        || !attacker->is_capable_attack()
 			        || !attacker->is_affect_by_effect(core.reason_effect)
 					|| attacker->is_affected_by_effect(EFFECT_UNSTOPPABLE_ATTACK)) {
-				returns.at<int32_t>(0) = 0;
+				returns.set<int32_t>(0, 0);
 				core.units.pop_front();
 			} else {
 				effect* peffect = pduel->new_effect();
@@ -577,7 +577,7 @@ int32_t field::process() {
 				++it->step;
 			}
 		} else {
-			returns.at<int32_t>(0) = 1;
+			returns.set<int32_t>(0, 1);
 			core.units.pop_front();
 		}
 		return PROCESSOR_FLAG_CONTINUE;
@@ -658,7 +658,7 @@ int32_t field::process() {
 				core.select_options.push_back(peff->description);
 			}
 			if (core.select_options.size() == 1)
-				returns.at<int32_t>(0) = 0;
+				returns.set<int32_t>(0, 0);
 			else
 				add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, it->arg1, 0);
 			++it->step;
@@ -695,7 +695,7 @@ int32_t field::process() {
 			++it->step;
 		} else if(it->step == 1) {
 			if(return_cards.list.empty())
-				returns.at<int32_t>(0) = 0;
+				returns.set<int32_t>(0, 0);
 			else
 				send_to(card_set{ return_cards.list.begin(), return_cards.list.end() }, core.reason_effect, it->arg3, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 			++it->step;
@@ -820,7 +820,7 @@ int32_t field::execute_cost(uint16_t step, effect* triggering_effect, uint8_t tr
 	uint32_t count = pduel->lua->params.size();
 	lua_Integer yield_value = 0;
 	int32_t result = pduel->lua->call_coroutine(triggering_effect->cost, count, &yield_value, step);
-	returns.at<int32_t>(0) = static_cast<int32_t>(yield_value);
+	returns.set<int32_t>(0, static_cast<int32_t>(yield_value));
 	if (result != COROUTINE_YIELD) {
 		core.reason_effect = 0;
 		core.reason_player = PLAYER_NONE;
@@ -872,7 +872,7 @@ int32_t field::execute_operation(uint16_t step, effect* triggering_effect, uint8
 	uint32_t count = pduel->lua->params.size();
 	lua_Integer yield_value = 0;
 	int32_t result = pduel->lua->call_coroutine(triggering_effect->operation, count, &yield_value, step);
-	returns.at<int32_t>(0) = static_cast<int32_t>(yield_value);
+	returns.set<int32_t>(0, static_cast<int32_t>(yield_value));
 	if (result != COROUTINE_YIELD) {
 		core.reason_effect = 0;
 		core.reason_player = PLAYER_NONE;
@@ -929,7 +929,7 @@ int32_t field::execute_target(uint16_t step, effect* triggering_effect, uint8_t 
 	uint32_t count = pduel->lua->params.size();
 	lua_Integer yield_value = 0;
 	int32_t result = pduel->lua->call_coroutine(triggering_effect->target, count, &yield_value, step);
-	returns.at<int32_t>(0) = static_cast<int32_t>(yield_value);
+	returns.set<int32_t>(0, static_cast<int32_t>(yield_value));
 	if (result != COROUTINE_YIELD) {
 		core.reason_effect = 0;
 		core.reason_player = PLAYER_NONE;
@@ -1186,11 +1186,11 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 			}
 		}
 		if(core.select_chains.size() == 0) {
-			returns.at<int32_t>(0) = -1;
+			returns.set<int32_t>(0, -1);
 			core.units.begin()->step = 1;
 			return FALSE;
 		} else if(tf_count == 0 && cn_count == 1 && to_count == 0 && fc_count == 0) {
-			returns.at<int32_t>(0) = 0;
+			returns.set<int32_t>(0, 0);
 			core.units.begin()->step = 1;
 			return FALSE;
 		} else {
@@ -1219,7 +1219,7 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 		return FALSE;
 	}
 	case 1: {
-		--returns.at<int32_t>(0);
+		returns.set<int32_t>(0, returns.at<int32_t>(0) - 1);
 		return FALSE;
 	}
 	case 2: {
@@ -1400,7 +1400,7 @@ int32_t field::process_point_event(int16_t step, int32_t skip_trigger, int32_t s
 		}
 		//TCG SEGOC
 		if(core.select_chains.size() == 0) {
-			returns.at<int32_t>(0) = -1;
+			returns.set<int32_t>(0, -1);
 		} else {
 			if(is_flag(DUEL_TCG_SEGOC_FIRSTTRIGGER)) { //tcg segoc
 				std::sort(core.select_chains.begin(), core.select_chains.end(), [](const chain& c1, const chain& c2) {return c1.event_id < c2.event_id; });
@@ -1411,7 +1411,7 @@ int32_t field::process_point_event(int16_t step, int32_t skip_trigger, int32_t s
 				core.select_chains.erase(endit, core.select_chains.end());
 			}
 			if(core.select_chains.size() == 1) {
-				returns.at<int32_t>(0) = 0;
+				returns.set<int32_t>(0, 0);
 			} else {
 				add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, core.current_player, 0x7f | 0x10000);
 			}
@@ -1474,7 +1474,7 @@ int32_t field::process_point_event(int16_t step, int32_t skip_trigger, int32_t s
 		}
 		//TCG SEGOC
 		if(core.select_chains.size() == 0) {
-			returns.at<int32_t>(0) = -2;
+			returns.set<int32_t>(0, -2);
 			core.units.begin()->step = 5;
 			return FALSE;
 		} else {
@@ -1501,7 +1501,7 @@ int32_t field::process_point_event(int16_t step, int32_t skip_trigger, int32_t s
 		return FALSE;
 	}
 	case 5: {
-		--returns.at<int32_t>(0);
+		returns.set<int32_t>(0, returns.at<int32_t>(0) - 1);
 		return FALSE;
 	}
 	case 6: {
@@ -1613,7 +1613,7 @@ int32_t field::process_point_event(int16_t step, int32_t skip_trigger, int32_t s
 				luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim_p.function);
 			core.chain_limit_p.clear();
 			reset_chain();
-			returns.at<int32_t>(0) = FALSE;
+			returns.set<int32_t>(0, FALSE);
 		}
 		if(core.set_forced_attack) {
 			core.set_forced_attack = false;
@@ -1713,9 +1713,9 @@ int32_t field::process_quick_effect(int16_t step, int32_t skip_freechain, uint8_
 			++ifit;
 		}
 		if(core.select_chains.size() == 0)
-			returns.at<int32_t>(0) = -1;
+			returns.set<int32_t>(0, -1);
 		else if(core.select_chains.size() == 1)
-			returns.at<int32_t>(0) = 0;
+			returns.set<int32_t>(0, 0);
 		else
 			add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, check_player, 0x10000);
 		return FALSE;
@@ -2267,7 +2267,7 @@ int32_t field::process_idle_command(uint16_t step) {
 		}
 		if((infos.phase == PHASE_MAIN2) && core.skip_m2) {
 			core.skip_m2 = FALSE;
-			returns.at<int32_t>(0) = 7;
+			returns.set<int32_t>(0, 7);
 			return FALSE;
 		}
 		auto pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
@@ -2541,7 +2541,7 @@ int32_t field::process_idle_command(uint16_t step) {
 		return FALSE;
 	}
 	case 11: {
-		returns.at<int32_t>(0) = core.units.begin()->arg1;
+		returns.set<int32_t>(0, core.units.begin()->arg1);
 		infos.can_shuffle = TRUE;
 		/*if(core.set_forced_attack) {
 			core.set_forced_attack = false;
@@ -2806,7 +2806,7 @@ int32_t field::process_battle_command(uint16_t step) {
 		//Cancel the attack cost
 		if(core.attack_cost_paid != 1 && !core.attack_cancelable) {
 			if(core.forced_attack) {
-				returns.at<int32_t>(0) = 2;
+				returns.set<int32_t>(0, 2);
 				core.units.begin()->step = 0;
 			} else
 				core.units.begin()->step = -1;
@@ -2825,7 +2825,7 @@ int32_t field::process_battle_command(uint16_t step) {
 		// direct attack
 		if(core.attacker->direct_attackable) {
 			if(core.select_cards.size() == 0) {
-				returns.at<int32_t>(0) = -2;
+				returns.set<int32_t>(0, -2);
 				core.units.begin()->step = 5;
 				return FALSE;
 			}
@@ -2870,7 +2870,7 @@ int32_t field::process_battle_command(uint16_t step) {
 	case 5: {
 		// the answer of "direct attack or not"
 		if(returns.at<int32_t>(0)) {
-			returns.at<int32_t>(0) = -2;
+			returns.set<int32_t>(0, -2);
 		} else {
 			if(core.select_cards.size()) {
 				auto opposel = !!is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS);
@@ -2895,7 +2895,7 @@ int32_t field::process_battle_command(uint16_t step) {
 				return FALSE;
 			}
 			if(core.forced_attack) {
-				returns.at<int32_t>(0) = 2;
+				returns.set<int32_t>(0, 2);
 				core.units.begin()->step = 0;
 			} else
 				core.units.begin()->step = -1;
@@ -2922,7 +2922,7 @@ int32_t field::process_battle_command(uint16_t step) {
 			++core.attacker->announce_count;
 			core.chain_attack = FALSE;
 			if(core.forced_attack) {
-				returns.at<int32_t>(0) = 2;
+				returns.set<int32_t>(0, 2);
 				core.units.begin()->step = 0;
 			} else
 				core.units.begin()->step = -1;
@@ -3024,11 +3024,11 @@ int32_t field::process_battle_command(uint16_t step) {
 		}
 		// replay
 		if(is_flag(DUEL_STORE_ATTACK_REPLAYS)) {
-			returns.at<int32_t>(0) = FALSE;
+			returns.set<int32_t>(0, FALSE);
 		} else if(!core.attacker->is_affected_by_effect(EFFECT_MUST_ATTACK))
 			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, infos.turn_player, 30);
 		else {
-			returns.at<int32_t>(0) = TRUE;
+			returns.set<int32_t>(0, TRUE);
 			core.attack_cancelable = FALSE;
 		}
 		return FALSE;
@@ -3050,7 +3050,7 @@ int32_t field::process_battle_command(uint16_t step) {
 		}
 		core.chain_attack = FALSE;
 		if(core.forced_attack) {
-			returns.at<int32_t>(0) = 2;
+			returns.set<int32_t>(0, 2);
 			core.units.begin()->step = 0;
 		} else
 			core.units.begin()->step = -1;
@@ -3524,7 +3524,7 @@ int32_t field::process_battle_command(uint16_t step) {
 		if(core.attack_target)
 			core.attack_target->set_status(STATUS_OPPO_BATTLE, FALSE);
 		if(core.forced_attack) {
-			returns.at<int32_t>(0) = 2;
+			returns.set<int32_t>(0, 2);
 			core.units.begin()->step = 0;
 		} else
 			core.units.begin()->step = -1;
@@ -3584,14 +3584,14 @@ int32_t field::process_battle_command(uint16_t step) {
 			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, infos.turn_player, 32);
 			return FALSE;
 		}
-		returns.at<int32_t>(0) = core.units.begin()->arg1;
-		returns.at<int32_t>(1) = core.units.begin()->arg2;
+		returns.set<int32_t>(0, core.units.begin()->arg1);
+		returns.set<int32_t>(1, core.units.begin()->arg2);
 		return TRUE;
 	}
 	case 43: {
 		auto bp_twice = returns.at<int32_t>(0);
-		returns.at<int32_t>(0) = core.units.begin()->arg1;
-		returns.at<int32_t>(1) = bp_twice;
+		returns.set<int32_t>(0, core.units.begin()->arg1);
+		returns.set<int32_t>(1, bp_twice);
 		return TRUE;
 	}
 	}
@@ -3664,7 +3664,7 @@ int32_t field::process_forced_battle(uint16_t step) {
 		core.attack_cost_paid = FALSE;
 		core.chain_attacker_id = 0;
 		core.chain_attack_target = 0;
-		returns.at<int32_t>(0) = 1;
+		returns.set<int32_t>(0, 1);
 		reset_phase(infos.phase);
 		reset_phase(PHASE_BATTLE_START);
 		infos.phase = PHASE_BATTLE_STEP;
@@ -4811,12 +4811,12 @@ int32_t field::add_chain(uint16_t step) {
 			const bool damage_step = infos.phase == PHASE_DAMAGE && !peffect->is_flag(EFFECT_FLAG_DAMAGE_STEP);
 			const bool damage_cal = infos.phase == PHASE_DAMAGE_CAL && !peffect->is_flag(EFFECT_FLAG_DAMAGE_CAL);
 			if(damage_step || damage_cal) {
-				returns.at<int32_t>(0) = TRUE;
+				returns.set<int32_t>(0, TRUE);
 				return FALSE;
 			}
 			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)peffect->get_handler(), playerid, 94);
 		} else
-			returns.at<int32_t>(0) = FALSE;
+			returns.set<int32_t>(0, FALSE);
 		return FALSE;
 	}
 	case 3: {
@@ -4830,7 +4830,7 @@ int32_t field::add_chain(uint16_t step) {
 			auto& clit = core.current_chain.back();
 			add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, clit.triggering_player, 0);
 		} else
-			returns.at<int32_t>(0) = 0;
+			returns.set<int32_t>(0, 0);
 		return FALSE;
 	}
 	case 4: {
@@ -5378,7 +5378,7 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 			core.hint_timing[1] |= TIMING_CHAIN_END;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, chainend_arg1, chainend_arg2);
 		}
-		returns.at<int32_t>(0) = TRUE;
+		returns.set<int32_t>(0, TRUE);
 		return TRUE;
 	}
 	}
@@ -5562,7 +5562,7 @@ int32_t field::refresh_location_info(uint16_t step) {
 		return FALSE;
 	}
 	case 2: {
-		auto& disabled_locations = returns.at<int32_t>(0);
+		auto disabled_locations = returns.at<uint32_t>(0);
 		disabled_locations &= 0xff7fff7f;
 		if(disabled_locations == 0)
 			disabled_locations = 0x80;
@@ -5575,6 +5575,7 @@ int32_t field::refresh_location_info(uint16_t step) {
 			player[1].disabled_location |= disabled_locations & 0xff7f;
 			player[0].disabled_location |= (disabled_locations >> 16) & 0xff7f;
 		}
+		returns.set<uint32_t>(0, disabled_locations);
 		core.units.begin()->step = 0;
 		return FALSE;
 	}

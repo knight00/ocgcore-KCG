@@ -1499,19 +1499,19 @@ int32_t card::get_level() {
 int32_t card::get_rank() {
 	bool is_lv = !(data.type & (TYPE_XYZ | TYPE_LINK)) || ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S)));
 	bool is_link = ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ)) || (!(data.type & (TYPE_XYZ | TYPE_LINK)) && (is_affected_by_effect(EFFECT_LEVEL_LINK) || is_affected_by_effect(EFFECT_LEVEL_LINK_S)));
-	//if(((!(data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL)) && !(is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S))) 		
-	//    || (data.type & TYPE_LINK))
+	//if(((!(data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL)) && !(is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S))) 
+	//|| (data.type s& TYPE_LINK))
 	if ( ((is_lv && !(is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S)))
 	    || (is_link && !(is_affected_by_effect(EFFECT_LINK_RANK) || is_affected_by_effect(EFFECT_LINK_RANK_S)))
 		&& !(is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 		|| is_affected_by_effect(EFFECT_SANCT_MZONE)
 		|| (status & STATUS_NO_LEVEL))
-////////kdiy////////		
-		return 0;	
+////////kdiy////////
+		return 0;
 	auto search = assume.find(ASSUME_RANK);
 	if(search != assume.end())
 		return search->second;
-	////////kdiy////////			
+	////////kdiy////////
 	//if(!(current.location & LOCATION_MZONE))
 	if (!(((current.location & LOCATION_MZONE) && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || ((current.location & LOCATION_SZONE) && is_affected_by_effect(EFFECT_ORICA_SZONE))))
 	////////kdiy////////
@@ -1804,9 +1804,9 @@ uint32_t card::get_attribute(card* scard, uint64_t sumtype, uint8_t playerid) {
 	auto search = assume.find(ASSUME_ATTRIBUTE);
 	if(search != assume.end())
 		return search->second;
-	////////kdiy////////		
+	////////kdiy////////
 	//if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
-	if((!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)) || is_affected_by_effect(EFFECT_SANCT_MZONE))	
+	if((!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)) || is_affected_by_effect(EFFECT_SANCT_MZONE))
 	////////kdiy////////
 		return 0;
 	if (has_valid_property_val(temp.attribute))

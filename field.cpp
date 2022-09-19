@@ -1013,7 +1013,7 @@ int32_t field::check_extra_link(int32_t playerid, card* pcard, int32_t sequence)
 	pcard->current.position = cur_position;
 	return ret;
 }
-void field::get_cards_in_zone(card_set* cset, uint32_t zone, int32_t playerid, int32_t location) {
+void field::get_cards_in_zone(card_set* cset, uint32_t zone, int32_t playerid, int32_t location) const {
 	if(!(location & LOCATION_ONFIELD))
 		return;
 	if(location & LOCATION_MZONE) {
@@ -1153,14 +1153,15 @@ void field::swap_deck_and_grave(uint8_t playerid) {
 	message->write<uint8_t>(playerid);
 	card_vector ex;
 	ProgressiveBuffer buff;
+	buff.data.reserve((cur_player.list_main.size() / sizeof(uint8_t)) + 1);
 	int i = 0;
 	for(auto clit = cur_player.list_main.begin(); clit != cur_player.list_main.end(); ++i) {
 		if((*clit)->is_extra_deck_monster()) {
-			buff.bitSet(i);
+			buff.bitToggle(i, true);
 			ex.push_back(*clit);
 			clit = cur_player.list_main.erase(clit);
 		} else {
-			buff.bitSet(i, false);
+			buff.bitToggle(i, false);
 			++clit;
 		}
 	}
