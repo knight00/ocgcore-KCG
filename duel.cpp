@@ -13,7 +13,7 @@
 #include "group.h"
 
 duel::duel(const OCG_DuelOptions& options) :
-	random(std::array<uint64_t,4>{ { options.seed[0], options.seed[1], options.seed[2], options.seed[3] } }),
+	random(std::array<uint64_t, 4>{ { options.seed[0], options.seed[1], options.seed[2], options.seed[3] } }),
 	read_card_callback(options.cardReader), read_script_callback(options.scriptReader),
 	handle_message_callback(options.logHandler), read_card_done_callback(options.cardReaderDone),
 	read_card_payload(options.payload1), read_script_payload(options.payload2),
@@ -22,16 +22,26 @@ duel::duel(const OCG_DuelOptions& options) :
 	lua = new interpreter(this, options);
 	game_field = new field(this, options);
 	game_field->temp_card = new_card(0);
+	/////zdiy/////
+	cards_data = (std::unordered_map<uint32_t, std::vector<void*>*>*)options.payload5;
+	/////zdiy/////
 }
 duel::~duel() {
-	for(auto& pcard : cards)
+	for (auto& pcard : cards)
 		delete pcard;
-	for(auto& pgroup : groups)
+	for (auto& pgroup : groups)
 		delete pgroup;
-	for(auto& peffect : effects)
+	for (auto& peffect : effects)
 		delete peffect;
 	delete game_field;
 	delete lua;
+	/////zdiy/////
+	for (auto iter = cards_data->begin(); iter != cards_data->end(); iter++) {
+		delete (iter->second)->at(0);
+		delete iter->second;
+	}
+	delete cards_data;
+	/////zdiy/////
 }
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -39,13 +49,13 @@ duel::~duel() {
 #endif
 void duel::clear() {
 	static constexpr OCG_DuelOptions default_options{ {},0,{8000,5,1},{8000,5,1} };
-	for(auto& pcard : cards)
+	for (auto& pcard : cards)
 		delete pcard;
-	for(auto& pgroup : groups) {
+	for (auto& pgroup : groups) {
 		lua->unregister_group(pgroup);
 		delete pgroup;
 	}
-	for(auto& peffect : effects) {
+	for (auto& peffect : effects) {
 		lua->unregister_effect(peffect);
 		delete peffect;
 	}
@@ -62,7 +72,7 @@ void duel::clear() {
 card* duel::new_card(uint32_t code) {
 	card* pcard = new card(this);
 	cards.insert(pcard);
-	if(code)
+	if (code)
 		pcard->data = read_card(code);
 	pcard->data.code = code;
 	lua->register_card(pcard);
@@ -90,9 +100,9 @@ void duel::delete_effect(effect* peffect) {
 	delete peffect;
 }
 void duel::generate_buffer() {
-	for(auto& message : messages) {
+	for (auto& message : messages) {
 		uint32_t size = message.data.size();
-		if(size) {
+		if (size) {
 			write_buffer(&size, sizeof(size));
 			write_buffer(message.data.data(), size);
 		}
@@ -100,8 +110,8 @@ void duel::generate_buffer() {
 	messages.clear();
 }
 void duel::release_script_group() {
-	for(auto& pgroup : sgroups) {
-		if(pgroup->is_readonly == 0) {
+	for (auto& pgroup : sgroups) {
+		if (pgroup->is_readonly == 0) {
 			lua->unregister_group(pgroup);
 			groups.erase(pgroup);
 			delete pgroup;
@@ -110,12 +120,12 @@ void duel::release_script_group() {
 	sgroups.clear();
 }
 void duel::restore_assumes() {
-	for(auto& pcard : assumes)
+	for (auto& pcard : assumes)
 		pcard->assume.clear();
 	assumes.clear();
 }
 void duel::write_buffer(void* data, size_t size) {
-	if(size) {
+	if (size) {
 		const auto vec_size = buff.size();
 		buff.resize(vec_size + size);
 		std::memcpy(&buff[vec_size], data, size);
@@ -127,7 +137,7 @@ void duel::clear_buffer() {
 void duel::set_response(const void* resp, size_t len) {
 	game_field->returns.clear();
 	game_field->returns.data.resize(len);
-	if(len)
+	if (len)
 		std::memcpy(game_field->returns.data.data(), resp, len);
 }
 // uniform integer distribution
@@ -137,7 +147,7 @@ int32_t duel::get_next_integer(int32_t l, int32_t h) {
 	int32_t n;
 	do {
 		n = random();
-	} while(n <= lim);
+	} while (n <= lim);
 	return static_cast<int32_t>((n % range) + l);
 }
 duel::duel_message* duel::new_message(uint8_t message) {
@@ -147,9 +157,10 @@ duel::duel_message* duel::new_message(uint8_t message) {
 const card_data& duel::read_card(uint32_t code) {
 	card_data* ret;
 	auto search = data_cache.find(code);
-	if(search != data_cache.end()) {
+	if (search != data_cache.end()) {
 		ret = &(search->second);
-	} else {
+	}
+	else {
 		OCG_CardData data{};
 		read_card_callback(read_card_payload, code, &data);
 		ret = &(data_cache.emplace(code, data).first->second);
@@ -161,7 +172,7 @@ duel::duel_message::duel_message(uint8_t _message) :message(_message) {
 	write<uint8_t>(message);
 }
 void duel::duel_message::write(const void* buff, size_t size) {
-	if(size) {
+	if (size) {
 		const auto vec_size = data.size();
 		data.resize(vec_size + size);
 		std::memcpy(&data[vec_size], buff, size);
@@ -191,13 +202,13 @@ card_data::card_data(const OCG_CardData& data) {
 	COPY(ot);
 	////kdiy///////
 #undef COPY
-	if(data.setcodes == nullptr)
+	if (data.setcodes == nullptr)
 		return;
 	uint16_t sc = 0;
 	uint16_t* ptr = data.setcodes;
-	for(;;) {
+	for (;;) {
 		std::memcpy(&sc, ptr++, sizeof(uint16_t));
-		if(sc == 0)
+		if (sc == 0)
 			break;
 		this->setcodes.insert(sc);
 	}
