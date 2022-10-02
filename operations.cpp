@@ -651,12 +651,12 @@ int32_t field::recover(uint16_t step, effect* reason_effect, uint32_t reason, ui
 			pduel->lua->add_param<PARAM_TYPE_INT>(reason);
 			pduel->lua->add_param<PARAM_TYPE_INT>(reason_player);
 			val = peff->get_value(4);
-			returns.at<int32_t>(0) = val;
+			returns.set<uint32_t>(0, val);
 			if (val == 0)
 				return TRUE;
 		}
-		core.units.begin()->arg2 = (core.units.begin()->arg2 & 0xff000000) | (val & 0xffffff);
 		//////kdiy/////////
+		core.units.begin()->arg2 = (core.units.begin()->arg2 & 0xff000000) | (val & 0xffffff);
 		if(is_step) {
 			core.units.begin()->step = 9;
 			return TRUE;
