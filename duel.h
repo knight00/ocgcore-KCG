@@ -48,6 +48,7 @@ struct card_data {
 	card_data(const OCG_CardData& data);
 	card_data() {};
 };
+
 class duel {
 public:
 	class duel_message {
@@ -80,9 +81,7 @@ public:
 	std::unordered_set<effect*> uncopy;
 
 	std::unordered_map<uint32_t, card_data> data_cache;
-	/////zdiy/////
-	std::unordered_map<uint32_t, std::vector<void*>*>* cards_data;
-	/////zdiy/////
+
 	enum class SCRIPT_LOAD_STATUS : uint8_t {
 		NOT_LOADED,
 		LOAD_SUCCEDED,
@@ -91,18 +90,18 @@ public:
 	};
 
 	std::unordered_map<uint32_t/* hashed string */, SCRIPT_LOAD_STATUS> loaded_scripts;
-
+	
 	duel() = delete;
 	explicit duel(const OCG_DuelOptions& options);
 	~duel();
 	void clear();
-
+	
 	card* new_card(uint32_t code);
 	template<typename... Args>
 	group* new_group(Args&&... args) {
 		group* pgroup = new group(this, std::forward<Args>(args)...);
 		groups.insert(pgroup);
-		if (lua->call_depth)
+		if(lua->call_depth)
 			sgroups.insert(pgroup);
 		lua->register_group(pgroup);
 		return pgroup;
