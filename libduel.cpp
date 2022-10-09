@@ -20,6 +20,66 @@ namespace {
 
 using namespace scriptlib;
 
+/////zdiy////
+LUA_FUNCTION(GetRandomGroup) {
+	check_action_permission(L);
+	check_param_count(L, 3);
+	auto playerid = lua_get<uint8_t>(L, 1);
+	if (playerid >= PLAYER_NONE) return 0;
+	auto count = lua_get<uint16_t>(L, 2);
+	auto type = lua_get<uint32_t>(L, 3);
+	auto set_code = lua_get<uint32_t, 0>(L, 4);
+	const auto pduel = lua_get<duel*>(L);
+	if (count <= 0)count = 0;
+	else if (count > 20) count = 20;
+	group* pgroup = pduel->new_group();
+	uint32_t index = 0;
+	std::unordered_map<int32_t, uint32_t>* p_codes = new std::unordered_map<int32_t, uint32_t>();
+	for (auto iter = pduel->cards_data->begin(); iter != pduel->cards_data->end(); iter++) {
+		auto _code = ((std::vector<uint32_t>*)iter->second->at(0))->at(0);
+		auto _type = ((std::vector<uint32_t>*)iter->second->at(0))->at(1);
+		auto _setcodes = (std::vector<uint16_t>*)iter->second->at(1);
+		bool isSetCode = false;
+		for (auto p_setcode = _setcodes->begin(); p_setcode != _setcodes->end(); p_setcode++)
+		{
+			auto setcode = *p_setcode;
+			if (setcode && (set_code & 0xfffu) == (setcode & 0xfffu) && (set_code & setcode) == set_code) {
+				isSetCode = true;
+				break;
+			}
+		}
+		if ((_type & type) && !(_type & TYPE_TOKEN) && (set_code != 0 ? isSetCode : true)) {
+			p_codes->insert(std::unordered_map<int32_t, uint32_t>::value_type(index, _code));
+			++index;
+		}
+	}
+	uint32_t randStart = 0;
+	if (p_codes->size() <= 0) { interpreter::pushobject(L, pgroup); delete p_codes; return 1; }
+	uint32_t randMax = p_codes->size() - 1;
+	for (int32_t i = 0; i < count; ++i)
+	{
+		index = pduel->get_next_integer(randStart, randMax);
+		uint32_t code = 0;
+		auto codeMap = p_codes->find(index);
+		if (codeMap != p_codes->end()) {
+			code = codeMap->second;
+			if (!code || code == 0) {
+				--i;
+				continue;
+			}
+			card* pcard = pduel->new_card(code);
+			pcard->owner = playerid;
+			pcard->current.location = 0;
+			pcard->current.controler = playerid;
+			pgroup->container.insert(pcard);
+		}
+	}
+	interpreter::pushobject(L, pgroup);
+	delete p_codes;
+	return 1;
+}
+/////zdiy/////
+
 ///kdiy/////////////////////
 LUA_FUNCTION(GetMasterRule) {
 	const auto pduel = lua_get<duel*>(L);

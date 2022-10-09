@@ -81,6 +81,9 @@ public:
 	std::unordered_set<effect*> uncopy;
 
 	std::unordered_map<uint32_t, card_data> data_cache;
+	/////zdiy/////
+	std::unordered_map<uint32_t, std::vector<void*>*>* cards_data;
+	/////zdiy/////
 
 	enum class SCRIPT_LOAD_STATUS : uint8_t {
 		NOT_LOADED,

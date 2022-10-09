@@ -22,6 +22,9 @@ duel::duel(const OCG_DuelOptions& options) :
 	lua = new interpreter(this, options);
 	game_field = new field(this, options);
 	game_field->temp_card = new_card(0);
+	/////zdiy/////
+	cards_data = (std::unordered_map<uint32_t, std::vector<void*>*>*)options.payload5;
+	/////zdiy/////
 }
 duel::~duel() {
 	for(auto& pcard : cards)
@@ -32,6 +35,13 @@ duel::~duel() {
 		delete peffect;
 	delete game_field;
 	delete lua;
+	/////zdiy/////
+	for (auto iter = cards_data->begin(); iter != cards_data->end(); iter++) {
+		delete (iter->second)->at(0);
+		delete iter->second;
+	}
+	delete cards_data;
+	/////zdiy/////
 }
 #ifdef __GNUC__
 #pragma GCC diagnostic push
