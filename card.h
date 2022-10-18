@@ -184,15 +184,15 @@ public:
 	uint32_t get_ocode();	
 	//////kdiy/////	
 	uint32_t get_another_code();
-	uint32_t get_summon_code(card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
+	void get_summon_code(std::set<uint32_t>& codes, card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
 	int32_t is_set_card(uint16_t set_code);
 	int32_t is_origin_set_card(uint16_t set_code);
 	int32_t is_pre_set_card(uint16_t set_code);
 	int32_t is_sumon_set_card(uint16_t set_code, card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
-	uint32_t get_set_card();
+	void get_set_card(std::set<uint16_t>& setcodes);
 	const std::set<uint16_t>& get_origin_set_card() const { return data.setcodes; }
-	uint32_t get_pre_set_card();
-	uint32_t get_summon_set_card(card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
+	void get_pre_set_card(std::set<uint16_t>& setcodes);
+	void get_summon_set_card(std::set<uint16_t>& setcodes, card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
 	uint32_t get_type(card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
 	int32_t get_base_attack();
 	int32_t get_attack();
@@ -307,7 +307,7 @@ public:
 	void filter_spsummon_procedure_g(uint8_t playerid, effect_set* eset);
 	effect* is_affected_by_effect(int32_t code);
 	effect* is_affected_by_effect(int32_t code, card* target);
-	int32_t get_card_effect(uint32_t code);
+	void get_card_effect(uint32_t code, effect_set* eset);
 	int32_t fusion_check(group* fusion_m, group* cg, uint32_t chkf);
 	void fusion_filter_valid(group* fusion_m, group* cg, uint32_t chkf, effect_set* eset);
 	int32_t check_fusion_substitute(card* fcard);

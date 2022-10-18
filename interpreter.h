@@ -103,18 +103,12 @@ public:
 	bool call_function(int param_count, int ret_count);
 	inline bool ret_fail(const char* message);
 	inline bool ret_fail(const char* message, bool error);
-	inline void deepen();
-	inline void flatten();
+	inline int call_lua(lua_State* L, int nargs, int nresults);
 
 	static void pushobject(lua_State* L, lua_obj* obj);
 	static void pushobject(lua_State* L, int32_t lua_ptr);
 	static int pushExpandedTable(lua_State* L, int32_t table_index);
 	static int32_t get_function_handle(lua_State* L, int32_t index);
-	static inline duel* get_duel_info(lua_State* L) {
-		duel* pduel;
-		memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
-		return pduel;
-	}
 	static void print_stacktrace(lua_State* L);
 
 	template <size_t N, typename... TR>
