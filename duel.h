@@ -32,7 +32,7 @@ struct card_data {
 	///////kdiy///////
 	//uint32_t level{};
 	int32_t level{};
-	///////kdiy///////		
+	///////kdiy///////
 	uint32_t attribute{};
 	uint64_t race{};
 	int32_t attack{};
@@ -44,7 +44,7 @@ struct card_data {
 	uint32_t ot{};
 	uint32_t realcode{};
 	uint32_t realalias{};
-	///////kdiy///////	
+	///////kdiy///////
 	card_data(const OCG_CardData& data);
 	card_data() {};
 };
