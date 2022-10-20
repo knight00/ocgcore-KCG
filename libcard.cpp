@@ -146,7 +146,7 @@ LUA_FUNCTION(GetCode) {
 	if (lua_gettop(L) > 1) {
 		card* scard = 0;
 		uint8_t playerid = PLAYER_NONE;
-		if (lua_gettop(L) > 1 && !lua_isnoneornil(L, 2))
+		if (!lua_isnoneornil(L, 2))
 			scard = lua_get<card*, true>(L, 2);
 		auto sumtype = lua_get<uint64_t, 0>(L, 3);
 		if (lua_gettop(L) > 3)
@@ -214,7 +214,7 @@ LUA_FUNCTION(GetSetCard) {
 	if (lua_gettop(L) > 1) {
 		card* scard = 0;
 		uint8_t playerid = PLAYER_NONE;
-		if (lua_gettop(L) > 1 && !lua_isnoneornil(L, 2))
+		if (!lua_isnoneornil(L, 2))
 			scard = lua_get<card*, true>(L, 2);
 		auto sumtype = lua_get<uint64_t, 0>(L, 3);
 		if (lua_gettop(L) > 3)
@@ -859,7 +859,35 @@ LUA_FUNCTION(IsOriginalCodeRule) {
 		if(lua_isnoneornil(L, i + 2))
 			continue;
 		auto tcode = lua_get<uint32_t>(L, i + 2);
-		if(code1 == tcode || (code2 && code2 == tcode)) {
+		if(tcode == 0)
+			continue;
+		if(code1 == tcode || code2 == tcode) {
+			lua_pushboolean(L, TRUE);
+			return 1;
+		}
+	}
+	lua_pushboolean(L, FALSE);
+	return 1;
+}
+LUA_FUNCTION(IsOriginalCode) {
+	check_param_count(L, 2);
+	auto pcard = lua_get<card*, true>(L, 1);
+	const auto original_code = [pcard]() {
+		if(pcard->data.alias) {
+			int32_t dif = pcard->data.code - pcard->data.alias;
+			if(dif > -10 && dif < 10)
+				return pcard->data.alias;
+			else
+				return pcard->data.code;
+		} else
+			return pcard->data.code;
+	}();
+	uint32_t count = lua_gettop(L) - 1;
+	for(uint32_t i = 0; i < count; ++i) {
+		if(lua_isnoneornil(L, i + 2))
+			continue;
+		uint32_t tcode = lua_get<uint32_t>(L, i + 2);
+		if(original_code == tcode) {
 			lua_pushboolean(L, TRUE);
 			return 1;
 		}
@@ -964,7 +992,7 @@ LUA_FUNCTION(IsSetCard) {
 	if (lua_gettop(L) > 2) {
 		card* scard = 0;
 		uint8_t playerid = PLAYER_NONE;
-		if (lua_gettop(L) > 2 && !lua_isnoneornil(L, 3))
+		if (!lua_isnoneornil(L, 3))
 			scard = lua_get<card*, true>(L, 3);
 		auto sumtype = lua_get<uint64_t, 0>(L, 4);
 		playerid = lua_get<uint8_t, PLAYER_NONE>(L, 5);
@@ -1014,23 +1042,46 @@ LUA_FUNCTION(IsType) {
 	lua_pushboolean(L, pcard->get_type(scard, sumtype, playerid) & ttype);
 	return 1;
 }
+LUA_FUNCTION(IsExactType) {
+	check_param_count(L, 2);
+	const auto pduel = lua_get<duel*>(L);
+	auto pcard = lua_get<card*, true>(L, 1);
+	auto ttype = lua_get<uint32_t>(L, 2);
+	card* scard = 0;
+	uint8_t playerid = PLAYER_NONE;
+	if (lua_gettop(L) > 2 && !lua_isnoneornil(L, 3))
+		scard = lua_get<card*, true>(L, 3);
+	auto sumtype = lua_get<uint64_t, 0>(L, 4);
+	if (lua_gettop(L) > 4)
+		playerid = lua_get<uint8_t>(L, 5);
+	else if (sumtype == SUMMON_TYPE_FUSION)
+		playerid = pduel->game_field->core.reason_player;
+	lua_pushboolean(L, (pcard->get_type(scard, sumtype, playerid) & ttype) == ttype);
+	return 1;
+}
+LUA_FUNCTION(IsOriginalType) {
+	check_param_count(L, 2);
+	auto pcard = lua_get<card*, true>(L, 1);
+	auto ttype = lua_get<uint32_t>(L, 2);
+	lua_pushboolean(L, pcard->data.type & ttype);
+	return 1;
+}
 ////////kdiy///////////
 LUA_FUNCTION(IsOType) {
 	check_param_count(L, 2);
-	const auto pduel = lua_get<duel*>(L);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto ttype = lua_get<uint32_t>(L, 2);
 	lua_pushboolean(L, pcard->data.ot & ttype);
 	return 1;
 }
-//inline int32_t is_prop(lua_State* L, uint32_t val) {	
+//inline int32_t is_prop(lua_State* L, uint32_t val) {
 inline int32_t is_prop(lua_State* L, int32_t val) {
 ////////kdiy///////////
 	uint32_t count = lua_gettop(L) - 1;
 	for(uint32_t i = 0; i < count; ++i) {
 		if(lua_isnoneornil(L, i + 2))
 			continue;
-		////////kdiy///////////	
+		////////kdiy///////////
 		//if(val == lua_get<uint32_t>(L, i + 2)) {
 		if(val == lua_get<int32_t>(L, i + 2)) {
 		////////kdiy///////////
@@ -1095,6 +1146,16 @@ LUA_FUNCTION(IsRace) {
 	lua_pushboolean(L, pcard->get_race(scard, sumtype, playerid) & trace);
 	return 1;
 }
+LUA_FUNCTION(IsOriginalRace) {
+	check_param_count(L, 2);
+	auto pcard = lua_get<card*, true>(L, 1);
+	auto trace = lua_get<uint64_t>(L, 2);
+	if(pcard->status & STATUS_NO_LEVEL)
+		lua_pushboolean(L, FALSE);
+	else
+		lua_pushboolean(L, pcard->data.race & trace);
+	return 1;
+}
 LUA_FUNCTION(IsAttribute) {
 	check_param_count(L, 2);
 	const auto pduel = lua_get<duel*>(L);
@@ -1110,6 +1171,16 @@ LUA_FUNCTION(IsAttribute) {
 	else if(sumtype==SUMMON_TYPE_FUSION)
 		playerid = pduel->game_field->core.reason_player;
 	lua_pushboolean(L, pcard->get_attribute(scard, sumtype, playerid) & tattrib);
+	return 1;
+}
+LUA_FUNCTION(IsOriginalAttribute) {
+	check_param_count(L, 2);
+	auto pcard = lua_get<card*, true>(L, 1);
+	auto tattrib = lua_get<uint32_t>(L, 2);
+	if(pcard->status & STATUS_NO_LEVEL)
+		lua_pushboolean(L, FALSE);
+	else
+		lua_pushboolean(L, pcard->data.attribute & tattrib);
 	return 1;
 }
 LUA_FUNCTION(IsReason) {
@@ -1134,6 +1205,21 @@ LUA_FUNCTION(IsSummonType) {
 		}
 	}
 	lua_pushboolean(L, result);
+	return 1;
+}
+LUA_FUNCTION(IsSummonLocation) {
+	check_param_count(L, 1);
+	auto pcard = lua_get<card*, true>(L, 1);
+	auto loc = lua_get<uint8_t>(L, 2);
+	const uint8_t prev_loc = (pcard->summon_info >> 16) & 0xff;
+	lua_pushboolean(L, prev_loc & loc);
+	return 1;
+}
+LUA_FUNCTION(IsSummonPlayer) {
+	check_param_count(L, 1);
+	auto pcard = lua_get<card*, true>(L, 1);
+	auto player = lua_get<uint8_t>(L, 2);
+	lua_pushboolean(L, pcard->summon_player == player);
 	return 1;
 }
 LUA_FUNCTION(IsStatus) {
@@ -2143,6 +2229,13 @@ LUA_FUNCTION(IsControler) {
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto con = lua_get<uint8_t>(L, 2);
 	lua_pushboolean(L, pcard->current.controler == con);
+	return 1;
+}
+LUA_FUNCTION(IsPreviousControler) {
+	check_param_count(L, 2);
+	auto pcard = lua_get<card*, true>(L, 1);
+	auto con = lua_get<uint8_t>(L, 2);
+	lua_pushboolean(L, pcard->previous.controler == con);
 	return 1;
 }
 LUA_FUNCTION(IsOnField) {
