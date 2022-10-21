@@ -157,34 +157,70 @@ bool interpreter::load_script(const char* buffer, int len, const char* script_na
 	--no_action;
 	return true;
 }
+//Load a card script (if not already loaded) and push the corresponding cXXXXXX table on the stack, +1 -0
 bool interpreter::load_card_script(uint32_t code) {
 	char code_buf[32];
 	const char* class_name = format_to(code_buf, "c%u", code);
 	luaL_checkstack(current_state, 1, nullptr);
-	lua_getglobal(current_state, class_name);
-	if(!lua_isnoneornil(current_state, -1))
+	//puts cXXXXX on the stack
+	lua_getglobal(current_state, class_name);		//+1
+	if(!lua_isnil(current_state, -1))
 		return true;
 	//if script is not loaded, create and load it
+	lua_pop(current_state, 1);						//-1
 	luaL_checkstack(current_state, 5, nullptr);
-	lua_pop(current_state, 1);
-	lua_pushinteger(current_state, code);
-	lua_setglobal(current_state, "self_code");
+	{
+		//self_code=code
+		lua_pushinteger(current_state, code);		//+1
+		lua_setglobal(current_state, "self_code");	//-1
+	}
 	//create a table & set metatable
-	lua_createtable(current_state, 0, 0);
-	lua_setglobal(current_state, class_name);
-	lua_getglobal(current_state, class_name);
-	lua_getglobal(current_state, "Card");
-	lua_setmetatable(current_state, -2);
-	lua_pushstring(current_state, "__index");
-	lua_pushvalue(current_state, -2);
-	lua_rawset(current_state, -3);
-	lua_getglobal(current_state, class_name);
-	lua_setglobal(current_state, "self_table");
+	{
+		lua_createtable(current_state, 0, 0);						//+1
+		{
+			lua_pushstring(current_state, "__tostring");				//+1
+			{
+				//pushes Debug.CardStringWrapper to the stack
+				lua_getglobal(current_state, "Debug");					//+1
+				lua_pushstring(current_state, "CardToStringWrapper");	//+1
+				lua_rawget(current_state, -2);							//-1, +1
+				lua_remove(current_state, -2);							//-1
+			}
+			//cXXXXX.__tostring=Debug.CardToStringWrapper
+			lua_rawset(current_state, -3);								//-2
+		}
+		//cXXXXX={}
+		lua_setglobal(current_state, class_name);					//-1
+	}
+	//push cXXXXX on the stack another time
+	lua_getglobal(current_state, class_name);	//+1
+	{
+		//setmetatable(cXXXXX, Card)
+		lua_getglobal(current_state, "Card");	//+1
+		lua_setmetatable(current_state, -2);	//-1
+	}
+	{
+		//rawset(cXXXXX,"__index",cXXXXX)
+		lua_pushstring(current_state, "__index");	//+1
+		lua_pushvalue(current_state, -2);			//+1
+		lua_rawset(current_state, -3);				//-2
+	}
+	{
+		//self_table=cXXXX
+		lua_getglobal(current_state, class_name);	//+1
+		lua_setglobal(current_state, "self_table");	//-1
+	}
 	const auto res = pduel->read_script(format_to(code_buf, "c%u.lua", code));
-	lua_pushnil(current_state);
-	lua_setglobal(current_state, "self_table");
-	lua_pushnil(current_state);
-	lua_setglobal(current_state, "self_code");
+	{
+		//self_table=nil
+		lua_pushnil(current_state);					//+1
+		lua_setglobal(current_state, "self_table");	//-1
+	}
+	{
+		//self_code=nil
+		lua_pushnil(current_state);					//+1
+		lua_setglobal(current_state, "self_code");	//-1
+	}
 	return res;
 }
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
@@ -216,9 +252,7 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 			else if(is_coroutine) {
 				//copy value from current_state to new stack
 				lua_pushvalue(current_state, index);
-				int32_t ref = luaL_ref(current_state, LUA_REGISTRYINDEX);
-				lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-				luaL_unref(current_state, LUA_REGISTRYINDEX, ref);
+				lua_xmove(current_state, L, 1);
 			} else {
 				//the calling function is pushed before the params, so the actual index is: index - pushed -1
 				lua_pushvalue(L, index - pushed - 1);
