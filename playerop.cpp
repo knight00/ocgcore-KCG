@@ -860,10 +860,18 @@ int32_t field::sort_card(int16_t step, uint8_t playerid, uint8_t is_chain) {
 int32_t field::announce_race(int16_t step, uint8_t playerid, int32_t count, uint64_t available) {
 	if(step == 0) {
 		int32_t scount = 0;
-		for(uint64_t ft = 0x1; ft != 0x2000000; ft <<= 1) {
+		//for(uint64_t ft = 0x1; ft != 0x2000000; ft <<= 1) {
+		/////zdiy////
+		for(uint64_t ft = 0x1; ft <= 0x2000000; ft <<= 1) {
 			if(ft & available)
 				++scount;
 		}
+		/////zdiy////
+		for(uint64_t ft = RACE_DEVIL; ft <= RACE_LEAD; ft <<= 1) {
+			if(ft & available)
+				++scount;
+		}
+		/////zdiy////
 		if(scount <= count) {
 			count = scount;
 			core.units.begin()->arg1 = (count << 16) + playerid;
@@ -876,7 +884,9 @@ int32_t field::announce_race(int16_t step, uint8_t playerid, int32_t count, uint
 	} else {
 		uint64_t rc = returns.at<uint64_t>(0);
 		uint8_t sel = 0;
-		for(int32_t ft = 0x1; ft != 0x2000000; ft <<= 1) {
+		//for(int32_t ft = 0x1; ft != 0x2000000; ft <<= 1) {
+		/////zdiy////
+		for(int32_t ft = 0x1; ft <= 0x2000000; ft <<= 1) {
 			if(!(ft & rc)) continue;
 			if(!(ft & available)) {
 				pduel->new_message(MSG_RETRY);
@@ -884,6 +894,16 @@ int32_t field::announce_race(int16_t step, uint8_t playerid, int32_t count, uint
 			}
 			++sel;
 		}
+		/////zdiy////
+		for(uint64_t ft = RACE_DEVIL; ft <= RACE_LEAD; ft <<= 1) {
+			if(!(ft & rc)) continue;
+			if(!(ft & available)) {
+				pduel->new_message(MSG_RETRY);
+				return FALSE;
+			}
+			++sel;
+		}
+		/////zdiy////
 		if(sel != static_cast<uint8_t>(count)) {
 			pduel->new_message(MSG_RETRY);
 			return FALSE;
@@ -899,7 +919,10 @@ int32_t field::announce_race(int16_t step, uint8_t playerid, int32_t count, uint
 int32_t field::announce_attribute(int16_t step, uint8_t playerid, int32_t count, uint32_t available) {
 	if(step == 0) {
 		int32_t scount = 0;
-		for(int32_t ft = 0x1; ft != 0x80; ft <<= 1) {
+		/////zdiy////
+		//for(int32_t ft = 0x1; ft != 0x80; ft <<= 1) {
+		for(int32_t ft = 0x1; ft <= ATTRIBUTE_HADES; ft <<= 1) {
+		/////zdiy////
 			if(ft & available)
 				++scount;
 		}
@@ -915,7 +938,10 @@ int32_t field::announce_attribute(int16_t step, uint8_t playerid, int32_t count,
 	} else {
 		uint32_t rc = returns.at<uint32_t>(0);
 		int32_t sel = 0;
-		for(int32_t ft = 0x1; ft != 0x80; ft <<= 1) {
+		//for(int32_t ft = 0x1; ft != 0x80; ft <<= 1) {
+		/////zdiy/////
+		for(int32_t ft = 0x1; ft <= ATTRIBUTE_HADES; ft <<= 1) {
+		/////zdiy/////
 			if(!(ft & rc)) continue;
 			if(!(ft & available)) {
 				pduel->new_message(MSG_RETRY);
