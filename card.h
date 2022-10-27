@@ -173,6 +173,9 @@ public:
 	explicit card(duel* pd);
 	~card() = default;
 	static bool card_operation_sort(card* c1, card* c2);
+	static bool match_setcode(uint16_t set_code, uint16_t to_match) {
+		return (set_code & 0xfffu) == (to_match & 0xfffu) && (set_code & to_match) == set_code;
+	}
 	bool is_extra_deck_monster() const { return !!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)) && !!(data.type & TYPE_MONSTER); }
 
 	void get_infos(int32_t query_flag);
@@ -188,7 +191,7 @@ public:
 	int32_t is_set_card(uint16_t set_code);
 	int32_t is_origin_set_card(uint16_t set_code);
 	int32_t is_pre_set_card(uint16_t set_code);
-	int32_t is_sumon_set_card(uint16_t set_code, card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
+	int32_t is_summon_set_card(uint16_t set_code, card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
 	void get_set_card(std::set<uint16_t>& setcodes);
 	const std::set<uint16_t>& get_origin_set_card() const { return data.setcodes; }
 	void get_pre_set_card(std::set<uint16_t>& setcodes);

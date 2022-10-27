@@ -29,12 +29,12 @@ void assert_readonly_group(lua_State* L, group* pgroup) {
 LUA_FUNCTION(CreateGroup) {
 	const auto pduel = lua_get<duel*>(L);
 	group* pgroup = pduel->new_group();
-	for(int32_t i = 1, tot = lua_gettop(L); i <= tot; ++i) {
-		if(lua_isnil(L, i))
-			continue;
-		auto pcard = lua_get<card*, true>(L, i);
-		pgroup->container.insert(pcard);
-	}
+	lua_iterate_table_or_stack(L, 2, lua_gettop(L), [L, &container = pgroup->container] {
+		if(!lua_isnil(L, -1)) {
+			auto pcard = lua_get<card*, true>(L, -1);
+			container.insert(pcard);
+		}
+	});
 	interpreter::pushobject(L, pgroup);
 	return 1;
 }
@@ -829,16 +829,17 @@ LUA_FUNCTION(Split) {
 		}
 	}
 	const auto pduel = lua_get<duel*>(L);
-	group* new_group = pduel->new_group();
 	uint32_t extraargs = lua_gettop(L) - 3;
-	for(auto& pcard : cset) {
+	for(auto it = cset.begin(); it != cset.end();) {
+		auto pcard = *it;
 		if(pduel->lua->check_matching(pcard, findex, extraargs)) {
-			new_group->container.insert(pcard);
+			++it;
 		} else {
 			notmatching.insert(pcard);
+			it = cset.erase(it);
 		}
 	}
-	interpreter::pushobject(L, new_group);
+	interpreter::pushobject(L, pduel->new_group(std::move(cset)));
 	interpreter::pushobject(L, pduel->new_group(std::move(notmatching)));
 	return 2;
 }

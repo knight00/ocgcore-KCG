@@ -6567,6 +6567,7 @@ int32_t field::toss_coin(uint16_t step, effect* reason_effect, uint8_t reason_pl
 				}
 			}
 			if(peffect) {
+				core.coin_results.resize(count);
 				solve_continuous(peffect->get_handler_player(), peffect, e);
 				core.units.begin()->step = 2;
 				return FALSE;
@@ -6641,6 +6642,7 @@ int32_t field::toss_dice(uint16_t step, effect* reason_effect, uint8_t reason_pl
 				}
 			}
 			if(peffect) {
+				core.dice_results.resize(count1 + count2);
 				solve_continuous(peffect->get_handler_player(), peffect, e);
 				core.units.begin()->step = 2;
 				return FALSE;

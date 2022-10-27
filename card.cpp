@@ -365,9 +365,6 @@ void card::get_summon_code(std::set<uint32_t>& codes, card* scard, uint64_t sumt
 			codes.insert(code);
 	}
 }
-static inline bool match_setcode(uint16_t set_code, uint16_t to_match) {
-	return (set_code & 0xfffu) == (to_match & 0xfffu) && (set_code & to_match) == set_code;
-}
 int32_t card::is_set_card(uint16_t set_code) {
 	uint32_t code = get_code();
 	///kdiy/////////
@@ -453,9 +450,7 @@ int32_t card::is_pre_set_card(uint16_t set_code) {
 	}
 	return FALSE;
 }
-int32_t card::is_sumon_set_card(uint16_t set_code, card* scard, uint64_t sumtype, uint8_t playerid) {
-	uint32_t settype = set_code & 0xfff;
-	uint32_t setsubtype = set_code & 0xf000;
+int32_t card::is_summon_set_card(uint16_t set_code, card* scard, uint64_t sumtype, uint8_t playerid) {
 	effect_set eset;
 	std::set<uint32_t> codes;
 	bool changed = false;
@@ -517,17 +512,17 @@ int32_t card::is_sumon_set_card(uint16_t set_code, card* scard, uint64_t sumtype
 	if (!changed && is_set_card(set_code))
 		return TRUE;
 	for (uint16_t setcode : setcodes)
-		if ((setcode & 0xfffu) == settype && (setcode & 0xf000u & setsubtype) == setsubtype)
+		if(match_setcode(set_code, setcode))
 			return TRUE;
 	return FALSE;
 }
 void card::get_set_card(std::set<uint16_t>& setcodes) {
 	uint32_t code = get_code();
-	setcodes = (code != data.code) ? pduel->read_card(code).setcodes : data.setcodes;
+	const auto& og_setcodes = (code != data.code) ? pduel->read_card(code).setcodes : data.setcodes;
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
 	if ((data.alias && ocode && ocode == data.code) || data.realcode)
-		setcodes.insert(data.setcodes.begin(), data.setcodes.end());
+		setcodes.insert(og_setcodes.begin(), og_setcodes.end());
 	///kdiy/////////
 	//add set code
 	effect_set eset;
@@ -546,11 +541,11 @@ void card::get_set_card(std::set<uint16_t>& setcodes) {
 }
 void card::get_pre_set_card(std::set<uint16_t>& setcodes) {
 	uint32_t code = previous.code;
-	setcodes = (code != data.code) ? pduel->read_card(code).setcodes : data.setcodes;
+	const auto& og_setcodes = (code != data.code) ? pduel->read_card(code).setcodes : data.setcodes;
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
 	if ((data.alias && ocode && ocode == data.code) || data.realcode)
-		setcodes.insert(data.setcodes.begin(), data.setcodes.end());
+		setcodes.insert(og_setcodes.begin(), og_setcodes.end());
 	///kdiy/////////
 	//add set code
 	setcodes.insert(previous.setcodes.begin(), previous.setcodes.end());
@@ -610,7 +605,8 @@ void card::get_summon_set_card(std::set<uint16_t>& setcodes, card* scard, uint64
 		}
 		setcodes.insert(setcode & 0xffff);
 	}
-	get_set_card(setcodes);
+	if(!changed)
+		get_set_card(setcodes);
 }
 uint32_t card::get_type(card* scard, uint64_t sumtype, uint8_t playerid) {
 	auto search = assume.find(ASSUME_TYPE);
