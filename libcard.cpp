@@ -892,29 +892,21 @@ LUA_FUNCTION(IsCode) {
 	////kdiy/////
 	uint32_t code3 = pcard->get_ocode();
 	uint32_t realcode = pcard->data.realcode;
-	////kdiy/////
-	/*
-	bool found = lua_find_in_table_or_in_stack(L, 2, lua_gettop(L), [L, code1, code2] {
-	if(lua_isnoneornil(L, -1))
-	return false;
-	uint32_t tcode = lua_get<uint32_t>(L, -1);
-	return code1 == tcode || (code2 && code2 == tcode);
-	});
-	lua_pushboolean(L, found);
-	*/
-	////kdiy/////
+	//bool found = lua_find_in_table_or_in_stack(L, 2, lua_gettop(L), [L, code1, code2] {
 	bool found = lua_find_in_table_or_in_stack(L, 2, lua_gettop(L), [L, code1, code2, code3, pcard] {
+	////kdiy/////
 		if(lua_isnoneornil(L, -1))
 			return false;
 		uint32_t tcode = lua_get<uint32_t>(L, -1);
+		////kdiy/////
+		//return code1 == tcode || (code2 && code2 == tcode);
 		effect_set eset;
 		pcard->filter_effect(EFFECT_INCLUDE_CODE, &eset);
-		for (const auto& peff : eset) {
+		for (const auto& peff : eset)
 			return peff->get_value(pcard) == tcode;
-		}
-		return code1 == tcode || code3 == tcode ||  (code2 && code2 == tcode) ;
-		});
+		return code1 == tcode || code3 == tcode ||  (code2 && code2 == tcode);
 		////kdiy/////
+	});
 	lua_pushboolean(L, found);
 	return 1;
 }
@@ -938,10 +930,10 @@ LUA_FUNCTION(IsSummonCode) {
 	codes.insert(code1);
 	if (code2)
 		codes.insert(code2);
-	////kdiy/////	
+	////kdiy/////
 	if (code3)
 		codes.insert(code3);
-	////kdiy/////	
+	////kdiy/////
 	for (const auto& peff : eset) {
 		if (!peff->operation)
 			continue;
@@ -1091,10 +1083,10 @@ inline int32_t is_prop(lua_State* L, int32_t val) {
 	bool found = lua_find_in_table_or_in_stack(L, 2, lua_gettop(L), [L, val] {
 		if(lua_isnoneornil(L, -1))
 			return false;
-		//return val == lua_get<uint32_t>(L, -1);
 		////////kdiy///////////
+		//return val == lua_get<uint32_t>(L, -1);
 		return val == lua_get<int32_t>(L, -1);
-			////////kdiy///////////
+		////////kdiy///////////
 	});
 	lua_pushboolean(L, found);
 	return 1;
