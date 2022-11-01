@@ -928,8 +928,8 @@ LUA_FUNCTION(MoveToField) {
 	if(pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
 		pcard->prev_temp.location = LOCATION_MZONE;
 	if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		pcard->prev_temp.location = LOCATION_SZONE;   
-	//kdiy///////	
+		pcard->prev_temp.location = LOCATION_SZONE;
+	//kdiy///////
 	pduel->game_field->move_to_field(pcard, move_player, playerid, destination, positions, enable, 0, zone);
 	return lua_yieldk(L, 0, 0, [](lua_State* L, int32_t/* status*/, lua_KContext/* ctx*/) {
 		lua_pushboolean(L, lua_get<duel*>(L)->game_field->returns.at<int32_t>(0));
@@ -955,7 +955,7 @@ LUA_FUNCTION(ReturnToField) {
 	if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		pcard->prev_temp.location = LOCATION_SZONE;
 	effect* oeffect = pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA);
-	effect* seffect = pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_SANCT);		
+	effect* seffect = pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_SANCT);
 	if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER)) {
 		effect* deffect = pduel->new_effect();
 		deffect->owner = oeffect->owner;
@@ -964,7 +964,7 @@ LUA_FUNCTION(ReturnToField) {
 		deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 		deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 		pcard->add_effect(deffect);
-	}	
+	}
 	else if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(pcard->get_type() & TYPE_TRAPMONSTER)) {
 		effect* deffect = pduel->new_effect();
 		deffect->owner = seffect->owner;
@@ -974,13 +974,13 @@ LUA_FUNCTION(ReturnToField) {
 		deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 		pcard->add_effect(deffect);
 	}
-	//kdiy///////	
+	//kdiy///////
 	if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA) && (pcard->get_type() & TYPE_MONSTER)) {
 	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, LOCATION_MZONE, pos, TRUE, 1, zone, FALSE, LOCATION_REASON_TOFIELD | LOCATION_REASON_RETURN);
 	} else if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_SANCT) && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(pcard->get_type() & TYPE_TRAPMONSTER)) {
 	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, LOCATION_SZONE, pos, TRUE, 1, zone, FALSE, LOCATION_REASON_TOFIELD | LOCATION_REASON_RETURN);
 	} else
-	///////kdiy///////	
+	///////kdiy///////
 	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, pcard->previous.location, pos, TRUE, 1, zone, FALSE, LOCATION_REASON_TOFIELD | LOCATION_REASON_RETURN);
 	return lua_yieldk(L, 0, 0, [](lua_State* L, int32_t/* status*/, lua_KContext/* ctx*/) {
 		lua_pushboolean(L, lua_get<duel*>(L)->game_field->returns.at<int32_t>(0));
