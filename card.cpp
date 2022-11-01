@@ -29,15 +29,6 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
 bool card_sort::operator()(const card* c1, const card* c2) const {
 	return c1->cardid < c2->cardid;
 }
-bool card_state::is_location(int32_t loc) const {
-	if((loc & LOCATION_FZONE) && location == LOCATION_SZONE && sequence == 5)
-		return true;
-	if((loc & LOCATION_PZONE) && location == LOCATION_SZONE && pzone)
-		return true;
-	if(location & loc)
-		return true;
-	return false;
-}
 template<typename T>
 static constexpr void set_max_property_val(T& val) {
 	val = (T)~T();
@@ -4136,7 +4127,7 @@ int32_t card::is_can_be_flip_summoned(uint8_t playerid) {
 	if(is_status(STATUS_FORM_CHANGED))
 		return FALSE;
 	if((is_status(STATUS_SUMMON_TURN) || is_status(STATUS_FLIP_SUMMON_TURN) || is_status(STATUS_SPSUMMON_TURN)) &&
-		(summon_player == current.controler || !pduel->game_field->is_flag(DUEL_CAN_REPOS_IF_NON_SUMPLAYER)))
+		(summon.player == current.controler || !pduel->game_field->is_flag(DUEL_CAN_REPOS_IF_NON_SUMPLAYER)))
 		return FALSE;
 	if(announce_count > 0)
 		return FALSE;
@@ -4642,7 +4633,7 @@ int32_t card::is_capable_change_position(uint8_t playerid) {
 	if(is_status(STATUS_FORM_CHANGED))
 		return FALSE;
 	if((is_status(STATUS_SUMMON_TURN) || is_status(STATUS_FLIP_SUMMON_TURN) || is_status(STATUS_SPSUMMON_TURN)) &&
-		(summon_player == current.controler || !pduel->game_field->is_flag(DUEL_CAN_REPOS_IF_NON_SUMPLAYER)))
+		(summon.player == current.controler || !pduel->game_field->is_flag(DUEL_CAN_REPOS_IF_NON_SUMPLAYER)))
 		return FALSE;
 	if((data.type & TYPE_LINK) && (data.type & TYPE_MONSTER))
 		return FALSE;

@@ -55,16 +55,28 @@ LUA_FUNCTION(AddCard) {
 		if(location == LOCATION_EXTRA && (position == 0 || (pcard->data.type & TYPE_PENDULUM) == 0))
 			position = POS_FACEDOWN_DEFENSE;
 		pcard->sendto_param.position = position;
+		bool pzone = false;
 		if(location == LOCATION_PZONE) {
-			int32_t seq = field->get_pzone_index(sequence, playerid);
-			field->add_card(playerid, pcard, LOCATION_SZONE, seq, TRUE);
+			location = LOCATION_SZONE;
+			sequence = field->get_pzone_index(sequence, playerid);
 		} else if(location == LOCATION_FZONE) {
-			int32_t loc = LOCATION_SZONE;
-			field->add_card(playerid, pcard, loc, 5);
-		} else
-			field->add_card(playerid, pcard, location, sequence);
+			location = LOCATION_SZONE;
+			sequence = 5;
+		} else if(location == LOCATION_STZONE) {
+			location = LOCATION_SZONE;
+			sequence += 1 * pduel->game_field->is_flag(DUEL_3_COLUMNS_FIELD);
+
+		} else if(location == LOCATION_MMZONE) {
+			location = LOCATION_MZONE;
+			sequence += 1 * pduel->game_field->is_flag(DUEL_3_COLUMNS_FIELD);
+
+		} else if(location == LOCATION_EMZONE) {
+			location = LOCATION_MZONE;
+			sequence += 5;
+		}
+		field->add_card(playerid, pcard, location, sequence, pzone);
 		pcard->current.position = position;
-		if(!(location & (LOCATION_ONFIELD | LOCATION_PZONE)) || (position & POS_FACEUP)) {
+		if(!(location & LOCATION_ONFIELD) || (position & POS_FACEUP)) {
 			pcard->enable_field_effect(true);
 			field->adjust_instant();
 		}
@@ -105,7 +117,12 @@ LUA_FUNCTION(PreSummon) {
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto summon_type = lua_get<uint32_t>(L, 2);
 	auto summon_location = lua_get<uint8_t, 0>(L, 3);
-	pcard->summon_info = summon_type | (summon_location << 16);
+	auto summon_sequence = lua_get<uint8_t, 0>(L, 4);
+	auto summon_pzone = lua_get<bool, false>(L, 5);
+	pcard->summon.location = summon_location;
+	pcard->summon.type = summon_type;
+	pcard->summon.sequence = summon_sequence;
+	pcard->summon.pzone = summon_pzone;
 	return 0;
 }
 LUA_FUNCTION(PreEquip) {

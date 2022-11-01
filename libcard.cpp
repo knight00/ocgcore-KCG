@@ -788,19 +788,19 @@ LUA_FUNCTION(GetPreviousSequence) {
 LUA_FUNCTION(GetSummonType) {
 	check_param_count(L, 1);
 	auto pcard = lua_get<card*, true>(L, 1);
-	lua_pushinteger(L, pcard->summon_info & 0xff00ffff);
+	lua_pushinteger(L, pcard->summon.type & 0xff00ffff);
 	return 1;
 }
 LUA_FUNCTION(GetSummonLocation) {
 	check_param_count(L, 1);
 	auto pcard = lua_get<card*, true>(L, 1);
-	lua_pushinteger(L, (pcard->summon_info >> 16) & 0xff);
+	lua_pushinteger(L, pcard->summon.location);
 	return 1;
 }
 LUA_FUNCTION(GetSummonPlayer) {
 	check_param_count(L, 1);
 	auto pcard = lua_get<card*, true>(L, 1);
-	lua_pushinteger(L, pcard->summon_player);
+	lua_pushinteger(L, pcard->summon.player);
 	return 1;
 }
 LUA_FUNCTION(GetDestination) {
@@ -1192,7 +1192,7 @@ LUA_FUNCTION(IsReason) {
 LUA_FUNCTION(IsSummonType) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
-	bool found = lua_find_in_table_or_in_stack(L, 2, lua_gettop(L), [L, summon_info = pcard->summon_info & 0xff00ffff] {
+	bool found = lua_find_in_table_or_in_stack(L, 2, lua_gettop(L), [L, summon_info = pcard->summon.type & 0xff00ffff] {
 		if(lua_isnoneornil(L, -1))
 			return false;
 		auto ttype = lua_get<uint32_t>(L, -1);
@@ -1204,16 +1204,15 @@ LUA_FUNCTION(IsSummonType) {
 LUA_FUNCTION(IsSummonLocation) {
 	check_param_count(L, 1);
 	auto pcard = lua_get<card*, true>(L, 1);
-	auto loc = lua_get<uint8_t>(L, 2);
-	const uint8_t prev_loc = (pcard->summon_info >> 16) & 0xff;
-	lua_pushboolean(L, prev_loc & loc);
+	auto loc = lua_get<uint16_t>(L, 2);
+	lua_pushboolean(L, card_state::is_location(pcard->summon, loc));
 	return 1;
 }
 LUA_FUNCTION(IsSummonPlayer) {
 	check_param_count(L, 1);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto player = lua_get<uint8_t>(L, 2);
-	lua_pushboolean(L, pcard->summon_player == player);
+	lua_pushboolean(L, pcard->summon.player == player);
 	return 1;
 }
 LUA_FUNCTION(IsStatus) {
@@ -2246,15 +2245,8 @@ LUA_FUNCTION(IsLocation) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto loc = lua_get<uint16_t>(L, 2);
-	//////kdiy/////////
-	if(pcard->current.location == LOCATION_MZONE && loc == LOCATION_RMZONE && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
-        lua_pushboolean(L, 1);
-	else if(pcard->current.location == LOCATION_SZONE && loc == LOCATION_RSZONE && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
-        lua_pushboolean(L, 1);	
-	//if(pcard->current.location == LOCATION_MZONE) {
-	else if((pcard->current.location == LOCATION_MZONE && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))) {
-	//////kdiy/////////
-		if((loc & LOCATION_MZONE) && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+	if(pcard->current.location == LOCATION_MZONE) {
+		if(pcard->current.is_location(loc) && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);

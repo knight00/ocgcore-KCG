@@ -1982,17 +1982,17 @@ LUA_FUNCTION(NegateSummon) {
 	const auto pduel = lua_get<duel*>(L);
 	uint8_t sumplayer = PLAYER_NONE;
 	if(pcard) {
-		sumplayer = pcard->summon_player;
+		sumplayer = pcard->summon.player;
 		pcard->set_status(STATUS_SUMMONING, FALSE);
 		pcard->set_status(STATUS_SUMMON_DISABLED, TRUE);
-		if((pcard->summon_info & SUMMON_TYPE_PENDULUM) != SUMMON_TYPE_PENDULUM)
+		if((pcard->summon.type & SUMMON_TYPE_PENDULUM) != SUMMON_TYPE_PENDULUM)
 			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
 	} else {
 		for(auto& _pcard : pgroup->container) {
-			sumplayer = _pcard->summon_player;
+			sumplayer = _pcard->summon.player;
 			_pcard->set_status(STATUS_SUMMONING, FALSE);
 			_pcard->set_status(STATUS_SUMMON_DISABLED, TRUE);
-			if((_pcard->summon_info & SUMMON_TYPE_PENDULUM) != SUMMON_TYPE_PENDULUM)
+			if((_pcard->summon.type & SUMMON_TYPE_PENDULUM) != SUMMON_TYPE_PENDULUM)
 				_pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
 		}
 	}
@@ -2336,7 +2336,7 @@ LUA_FUNCTION(GetChainInfo) {
 	auto top = lua_gettop(L);
 	uint32_t args = lua_istable(L, 2) ? lua_rawlen(L, 2) : top - 1;
 	luaL_checkstack(L, args, nullptr);
-	lua_iterate_table_or_stack(L, 2, top, [L, ch]() -> int {
+	lua_iterate_table_or_stack(L, 2, top, [L, ch, pduel]() -> int {
 		auto flag = lua_get<uint32_t>(L, -1);
 		switch(flag) {
 		case CHAININFO_CHAIN_COUNT:
@@ -2352,10 +2352,30 @@ LUA_FUNCTION(GetChainInfo) {
 			lua_pushinteger(L, ch->triggering_controler);
 			break;
 		case CHAININFO_TRIGGERING_LOCATION:
-			lua_pushinteger(L, ch->triggering_location);
+			lua_pushinteger(L, ch->triggering_location & ~(LOCATION_STZONE | LOCATION_MMZONE | LOCATION_EMZONE));
+			break;
+		case CHAININFO_TRIGGERING_LOCATION_SYMBOLIC:
+			lua_pushinteger(L, ch->triggering_location & ~(LOCATION_MZONE | LOCATION_SZONE));
 			break;
 		case CHAININFO_TRIGGERING_SEQUENCE:
 			lua_pushinteger(L, ch->triggering_sequence);
+			break;
+		case CHAININFO_TRIGGERING_SEQUENCE_SYMBOLIC:
+			if(pduel->game_field->is_flag(DUEL_3_COLUMNS_FIELD) && (ch->triggering_location & ~(LOCATION_STZONE | LOCATION_MMZONE)))
+				lua_pushinteger(L, ch->triggering_sequence + 1);
+			else if(ch->triggering_location & LOCATION_PZONE) {
+				if(ch->triggering_sequence == pduel->game_field->get_pzone_index(0, ch->triggering_controler))
+					lua_pushinteger(L, 0);
+				else
+					lua_pushinteger(L, 1);
+			}
+			else if(ch->triggering_location & LOCATION_FZONE) {
+				lua_pushinteger(L, 0);
+			}
+			else if(ch->triggering_location & LOCATION_EMZONE) {
+				lua_pushinteger(L, ch->triggering_sequence - 5);
+			} else
+				lua_pushinteger(L, ch->triggering_sequence);
 			break;
 		case CHAININFO_TRIGGERING_POSITION:
 			lua_pushinteger(L, ch->triggering_position);

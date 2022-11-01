@@ -4652,10 +4652,10 @@ int32_t field::add_chain(uint16_t step) {
 				else if((phandler->data.type & TYPE_SPELL) && (phandler->data.type & TYPE_QUICKPLAY || phandler->is_affected_by_effect(EFFECT_BECOME_QUICK))
 				        && infos.turn_player != phandler->current.controler)
 					ecode = EFFECT_QP_ACT_IN_NTPHAND;
-			//////////kdiy//////////		
+			//////////kdiy//////////
 			//} else if(phandler->current.location == LOCATION_SZONE) {
 			} else if((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))) {
-			//////////kdiy//////////		
+			//////////kdiy//////////
 				if((phandler->data.type & TYPE_TRAP) && phandler->get_status(STATUS_SET_TURN))
 					ecode = EFFECT_TRAP_ACT_IN_SET_TURN;
 				if((phandler->data.type & TYPE_SPELL) && (phandler->data.type & TYPE_QUICKPLAY || phandler->is_affected_by_effect(EFFECT_BECOME_QUICK)) && phandler->get_status(STATUS_SET_TURN))
@@ -4680,10 +4680,11 @@ int32_t field::add_chain(uint16_t step) {
 					}
 				}
 			}
+			phandler->set_status(STATUS_ACT_FROM_HAND, phandler->current.location == LOCATION_HAND);
 			/////////kdiy//////////
 			//if(phandler->current.location == LOCATION_SZONE) {
 			if(((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))) && (phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & TYPE_TRAPMONSTER)) {
-			/////////kdiy//////////	
+			/////////kdiy//////////
 				phandler->set_status(STATUS_ACT_FROM_HAND, FALSE);
 				change_position(phandler, 0, phandler->current.controler, POS_FACEUP, 0);
 			} else {
@@ -4701,47 +4702,39 @@ int32_t field::add_chain(uint16_t step) {
 						return TRUE;
 				}
 				int32_t loc = LOCATION_SZONE;
-				if(phandler->current.location == LOCATION_HAND) {
-					phandler->set_status(STATUS_ACT_FROM_HAND, TRUE);
+				if(peffect->is_flag(EFFECT_FLAG2_FORCE_ACTIVATE_LOCATION)) {
+					loc = peffect->get_value();
+					if(!loc)
+						return TRUE;
+				} else if(phandler->current.location == LOCATION_HAND) {
 					if(phandler->data.type & TYPE_PENDULUM) {
 						loc = LOCATION_PZONE;
-					} else if(phandler->data.type & TYPE_FIELD){
+					} else if(phandler->data.type & TYPE_FIELD) {
 						loc = LOCATION_FZONE;
-					} else {
-						loc = LOCATION_SZONE;
 					}
 				}
-				if(peffect->value && !peffect->is_flag(EFFECT_FLAG_LIMIT_ZONE))
-					loc = peffect->value;
 				///////kdiy///////
 				phandler->prev_temp.location = phandler->current.location;
 				if(phandler->current.location == LOCATION_SZONE && phandler->is_affected_by_effect(EFFECT_ORICA_SZONE))
 				    phandler->prev_temp.location = LOCATION_MZONE;
 				if(phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))
 				    phandler->prev_temp.location = LOCATION_SZONE;
-				///////kdiy///////
-				if(loc > 0) {
-					phandler->enable_field_effect(false);
-					///////kdiy///////	
-					effect* seffect = is_player_affected_by_effect(phandler->current.controler, EFFECT_SANCT);
-					if((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & TYPE_TRAPMONSTER) && is_player_affected_by_effect(phandler->current.controler, EFFECT_SANCT) && !phandler->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
-						effect* deffect = pduel->new_effect();
-						deffect->owner = seffect->owner;
-						deffect->code = EFFECT_SANCT_MZONE;
-						deffect->type = EFFECT_TYPE_SINGLE;
-						deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-						deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-						phandler->add_effect(deffect);
-					}	
-					if(loc == LOCATION_MZONE) {	
-						///////kdiy///////
-						//move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP_ATTACK);	
-						move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP);	
-						///////kdiy///////
-					} else {	
-						move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP, FALSE, 0, zone);
-					}
+				effect* seffect = is_player_affected_by_effect(phandler->current.controler, EFFECT_SANCT);
+				if((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & TYPE_TRAPMONSTER) && is_player_affected_by_effect(phandler->current.controler, EFFECT_SANCT) && !phandler->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+					effect* deffect = pduel->new_effect();
+					deffect->owner = seffect->owner;
+					deffect->code = EFFECT_SANCT_MZONE;
+					deffect->type = EFFECT_TYPE_SINGLE;
+					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
+					deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
+					phandler->add_effect(deffect);
 				}
+				///////kdiy///////
+				phandler->enable_field_effect(false);
+				///////kdiy///////
+				//move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, (loc == LOCATION_MZONE) ? POS_FACEUP_ATTACK : POS_FACEUP, FALSE, 0, zone);
+				move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP, FALSE, 0, zone);
+				///////kdiy///////
 			}
 		}
 		return FALSE;

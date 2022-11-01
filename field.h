@@ -457,7 +457,7 @@ public:
 	bool is_flag(uint64_t flag) const;
 	bool has_separate_pzone(uint8_t p) const;
 	uint32_t get_pzone_zones_flag() const;
-	int32_t get_pzone_index(uint8_t seq, uint8_t p) const;
+	uint8_t get_pzone_index(uint8_t seq, uint8_t p) const;
 
 	void add_effect(effect* peffect, uint8_t owner_player = 2);
 	void remove_effect(effect* peffect);
@@ -706,7 +706,9 @@ public:
 #define CHAININFO_TRIGGERING_PLAYER		0x04
 #define CHAININFO_TRIGGERING_CONTROLER	0x08
 #define CHAININFO_TRIGGERING_LOCATION	0x10
+#define CHAININFO_TRIGGERING_LOCATION_SYMBOLIC	0x11
 #define CHAININFO_TRIGGERING_SEQUENCE	0x20
+#define CHAININFO_TRIGGERING_SEQUENCE_SYMBOLIC	0x21
 #define CHAININFO_TARGET_CARDS			0x40
 #define CHAININFO_TARGET_PLAYER			0x80
 #define CHAININFO_TARGET_PARAM			0x100
