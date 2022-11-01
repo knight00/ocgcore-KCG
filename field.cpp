@@ -769,7 +769,7 @@ int32_t field::get_useable_count_other(card* pcard, uint8_t playerid, uint8_t lo
 		if(is_player_affected_by_effect(playerid, EFFECT_SANCT))
 		   limit = get_mzone_limit(playerid, uplayer, reason)+ get_szone_limit(playerid, uplayer, reason);
 		else
-	    ///////////kdiy////////		
+	    ///////////kdiy////////
 		limit = get_szone_limit(playerid, uplayer, reason);
 	if(count > limit)
 		count = limit;
@@ -780,14 +780,14 @@ int32_t field::get_tofield_count(card* pcard, uint8_t playerid, uint8_t location
 		return 0;
 	uint32_t flag = player[playerid].disabled_location | player[playerid].used_location;
 	if(location == LOCATION_MZONE) {
-		///////////kdiy////////	
+		///////////kdiy////////
 	    if(get_forced_zones(pcard, playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD) != 0x7f)
-	    ///////////kdiy////////	
+	    ///////////kdiy////////
 		flag |= ~get_forced_zones(pcard, playerid, location, uplayer, reason);
 		flag = (flag | ~zone) & 0x1f;
 	} else
 		flag = ((flag >> 8) | ~zone) & 0x1f;
-	int32_t count = 5 - field_used_count[flag];	
+	int32_t count = 5 - field_used_count[flag];
 	///////////kdiy////////
 	if(location == LOCATION_MZONE && is_player_affected_by_effect(playerid, EFFECT_ORICA)) {
 		if(zone == 0xff || zone == 0x1f || zone == 0x7f) zone |= 0x1f00;
@@ -801,11 +801,11 @@ int32_t field::get_tofield_count(card* pcard, uint8_t playerid, uint8_t location
 		   zone = (zone << 8) | 0x1f;
 		else zone = (zone << 8);
 	    uint32_t flag2 = player[playerid].disabled_location | player[playerid].used_location;
-		flag2 = (flag2 | ~zone) & 0x1f;	
+		flag2 = (flag2 | ~zone) & 0x1f;
 		count += 5 - field_used_count[flag2];
 		flag = ((flag2 & 0xff) | ((flag & 0xff) << 8));
-	}	
-	///////////kdiy////////		
+	}
+	///////////kdiy////////
 	if(location == LOCATION_MZONE)
 		flag |= (1u << 5) | (1u << 6);
 	if(list)
@@ -1717,6 +1717,7 @@ int32_t field::filter_matching_card(int32_t findex, uint8_t self, uint32_t locat
 		if(pcard && (!extrafil || extrafil(pcard))
 		   && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
 		   ////kdiy////////////
+		   && !pcard->is_affected_by_effect(EFFECT_ASSUME_ZERO)
 		   //&& (!findex || pduel->lua->check_matching(pcard, findex, extraargs))
 		   && (!findex || (pduel->lua->check_matching(pcard, findex, extraargs) && !pcard->is_affected_by_effect(EFFECT_DARKNESS_HIDE)))
 		   ////kdiy////////////
@@ -1744,14 +1745,14 @@ int32_t field::filter_matching_card(int32_t findex, uint8_t self, uint32_t locat
 	auto mzonechk = [&checkc](auto pcard)->bool {
 		////kdiy////////////
 		//return checkc(pcard, [](auto pcard)->bool {return !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP); });
-	    return checkc(pcard, [](auto pcard)->bool {return !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP) 
+	    return checkc(pcard, [](auto pcard)->bool {return !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP)
 			&& ((pcard->current.location == LOCATION_MZONE && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))); });
 	    ////kdiy////////////
 	};
 	auto szonechk = [&checkc](auto pcard)->bool {
 		////kdiy////////////
 		//return checkc(pcard, [](auto pcard)->bool {return !pcard->is_status(STATUS_ACTIVATE_DISABLED); });
-	    return checkc(pcard, [](auto pcard)->bool {return !pcard->get_status(STATUS_ACTIVATE_DISABLED) 
+	    return checkc(pcard, [](auto pcard)->bool {return !pcard->get_status(STATUS_ACTIVATE_DISABLED)
 			&& ((pcard->current.location == LOCATION_SZONE && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))); });
 	    ////kdiy////////////
 	};
@@ -1759,31 +1760,9 @@ int32_t field::filter_matching_card(int32_t findex, uint8_t self, uint32_t locat
 		return checkc(pcard, [](auto pcard)->bool {return pcard->current.pzone && !pcard->is_status(STATUS_ACTIVATE_DISABLED); });
 	};
 	auto check_list = [](const auto& list, auto func)->bool {
-		////kdiy////////////
-		// return std::find_if(list.begin(), list.end(), func) != list.end();
-		// 		return true;
-		for(const auto& pcard : list) {
-			if(pcard) {
-			    if(pcard->is_affected_by_effect(EFFECT_ASSUME_ZERO))
-			        continue;
-			    if(func(pcard))
-				    return true;
-			}
-		}
-		////kdiy////////////
+		return std::find_if(list.begin(), list.end(), func) != list.end();
+				return true;
 	};
-	////kdiy////////////
-	auto check_list2 = [](const auto blist, const auto elist, auto func)->bool {
-		for(const auto pcard = blist; pcard != elist; pcard++) {
-			if(pcard) {
-			    if(pcard->is_affected_by_effect(EFFECT_ASSUME_ZERO))
-			        continue;
-			    if(func(pcard))
-				    return true;
-			}
-		}
-	};
-	////kdiy////////////
 	for(uint32_t p = 0, location = location1; p < 2; ++p, location = location2, self = 1 - self) {
 		////kdiy////////////
 		if((location & LOCATION_RMZONE) && check_list(player[self].list_mzone, rmzonechk))
@@ -1802,14 +1781,12 @@ int32_t field::filter_matching_card(int32_t findex, uint8_t self, uint32_t locat
 			if(location & LOCATION_MMZONE) {
 				const auto mzonebegin = player[self].list_mzone.cbegin();
 				const auto mzoneend = mzonebegin + 5;
+				if(std::find_if(mzonebegin, mzoneend, mzonechk) != mzoneend)
+					return TRUE;
 				////kdiy////////////
-				//if(std::find_if(mzonebegin, mzoneend, mzonechk) != mzoneend)
-					//return TRUE;
-				if(check_list2(mzonebegin, mzoneend, mzonechk))
-				    return TRUE;
 				const auto szonebegin = player[self].list_szone.cbegin();
 				const auto szoneend = szonebegin + 5;
-				if(check_list2(szonebegin, szoneend, mzonechk))
+				if(std::find_if(szonebegin, szoneend, mzonechk) != szoneend)
 				    return TRUE;
 				////kdiy////////////
 			}
@@ -1820,12 +1797,8 @@ int32_t field::filter_matching_card(int32_t findex, uint8_t self, uint32_t locat
 					++mzonebegin;
 					--mzoneend;
 				}
-				////kdiy////////////
-				//if(std::find_if(mzonebegin, mzoneend, mzonechk) != mzoneend)
-					//return TRUE;
-				if(check_list2(mzonebegin, mzoneend, mzonechk))
-				    return TRUE;
-				////kdiy////////////
+				if(std::find_if(mzonebegin, mzoneend, mzonechk) != mzoneend)
+					return TRUE;
 			}
 		}
 		if(location & LOCATION_SZONE) {
@@ -1843,18 +1816,16 @@ int32_t field::filter_matching_card(int32_t findex, uint8_t self, uint32_t locat
 					++szonebegin;
 					--szoneend;
 				}
+				if(std::find_if(szonebegin, szoneend, szonechk) != szoneend)
+					return TRUE;
 				////kdiy////////////
-				//if(std::find_if(szonebegin, szoneend, szonechk) != szoneend)
-					//return TRUE;
-				if(check_list2(szonebegin, szoneend, szonechk))
-				    return TRUE;
 				auto mzonebegin = player[self].list_mzone.cbegin();
 				auto mzoneend = mzonebegin + 5;
 				if(is_flag(DUEL_3_COLUMNS_FIELD)) {
 					++mzonebegin;
 					--mzoneend;
 				}
-				if(check_list2(mzonebegin, mzoneend, szonechk))
+				if(std::find_if(mzonebegin, mzoneend, szonechk) != mzoneend)
 					return TRUE;
 				////kdiy////////////
 			}
