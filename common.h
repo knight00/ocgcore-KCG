@@ -38,8 +38,8 @@
 #define CARDDATA_RSCALE			11
 #define CARDDATA_LINK_MARKER	12
 
-#define LOCATION_RMZONE   0x400
-#define LOCATION_RSZONE   0x800
+#define LOCATION_RMZONE   0x2000
+#define LOCATION_RSZONE   0x4000
 //////kdiy//////
 #define LOCATION_DECK    0x01
 #define LOCATION_HAND    0x02
