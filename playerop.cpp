@@ -864,6 +864,12 @@ int32_t field::announce_race(int16_t step, uint8_t playerid, int32_t count, uint
 			if(ft & available)
 				++scount;
 		}
+		/////zdiy/////
+		for(uint64_t ft = RACE_DEVIL; ft != RACE_LEAD; ft <<= 1) {
+			if(ft & available)
+				++scount;
+		}
+		/////zdiy/////
 		if(scount <= count) {
 			count = scount;
 			core.units.begin()->arg1 = (count << 16) + playerid;
@@ -884,6 +890,16 @@ int32_t field::announce_race(int16_t step, uint8_t playerid, int32_t count, uint
 			}
 			++sel;
 		}
+		/////zdiy////
+		for(uint64_t ft = RACE_DEVIL; ft != RACE_LEAD; ft <<= 1) {
+			if(!(ft & rc)) continue;
+			if(!(ft & available)) {
+				pduel->new_message(MSG_RETRY);
+				return FALSE;
+			}
+			++sel;
+		}
+		/////zdiy////
 		if(sel != static_cast<uint8_t>(count)) {
 			pduel->new_message(MSG_RETRY);
 			return FALSE;
