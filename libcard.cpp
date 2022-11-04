@@ -2245,15 +2245,22 @@ LUA_FUNCTION(IsLocation) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto loc = lua_get<uint16_t>(L, 2);
-	if(pcard->current.location == LOCATION_MZONE) {
-		if(pcard->current.is_location(loc) && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+    //////kdiy/////////
+	// if(pcard->current.location == LOCATION_MZONE) {
+	if(pcard->current.location == LOCATION_MZONE && loc == LOCATION_RMZONE && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+        lua_pushboolean(L, 1);
+	else if(pcard->current.location == LOCATION_SZONE && loc == LOCATION_RSZONE && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
+        lua_pushboolean(L, 1);
+	else if((pcard->current.location == LOCATION_MZONE && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))) {
+	//////kdiy/////////
+        if(pcard->current.is_location(loc) && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);
 	//////kdiy/////////
 	//} else if(pcard->current.location == LOCATION_SZONE) {
-	} else if(pcard->current.location == LOCATION_SZONE && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) || (pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))) {
 		//if(pcard->current.is_location(loc) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
+	} else if((pcard->current.location == LOCATION_SZONE && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))) {
 		if(((pcard->current.is_location(loc) && !(loc & LOCATION_SZONE)) || ((pcard->current.location & loc) && (loc & LOCATION_SZONE) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (pcard->current.is_location(loc | LOCATION_MZONE) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
 	//////kdiy/////////
 			lua_pushboolean(L, 1);
