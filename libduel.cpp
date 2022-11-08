@@ -3448,22 +3448,22 @@ LUA_FUNCTION(Overlay) {
 	card* pcard = nullptr;
 	group* pgroup = nullptr;
 	get_card_or_group(L, 2, pcard, pgroup);
+	bool send_materials_to_grave = lua_get<bool, false>(L, 3);
 	/////kdiy////////
 	auto reason = lua_get<uint32_t, 0>(L, 4);
-	card_set tcset;
-	tcset.insert(target);
 	/////kdiy////////
 	if(pcard) {
 		if(pcard == target)
 			lua_error(L, "Attempt to overlay a card with itself.");
 		/////kdiy////////
-		//target->xyz_overlay(card_set{ pcard });
 		auto tp = pcard->current.controler;
-		if(!reason && pduel->game_field->core.reason_effect) pcard->current.reason = REASON_EFFECT;
-		else pcard->current.reason = REASON_RULE;
-		card_set cset;
-		cset.insert(pcard);
-		target->xyz_overlay(cset);
+		if(!reason && pduel->game_field->core.reason_effect)
+		    pcard->current.reason = reason | REASON_EFFECT;
+		else
+		    pcard->current.reason = reason | REASON_RULE;
+		/////kdiy////////
+		pduel->game_field->xyz_overlay(target, pcard, send_materials_to_grave);
+		/////kdiy////////
 		pduel->game_field->raise_single_event(pcard, &tcset, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
 		pduel->game_field->process_single_event();
 		pduel->game_field->process_instant_event();
@@ -3472,25 +3472,20 @@ LUA_FUNCTION(Overlay) {
 		if(pgroup->has_card(target))
 			lua_error(L, "Attempt to overlay a card with itself.");
 		/////kdiy////////
-		//target->xyz_overlay(pgroup->container);
-		{
-			for(auto& pcard : pgroup->container) {
-				card_set cset;
-				cset.insert(pcard);
-				auto tp = pcard->current.controler;
-				if(!reason && pduel->game_field->core.reason_effect) pcard->current.reason = REASON_EFFECT;
-				else pcard->current.reason = REASON_RULE;
-				pcard->current.reason = reason;
-				target->xyz_overlay(cset);
-				pduel->game_field->raise_single_event(pcard, &tcset, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
-			}
-			pduel->game_field->process_single_event();
-			pduel->game_field->process_instant_event();
+		//pduel->game_field->xyz_overlay(target, pgroup->container, send_materials_to_grave);
+		for(auto& pcard : pgroup->container) {
+			auto tp = pcard->current.controler;
+			if(!reason && pduel->game_field->core.reason_effect)
+			    pcard->current.reason = reason | REASON_EFFECT;
+			else
+			    pcard->current.reason = reason | REASON_RULE;
+			pduel->game_field->xyz_overlay(target, pcard, send_materials_to_grave);
+			pduel->game_field->raise_single_event(pcard, &tcset, EVENT_OVERLAY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
 		}
-	    /////kdiy////////
+		pduel->game_field->process_single_event();
+		pduel->game_field->process_instant_event();
+		/////kdiy////////
 	}
-	if(target->current.location & LOCATION_ONFIELD)
-		pduel->game_field->adjust_all();
 	return lua_yield(L, 0);
 }
 LUA_FUNCTION(GetOverlayGroup) {
@@ -3832,7 +3827,7 @@ LUA_FUNCTION(AnnounceAttribute) {
 		return 1;
 	});
 }
-LUA_FUNCTION(AnnounceLevel) {
+LUA_FUNCTION(AnnounceNumberRange) {
 	check_action_permission(L);
 	check_param_count(L, 1);
 	auto playerid = lua_get<uint8_t>(L, 1);
@@ -3870,6 +3865,7 @@ LUA_FUNCTION(AnnounceLevel) {
 		return 2;
 	});
 }
+LUA_FUNCTION_ALIAS(AnnounceLevel);
 LUA_FUNCTION(AnnounceCard) {
 	check_action_permission(L);
 	check_param_count(L, 1);
