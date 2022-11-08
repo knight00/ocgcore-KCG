@@ -3451,6 +3451,8 @@ LUA_FUNCTION(Overlay) {
 	bool send_materials_to_grave = lua_get<bool, false>(L, 3);
 	/////kdiy////////
 	auto reason = lua_get<uint32_t, 0>(L, 4);
+	card_set tcset;
+	tcset.insert(target);
 	/////kdiy////////
 	if(pcard) {
 		if(pcard == target)
