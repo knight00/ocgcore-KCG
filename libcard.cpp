@@ -924,13 +924,11 @@ LUA_FUNCTION(IsSummonCode) {
 	pcard->filter_effect(EFFECT_CHANGE_CODE, &eset);
 	uint32_t code1 = pcard->get_code();
 	uint32_t code2 = pcard->get_another_code();
-	////kdiy/////
-	uint32_t code3 = pcard->get_ocode();
-	////kdiy/////
 	codes.insert(code1);
 	if (code2)
 		codes.insert(code2);
 	////kdiy/////
+	uint32_t code3 = pcard->get_ocode();
 	if (code3)
 		codes.insert(code3);
 	////kdiy/////
@@ -944,6 +942,10 @@ LUA_FUNCTION(IsSummonCode) {
 			continue;
 		if (peff->code == EFFECT_ADD_CODE)
 			codes.insert(peff->get_value(pcard));
+		////kdiy/////
+		if (peff->code == EFFECT_INCLUDE_CODE)
+			codes.insert(peff->get_value(pcard));
+		////kdiy/////
 		else if (peff->code == EFFECT_REMOVE_CODE) {
 			auto cit = codes.find(peff->get_value(pcard));
 			if (cit != codes.end())

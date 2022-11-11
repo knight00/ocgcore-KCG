@@ -1338,6 +1338,14 @@ LUA_FUNCTION(IsEnvironment) {
 			const auto& pcard = pduel->game_field->player[player].list_szone[5];
 			///kdiy////
 			//if(IsEnabled(pcard) && code == pcard->get_code())
+			if(pcard && IsEnabled(pcard)) {
+				effect_set eset;
+				pcard->filter_effect(EFFECT_INCLUDE_CODE, &eset);
+				for (const auto& peff : eset) {
+			        if(peff->get_value(pcard) == code)
+					    return true;
+				}
+			}
 			if(IsEnabled(pcard) && (code == pcard->get_code() || code == pcard->get_ocode()))
 			///kdiy////
 				return true;
@@ -1349,6 +1357,14 @@ LUA_FUNCTION(IsEnvironment) {
 			for(auto& pcard : pduel->game_field->player[player].list_szone) {
 				///kdiy////
 				//if(IsEnabled(pcard) && code == pcard->get_code())
+				if(pcard && IsEnabled(pcard)) {
+					effect_set eset;
+					pcard->filter_effect(EFFECT_INCLUDE_CODE, &eset);
+					for (const auto& peff : eset) {
+						if(peff->get_value(pcard) == code)
+						    return true;
+				    }
+			    }
 				if(IsEnabled(pcard) && (code == pcard->get_code() || code == pcard->get_ocode()))
 				///kdiy////
 					return true;
@@ -1361,6 +1377,14 @@ LUA_FUNCTION(IsEnvironment) {
 			for(auto& pcard : pduel->game_field->player[player].list_mzone) {
 				///kdiy////
 				//if(IsEnabled(pcard) && code == pcard->get_code())
+				if(pcard && IsEnabled(pcard)) {
+					effect_set eset;
+					pcard->filter_effect(EFFECT_INCLUDE_CODE, &eset);
+					for (const auto& peff : eset) {
+						if(peff->get_value(pcard) == code)
+						    return true;
+				    }
+			    }
 				if(IsEnabled(pcard) && (code == pcard->get_code() || code == pcard->get_ocode()))
 				///kdiy////
 					return true;
