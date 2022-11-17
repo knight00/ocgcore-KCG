@@ -188,7 +188,15 @@ int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t negle
 					return FALSE;
 				if(handler->equiping_target)
 					return FALSE;
-				if(!(handler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && is_flag(EFFECT_FLAG_LIMIT_ZONE) && !(zone & (1u << handler->current.sequence)))
+				////////kdiy/////////
+				//if(!(handler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && is_flag(EFFECT_FLAG_LIMIT_ZONE) && !(zone & (1u << handler->current.sequence)))
+				uint32_t zone2 = 0xff;
+				if(handler->current.location == LOCATION_MZONE)
+				    zone2 = zone & 0xff;
+				if(handler->current.location == LOCATION_SZONE)
+				    zone2 = (zone & 0xff00) >> 8;
+				if(!(handler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && is_flag(EFFECT_FLAG_LIMIT_ZONE) && !(zone2 & (1u << handler->current.sequence)))
+				////////kdiy/////////
 					return FALSE;
 			} else {
 				if(!(((handler->data.type & TYPE_FIELD) && (!is_flag(EFFECT_FLAG_LIMIT_ZONE) && value<=0)) || (!is_flag(EFFECT_FLAG_LIMIT_ZONE) && (value & LOCATION_FZONE)) || (!is_flag(EFFECT_FLAG_LIMIT_ZONE) && (value & LOCATION_HAND)))) {
@@ -216,10 +224,10 @@ int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t negle
 					else
 						return FALSE;
 				}
-			////////kdiy/////////					
+			////////kdiy/////////
 			//} else if(handler->current.location == LOCATION_SZONE) {
 			} else if((handler->current.location == LOCATION_SZONE && !handler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (handler->current.location == LOCATION_MZONE && handler->is_affected_by_effect(EFFECT_SANCT_MZONE))) {
-			////////kdiy/////////					
+			////////kdiy/////////
 				if((handler->data.type & TYPE_TRAP) && handler->get_status(STATUS_SET_TURN))
 					ecode = EFFECT_TRAP_ACT_IN_SET_TURN;
 				if((handler->data.type & TYPE_SPELL) && (handler->data.type & TYPE_QUICKPLAY || handler->is_affected_by_effect(EFFECT_BECOME_QUICK)) && handler->get_status(STATUS_SET_TURN))

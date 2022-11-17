@@ -332,11 +332,12 @@ void field::send_to(card_set targets, effect* reason_effect, uint32_t reason, ui
 void field::send_to(card* target, effect* reason_effect, uint32_t reason, uint32_t reason_player, uint32_t playerid, uint32_t destination, uint32_t sequence, uint32_t position, uint32_t ignore) {
 	send_to(card_set{ target }, reason_effect, reason, reason_player, playerid, destination, sequence, position, ignore);
 }
-void field::move_to_field(card* target, uint32_t move_player, uint32_t playerid, uint32_t destination, uint32_t positions, uint8_t enable, uint8_t ret, uint8_t zone, uint8_t rule, uint8_t reason, uint8_t confirm) {
-	//////kdiy///////
+//////kdiy///////
+//void field::move_to_field(card* target, uint32_t move_player, uint32_t playerid, uint32_t destination, uint32_t positions, uint8_t enable, uint8_t ret, uint8_t zone, uint8_t rule, uint8_t reason, uint8_t confirm) {
 	//if(!(destination & (LOCATION_MZONE | LOCATION_MMZONE | LOCATION_EMZONE | LOCATION_SZONE | LOCATION_STZONE | LOCATION_PZONE | LOCATION_FZONE)) || !positions)
+void field::move_to_field(card* target, uint32_t move_player, uint32_t playerid, uint32_t destination, uint32_t positions, uint8_t enable, uint8_t ret, uint32_t zone, uint8_t rule, uint8_t reason, uint8_t confirm) {
 	if(!(destination & (LOCATION_RMZONE | LOCATION_RSZONE | LOCATION_MZONE | LOCATION_MMZONE | LOCATION_EMZONE | LOCATION_SZONE | LOCATION_STZONE | LOCATION_PZONE | LOCATION_FZONE)) || !positions)
-	//////kdiy///////
+//////kdiy///////
 		return;
 	if(destination & LOCATION_PZONE && target->current.is_location(LOCATION_PZONE) && playerid == target->current.controler)
 	    return;
@@ -351,6 +352,8 @@ void field::move_to_field(card* target, uint32_t move_player, uint32_t playerid,
 		destination = LOCATION_SZONE;
 	    Rloc = 8;
 	}
+	if(Rloc == 0 && (destination & LOCATION_SZONE) && ((zone >> 8) & 0xff))
+	    Rloc = (zone >> 8) & 0xff;
 	if((destination == target->prev_temp.location && playerid == target->current.controler && Rloc == 0) || (destination == target->current.location && playerid == target->current.controler && Rloc != 0))
 	//////kdiy///////
 		return;
@@ -4035,11 +4038,11 @@ int32_t field::special_summon_step(uint16_t step, group* targets, card* target, 
 				return FALSE;
 			}
 		}
-		///////////kdiy//////////				
+		///////////kdiy//////////
 		//if((target->current.location == LOCATION_MZONE)
 		if(((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) 
 			|| (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE)))
-		//////////kdiy//////////		
+		//////////kdiy//////////
 			|| (!(positions & POS_FACEDOWN) && check_unique_onfield(target, playerid, LOCATION_MZONE))
 			|| !is_player_can_spsummon(core.reason_effect, target->summon.type & 0xff00ffff, positions, target->summon.player, playerid, target)
 			|| (!nocheck && !(target->data.type & TYPE_MONSTER))) {
@@ -5453,7 +5456,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 	// uint32_t location = (target->to_field_param >> 8) & 0xff;
 	uint32_t move_player = (target->to_field_param >> 28) & 0xf;
 	uint32_t playerid = (target->to_field_param >> 24) & 0xf;
-	uint32_t Rloc = (target->to_field_param >> 16) & 0xff;	
+	uint32_t Rloc = (target->to_field_param >> 16) & 0xff;
 	uint32_t location = (target->to_field_param >> 8) & 0xff;
 	uint32_t positions = (target->to_field_param) & 0xff;
 	///////kdiy///////
@@ -5474,7 +5477,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		//////////kdiy////////////
 		//} else if(pzone && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM) && is_flag(DUEL_PZONE)) {
 		} else if(pzone && location == LOCATION_SZONE && !target->is_affected_by_effect(EFFECT_ORICA_SZONE) && (target->data.type & TYPE_PENDULUM) && is_flag(DUEL_PZONE)) {
-		//////////kdiy////////////			
+		//////////kdiy////////////
 			uint32_t flag = 0;
 			if(is_location_useable(playerid, LOCATION_PZONE, 0) && zone & 1)
 				flag |= 0x1u << (get_pzone_index(0, playerid) + 8);
@@ -5492,10 +5495,12 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 			add_process(PROCESSOR_SELECT_PLACE, 0, 0, (group*)target, move_player, flag, 1);
 		} else {
 			uint32_t flag;
-			///////////kdiy//////////				
+			///////////kdiy//////////
 			//uint32_t lreason = reason ? reason : (target->current.location == LOCATION_MZONE) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
 			uint32_t lreason = reason ? reason : ((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
-			//////////kdiy//////////			
+			if(location == LOCATION_SZONE && Rloc != 0 && Rloc != 8)
+			    zone = zone | (Rloc << 8);
+			//////////kdiy//////////
 			int32_t ct = get_useable_count(target, playerid, location, move_player, lreason, zone, &flag);
 			if(location == LOCATION_MZONE && (zone & 0x60) && (zone != 0xff) && !rule) {
 				if((zone & 0x20) && is_location_useable(playerid, location, 5)) {
@@ -5507,10 +5512,10 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 					++ct;
 				}
 			}
-			//////kdiy/////	
+			//////kdiy/////
 			//if(location == LOCATION_SZONE)
 			if(location == LOCATION_SZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE))
-			//////kdiy/////	
+			//////kdiy/////
 				flag = flag | ~zone;
 			if((ret == 1) && (ct <= 0 || target->is_status(STATUS_FORBIDDEN) || (!(positions & POS_FACEDOWN) && check_unique_onfield(target, playerid, location)))) {
 				core.units.begin()->step = 3;
@@ -5533,46 +5538,46 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 			}
 			if(move_player == playerid) {
 				if(location == LOCATION_SZONE)
-				    //////kdiy/////	
+				    //////kdiy/////
 					//flag = ((flag & 0xff) << 8) | 0xffff00ff;
 			        {
-					   if(is_player_affected_by_effect(playerid, EFFECT_SANCT) && Rloc != 8)
-					      flag = (flag & 0xff1f) | 0xffff00e0;
-					   else						
-					      flag = ((flag & 0xff) << 8) | 0xffff00ff;	
-					}	
-				    //////kdiy/////					
+					   if(is_player_affected_by_effect(playerid, EFFECT_SANCT) && Rloc != 8) {
+						    flag = (flag & 0xff1f) | 0xffff00e0;
+					   } else
+					        flag = (flag & 0xff00) | 0xffff00ff;
+					}
+				    //////kdiy/////
 				else
-				    //////kdiy/////	
+				    //////kdiy/////
 					//flag = (flag & 0xff) | 0xffffff00;
-					{						
+					{
 					   if(is_player_affected_by_effect(playerid, EFFECT_ORICA) && Rloc != 4)
-					      flag = (flag & 0x1fff) | 0xffffe000;
+					        flag = (flag & 0x1fff) | 0xffffe000;
 					   else
-					      flag = (flag & 0xff) | 0xffffff00;
+					        flag = (flag & 0xff) | 0xffffff00;
 				    }
-				    //////kdiy/////				
+				    //////kdiy/////
 			} else {
 				if(location == LOCATION_SZONE)
-				    //////kdiy/////	
+				    //////kdiy/////
 					//flag = ((flag & 0xff) << 24) | 0xffffff;
 			        {
 					   if(is_player_affected_by_effect(playerid, EFFECT_SANCT) && Rloc != 8)
-					      flag = ((flag & 0xff1f) << 16) | 0xe0ffff;	
-					   else						
-					      flag = ((flag & 0xff) << 24) | 0xffffff;	
-					}	
-				    //////kdiy/////						
+					       flag = ((flag & 0xff1f) << 16) | 0xe0ffff;
+					   else
+					       flag = ((flag & 0xff00) << 16) | 0xffffff;
+					}
+				    //////kdiy/////
 				else
-				    //////kdiy/////	
-					//flag = ((flag & 0xff) << 16) | 0xff00ffff;		
+				    //////kdiy/////
+					//flag = ((flag & 0xff) << 16) | 0xff00ffff;
 			        {
 					   if(is_player_affected_by_effect(playerid, EFFECT_ORICA) && Rloc != 4)
-					      flag = ((flag & 0x1fff) << 16) | 0xe000ffff;
-					   else						
-					      flag = ((flag & 0xff) << 16) | 0xff00ffff;	
-					}	
-				    //////kdiy/////							
+					       flag = ((flag & 0x1fff) << 16) | 0xe000ffff;
+					   else
+					       flag = ((flag & 0xff) << 16) | 0xff00ffff;
+					}
+				    //////kdiy/////
 			}	
 			flag |= 0xe080e080;			
 			auto message = pduel->new_message(MSG_HINT);
@@ -5595,16 +5600,16 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 			//if(location != target->current.location) {
 			uint32_t orica = 0;
 			uint32_t sanct = 0;
-			effect* oeffect = is_player_affected_by_effect(playerid,EFFECT_ORICA);	
-			effect* seffect = is_player_affected_by_effect(playerid,EFFECT_SANCT);	
+			effect* oeffect = is_player_affected_by_effect(playerid,EFFECT_ORICA);
+			effect* seffect = is_player_affected_by_effect(playerid,EFFECT_SANCT);
 			if(target->temp.location == LOCATION_SZONE && location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
 				orica = 1;
 			if(target->temp.location == LOCATION_MZONE && location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
-				sanct = 1;	
+				sanct = 1;
 			if(location != target->prev_temp.location && Rloc == 0) {
 			//kdiy//////
 				uint32_t resetflag = 0;
-				if(location & LOCATION_ONFIELD)				
+				if(location & LOCATION_ONFIELD)
 					resetflag |= RESET_TOFIELD;
 				if(target->current.location & LOCATION_ONFIELD)
 					resetflag |= RESET_LEAVE;
@@ -5612,7 +5617,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 				if((location & LOCATION_ONFIELD) && (target->current.location & LOCATION_ONFIELD)
 					&& !(peffect && (peffect->value & TYPE_TRAP)) && ret != 2)
 					resetflag |= RESET_MSCHANGE;
-				target->reset(resetflag, RESET_EVENT);							
+				target->reset(resetflag, RESET_EVENT);
 				target->clear_card_target();
 			}
 			///kdiy////////
@@ -5624,7 +5629,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 				deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 				target->add_effect(deffect);
-			}	
+			}
 			if(seffect && sanct==1 && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 				effect* deffect = pduel->new_effect();
 				deffect->owner = seffect->owner;
@@ -5633,7 +5638,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 				deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 				target->add_effect(deffect);
-			}						
+			}
 			///kdiy////////
 			if(!(target->current.location & LOCATION_ONFIELD))
 				target->clear_relate_effect();
@@ -5644,7 +5649,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		if(target->temp.location != LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
 		    target->reset(EFFECT_ORICA_SZONE, RESET_CODE);
 		if(target->temp.location != LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		    target->reset(EFFECT_SANCT_MZONE, RESET_CODE);	
+		    target->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 		//if((ret == 0 && location != target->current.location)
 		if((ret == 0 && location != target->prev_temp.location && Rloc==0)
 		////kdiy/////
@@ -5696,18 +5701,18 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		if(location2 == LOCATION_MZONE || location2 == LOCATION_SZONE)
 		move_card(playerid, target, location2, target->temp.sequence, pzone);
 		else
-		//kdiy///////		
+		//kdiy///////
 		move_card(playerid, target, location, target->temp.sequence, pzone);
 		target->current.position = returns.at<int32_t>(0);
 		target->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
 		message->write(target->get_info_location());
 		message->write<uint32_t>(target->current.reason);
-		////kdiy///////					
-		target->temp.location = 0;		
-		target->prev_temp.location = 0;		
+		////kdiy///////
+		target->temp.location = 0;
+		target->prev_temp.location = 0;
 		//if((target->current.location != LOCATION_MZONE)) {
 		if(!((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))) && Rloc == 0) {
-		////kdiy///////			
+		////kdiy///////
 			if(target->equiping_cards.size()) {
 				destroy(target->equiping_cards, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 				for(auto csit = target->equiping_cards.begin(); csit != target->equiping_cards.end();) {
@@ -5719,14 +5724,14 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 				send_to(card_set{ target->xyz_materials.begin(), target->xyz_materials.end() }, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 			}
 		}
-		////kdiy///////		
+		////kdiy///////
 		//if((target->previous.location == LOCATION_SZONE) && target->equiping_target)
 			//target->unequip();
 		//if(target->current.location == LOCATION_MZONE) {
 		if((target->previous.location == LOCATION_SZONE || target->previous.location == LOCATION_MZONE) && target->equiping_target)
-			target->unequip();			
+			target->unequip();
 		if((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE)) && Rloc == 0) {
-		////kdiy///////				
+		////kdiy///////
 			effect_set eset;
 			filter_player_effect(0, EFFECT_MUST_USE_MZONE, &eset, FALSE);
 			filter_player_effect(1, EFFECT_MUST_USE_MZONE, &eset, FALSE);
