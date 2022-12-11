@@ -324,7 +324,10 @@ LUA_FUNCTION(GetRitualLevel) {
 LUA_FUNCTION(GetOriginalLevel) {
 	check_param_count(L, 1);
 	auto pcard = lua_get<card*, true>(L, 1);
-	if((pcard->data.type & (TYPE_XYZ | TYPE_LINK)) || (pcard->status & STATUS_NO_LEVEL))
+	/////kdiy/////////
+	//if((pcard->data.type & (TYPE_XYZ | TYPE_LINK)) || (pcard->status & STATUS_NO_LEVEL))
+	if((pcard->data.type & (TYPE_XYZ | TYPE_LINK) && !pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO)) || (pcard->status & STATUS_NO_LEVEL))
+	/////kdiy/////////
 		lua_pushinteger(L, 0);
 	else
 		lua_pushinteger(L, pcard->data.level);
@@ -1221,6 +1224,10 @@ LUA_FUNCTION(IsStatus) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto tstatus = lua_get<uint32_t>(L, 2);
+    ///kdiy/////////
+    if(!(pcard->status & tstatus) && (pcard->status & STATUS_NO_LEVEL) && (pcard->data.type & TYPE_XYZ) && pcard->data.level == 0)
+        lua_pushboolean(L, true);
+    ///kdiy/////////
 	lua_pushboolean(L, pcard->status & tstatus);
 	return 1;
 }
