@@ -4652,102 +4652,91 @@ int32_t field::add_chain(uint16_t step) {
 				add_process(PROCESSOR_EXECUTE_OPERATION, 0, peff, 0, clit.triggering_player, 0);
 			}
 		}
-		if(peffect->type & EFFECT_TYPE_ACTIVATE) {
-			int32_t ecode = 0;
-			if(phandler->current.location == LOCATION_HAND) {
-				if(phandler->data.type & TYPE_TRAP)
-					ecode = EFFECT_TRAP_ACT_IN_HAND;
-				else if((phandler->data.type & TYPE_SPELL) && (phandler->data.type & TYPE_QUICKPLAY || phandler->is_affected_by_effect(EFFECT_BECOME_QUICK))
-				        && infos.turn_player != phandler->current.controler)
-					ecode = EFFECT_QP_ACT_IN_NTPHAND;
-			//////////kdiy//////////
+		core.select_effects.clear();
+		core.select_options.clear();
+		if((peffect->type & EFFECT_TYPE_ACTIVATE) == 0) {
+			core.units.begin()->step = 1;
+			return FALSE;
+		}
+		int32_t ecode = 0;
+		if(phandler->current.location == LOCATION_HAND) {
+			if(phandler->data.type & TYPE_TRAP)
+				ecode = EFFECT_TRAP_ACT_IN_HAND;
+			else if((phandler->data.type & TYPE_SPELL) && (phandler->data.type & TYPE_QUICKPLAY || phandler->is_affected_by_effect(EFFECT_BECOME_QUICK))
+					&& infos.turn_player != phandler->current.controler)
+				ecode = EFFECT_QP_ACT_IN_NTPHAND;
+		    //////////kdiy//////////
 			//} else if(phandler->current.location == LOCATION_SZONE) {
 			} else if((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))) {
 			//////////kdiy//////////
-				if((phandler->data.type & TYPE_TRAP) && phandler->get_status(STATUS_SET_TURN))
-					ecode = EFFECT_TRAP_ACT_IN_SET_TURN;
-				if((phandler->data.type & TYPE_SPELL) && (phandler->data.type & TYPE_QUICKPLAY || phandler->is_affected_by_effect(EFFECT_BECOME_QUICK)) && phandler->get_status(STATUS_SET_TURN))
-					ecode = EFFECT_QP_ACT_IN_SET_TURN;
-			}					
-			if(ecode) {
-				eset.clear();
-				phandler->filter_effect(ecode, &eset);
-				effect* pactin = 0;
+			if((phandler->data.type & TYPE_TRAP) && phandler->get_status(STATUS_SET_TURN))
+				ecode = EFFECT_TRAP_ACT_IN_SET_TURN;
+			if((phandler->data.type & TYPE_SPELL) && (phandler->data.type & TYPE_QUICKPLAY || phandler->is_affected_by_effect(EFFECT_BECOME_QUICK)) && phandler->get_status(STATUS_SET_TURN))
+				ecode = EFFECT_QP_ACT_IN_SET_TURN;
+		}
+		if(ecode) {
+			eset.clear();
+			phandler->filter_effect(ecode, &eset);
+			if(!eset.empty()) {
 				for(const auto& peff : eset) {
-					if(!peff->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
-						pactin = peff;
-						break;
+					if(peff->check_count_limit(phandler->current.controler)) {
+						core.select_effects.push_back(peff);
+						core.select_options.push_back(peff->description);
 					}
 				}
-				if(!pactin) {
-					for(const auto& peff : eset) {
-						if(peff->check_count_limit(phandler->current.controler)) {
-							peff->dec_count(phandler->current.controler);
-							break;
-						}
-					}
-				}
-			}
-			phandler->set_status(STATUS_ACT_FROM_HAND, phandler->current.location == LOCATION_HAND);
-			/////////kdiy//////////
-			//if(phandler->current.location == LOCATION_SZONE) {
-			if(((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))) && (phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & TYPE_TRAPMONSTER)) {
-			/////////kdiy//////////
-				phandler->set_status(STATUS_ACT_FROM_HAND, FALSE);
-				change_position(phandler, 0, phandler->current.controler, POS_FACEUP, 0);
-			} else {
-				uint32_t zone = 0xff;
-				if(!(phandler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && peffect->is_flag(EFFECT_FLAG_LIMIT_ZONE)) {
-					pduel->lua->add_param<PARAM_TYPE_INT>(clit.triggering_player);
-					pduel->lua->add_param<PARAM_TYPE_GROUP>(clit.evt.event_cards );
-					pduel->lua->add_param<PARAM_TYPE_INT>(clit.evt.event_player);
-					pduel->lua->add_param<PARAM_TYPE_INT>(clit.evt.event_value);
-					pduel->lua->add_param<PARAM_TYPE_EFFECT>(clit.evt.reason_effect );
-					pduel->lua->add_param<PARAM_TYPE_INT>(clit.evt.reason);
-					pduel->lua->add_param<PARAM_TYPE_INT>(clit.evt.reason_player);
-					zone = peffect->get_value(7);
-					if(!zone)
-						return TRUE;
-				}
-				int32_t loc = LOCATION_SZONE;
-				if(peffect->is_flag(EFFECT_FLAG2_FORCE_ACTIVATE_LOCATION)) {
-					loc = peffect->get_value();
-					if(!loc)
-						return TRUE;
-				} else if(phandler->current.location == LOCATION_HAND) {
-					if(phandler->data.type & TYPE_PENDULUM) {
-						loc = LOCATION_PZONE;
-					} else if(phandler->data.type & TYPE_FIELD) {
-						loc = LOCATION_FZONE;
-					}
-				}
-				///////kdiy///////
-				phandler->prev_temp.location = phandler->current.location;
-				if(phandler->current.location == LOCATION_SZONE && phandler->is_affected_by_effect(EFFECT_ORICA_SZONE))
-				    phandler->prev_temp.location = LOCATION_MZONE;
-				if(phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))
-				    phandler->prev_temp.location = LOCATION_SZONE;
-				effect* seffect = is_player_affected_by_effect(phandler->current.controler, EFFECT_SANCT);
-				if((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(phandler->get_type() & TYPE_TRAPMONSTER) && is_player_affected_by_effect(phandler->current.controler, EFFECT_SANCT) && !phandler->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
-					effect* deffect = pduel->new_effect();
-					deffect->owner = seffect->owner;
-					deffect->code = EFFECT_SANCT_MZONE;
-					deffect->type = EFFECT_TYPE_SINGLE;
-					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-					deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-					phandler->add_effect(deffect);
-				}
-				///////kdiy///////
-				phandler->enable_field_effect(false);
-				///////kdiy///////
-				//move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, (loc == LOCATION_MZONE) ? POS_FACEUP_ATTACK : POS_FACEUP, FALSE, 0, zone);
-				move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, POS_FACEUP, FALSE, 0, zone);
-				///////kdiy///////
+				if(core.select_options.size() == 1)
+					returns.set<int32_t>(0, 0);
+				else
+					add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, phandler->current.controler, 0);
 			}
 		}
 		return FALSE;
 	}
-	case 1: {
+	case 1:	{
+		auto& clit = core.new_chains.front();
+		effect* peffect = clit.triggering_effect;
+		card* phandler = peffect->get_handler();
+		if(!core.select_effects.empty()) {
+			auto* eff = core.select_effects[returns.at<int32_t>(0)];
+			eff->dec_count(phandler->current.controler);
+			pduel->lua->add_param<PARAM_TYPE_EFFECT>(peffect);
+			eff->get_value(phandler, 1);
+		}
+		phandler->set_status(STATUS_ACT_FROM_HAND, phandler->current.location == LOCATION_HAND);
+		if(phandler->current.location == LOCATION_SZONE) {
+			change_position(phandler, 0, phandler->current.controler, POS_FACEUP, 0);
+		} else {
+			uint32_t zone = 0xff;
+			if(!(phandler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && peffect->is_flag(EFFECT_FLAG_LIMIT_ZONE)) {
+				pduel->lua->add_param<PARAM_TYPE_INT>(clit.triggering_player);
+				pduel->lua->add_param<PARAM_TYPE_GROUP>(clit.evt.event_cards);
+				pduel->lua->add_param<PARAM_TYPE_INT>(clit.evt.event_player);
+				pduel->lua->add_param<PARAM_TYPE_INT>(clit.evt.event_value);
+				pduel->lua->add_param<PARAM_TYPE_EFFECT>(clit.evt.reason_effect);
+				pduel->lua->add_param<PARAM_TYPE_INT>(clit.evt.reason);
+				pduel->lua->add_param<PARAM_TYPE_INT>(clit.evt.reason_player);
+				zone = peffect->get_value(7);
+				if(!zone)
+					return TRUE;
+			}
+			int32_t loc = LOCATION_SZONE;
+			if(peffect->is_flag(EFFECT_FLAG2_FORCE_ACTIVATE_LOCATION)) {
+				loc = peffect->get_value();
+				if(!loc)
+					return TRUE;
+			} else if(phandler->current.location == LOCATION_HAND) {
+				if(phandler->data.type & TYPE_PENDULUM) {
+					loc = LOCATION_PZONE;
+				} else if(phandler->data.type & TYPE_FIELD) {
+					loc = LOCATION_FZONE;
+				}
+			}
+			phandler->enable_field_effect(false);
+			move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, (loc == LOCATION_MZONE) ? POS_FACEUP_ATTACK : POS_FACEUP, FALSE, 0, zone);
+		}
+		return FALSE;
+	}
+	case 2: {
 		auto& clit = core.new_chains.front();
 		effect* peffect = clit.triggering_effect;
 		card* phandler = peffect->get_handler();
@@ -4804,7 +4793,7 @@ int32_t field::add_chain(uint16_t step) {
 		core.new_chains.pop_front();
 		return FALSE;
 	}
-	case 2: {
+	case 3: {
 		auto& clit = core.current_chain.back();
 		int32_t playerid = clit.triggering_player;
 		effect* peffect = clit.triggering_effect;
@@ -4820,11 +4809,11 @@ int32_t field::add_chain(uint16_t step) {
 			returns.set<int32_t>(0, FALSE);
 		return FALSE;
 	}
-	case 3: {
+	case 4: {
 		if(!returns.at<int32_t>(0)) {
 			core.select_chains.clear();
 			core.select_options.clear();
-			core.units.begin()->step = 4;
+			core.units.begin()->step = 5;
 			return FALSE;
 		}
 		if(core.select_chains.size() > 1) {
@@ -4834,7 +4823,7 @@ int32_t field::add_chain(uint16_t step) {
 			returns.set<int32_t>(0, 0);
 		return FALSE;
 	}
-	case 4: {
+	case 5: {
 		auto& clit = core.current_chain.back();
 		chain& ch = core.select_chains[returns.at<int32_t>(0)];
 		int32_t playerid = clit.triggering_player;
@@ -4864,7 +4853,7 @@ int32_t field::add_chain(uint16_t step) {
 		phandler->add_effect(deffect);
 		return FALSE;
 	}
-	case 5: {
+	case 6: {
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
 		if(peffect->cost) {
@@ -4873,7 +4862,7 @@ int32_t field::add_chain(uint16_t step) {
 		}
 		return FALSE;
 	}
-	case 6: {
+	case 7: {
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
 		if(peffect->target) {
@@ -4882,7 +4871,7 @@ int32_t field::add_chain(uint16_t step) {
 		}
 		return FALSE;
 	}
-	case 7: {
+	case 8: {
 		break_effect(false);
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
