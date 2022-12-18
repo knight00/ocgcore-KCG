@@ -38,7 +38,7 @@ LUA_FUNCTION(SetEntityCode) {
 		pcard->data.type = lua_get<uint32_t>(L, 5, pcard->data.type);
 		pcard->data.level = lua_get<uint32_t>(L, 6, pcard->data.level);
 		pcard->data.attribute = lua_get<uint32_t>(L, 7, pcard->data.attribute);
-		pcard->data.race = lua_get<uint32_t>(L, 8, pcard->data.race);
+		pcard->data.race = lua_get<uint64_t>(L, 8, pcard->data.race);
 		pcard->data.attack = lua_get<int32_t>(L, 9, pcard->data.attack);
 		pcard->data.defense = lua_get<int32_t>(L, 10, pcard->data.defense);
 		pcard->data.lscale = lua_get<uint32_t>(L, 11, pcard->data.lscale);
@@ -1147,7 +1147,10 @@ LUA_FUNCTION(IsRace) {
 		playerid = lua_get<uint8_t>(L, 5);
 	else if(sumtype==SUMMON_TYPE_FUSION)
 		playerid = pduel->game_field->core.reason_player;
-	lua_pushboolean(L, pcard->get_race(scard, sumtype, playerid) & trace);
+	//////zdiy/////////
+	//lua_pushboolean(L, pcard->get_race(scard, sumtype, playerid) & trace);
+    lua_pushboolean(L, pcard->get_race(scard, sumtype, playerid) >= 0x100000000 ? ((pcard->get_race(scard, sumtype, playerid) >> 32) & (trace >> 32)) : (pcard->get_race(scard, sumtype, playerid) & trace));
+    //////zdiy/////////
 	return 1;
 }
 LUA_FUNCTION(IsOriginalRace) {
@@ -1157,7 +1160,10 @@ LUA_FUNCTION(IsOriginalRace) {
 	if(pcard->status & STATUS_NO_LEVEL)
 		lua_pushboolean(L, FALSE);
 	else
-		lua_pushboolean(L, pcard->data.race & trace);
+        //////zdiy/////////
+		//lua_pushboolean(L, pcard->data.race & trace);
+        lua_pushboolean(L, pcard->data.race >= 0x100000000 ? ((pcard->data.race >> 32) & (trace >> 32)) : (pcard->data.race & trace));
+        //////zdiy/////////
 	return 1;
 }
 LUA_FUNCTION(IsAttribute) {
