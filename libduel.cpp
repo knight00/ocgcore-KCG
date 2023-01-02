@@ -28,7 +28,9 @@ LUA_FUNCTION(GetRandomGroup) {
 	if (playerid >= PLAYER_NONE) return 0;
 	auto count = lua_get<uint16_t>(L, 2);
 	auto type = lua_get<uint32_t>(L, 3);
-	auto set_code = lua_get<uint32_t, 0>(L, 4);
+	auto ot = lua_get<uint32_t, 0>(L, 4);
+	auto set_code = lua_get<uint32_t, 0>(L, 5);
+	auto isExtra = lua_get<bool,true>(L, 6);
 	const auto pduel = lua_get<duel*>(L);
 	if (count <= 0)count = 0;
 	else if (count > 20) count = 20;
@@ -38,6 +40,7 @@ LUA_FUNCTION(GetRandomGroup) {
 	for (auto iter = pduel->cards_data->begin(); iter != pduel->cards_data->end(); iter++) {
 		auto _code = ((std::vector<uint32_t>*)iter->second->at(0))->at(0);
 		auto _type = ((std::vector<uint32_t>*)iter->second->at(0))->at(1);
+		auto _ot = ((std::vector<uint32_t>*)iter->second->at(0))->at(2);
 		auto _setcodes = (std::vector<uint16_t>*)iter->second->at(1);
 		bool isSetCode = false;
 		for (auto p_setcode = _setcodes->begin(); p_setcode != _setcodes->end(); p_setcode++)
@@ -48,7 +51,8 @@ LUA_FUNCTION(GetRandomGroup) {
 				break;
 			}
 		}
-		if ((_type & type) && !(_type & TYPE_TOKEN) && (set_code != 0 ? isSetCode : true)) {
+		if (!isExtra && (_type & (TYPE_XYZ | TYPE_SYNCHRO | TYPE_FUSION | TYPE_LINK))) continue;
+		if ((_type & type) && !(_type & TYPE_TOKEN) && (ot != 0 ? (_ot & ot) : true) && (set_code != 0 ? isSetCode : true)) {
 			p_codes->insert(std::unordered_map<int32_t, uint32_t>::value_type(index, _code));
 			++index;
 		}
