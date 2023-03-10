@@ -30,23 +30,23 @@ LUA_FUNCTION(GetRandomGroup) {
 	auto count = lua_get<uint16_t>(L, 2);
 	auto type = lua_get<uint32_t>(L, 3);
 	auto attribute = lua_get<uint32_t, 0>(L, 4);
-	auto ot = lua_get<uint32_t, 0>(L, 5);
+	auto race = lua_get<uint64_t, 0>(L, 5);
+	auto ot = lua_get<uint32_t, 0>(L, 6);
 	std::set<uint16_t> setcodes;
-	if (lua_gettop(L) > 5 && !lua_isnoneornil(L, 6)) {
-		if (lua_istable(L, 6)) {
-			lua_table_iterate(L, 6, [&set_codes = setcodes, &L] {
+	if (lua_gettop(L) > 6 && !lua_isnoneornil(L, 7)) {
+		if (lua_istable(L, 7)) {
+			lua_table_iterate(L, 7, [&set_codes = setcodes, &L] {
 				set_codes.insert(lua_get<uint16_t>(L, -1));
 				});
 		}
 		else
-			setcodes.insert(lua_get<uint16_t>(L, 6));
+			setcodes.insert(lua_get<uint16_t>(L, 7));
 	}
-	auto race = lua_get<uint64_t, 0>(L, 7);
 	auto isExtra = lua_get<bool,true>(L, 8);
 	auto ignoreToken = lua_get<bool, true>(L, 9);
 	const auto pduel = lua_get<duel*>(L);
 	if(count <= 0) count = 0;
-	else if(count > 20) count = 20;
+	else if(count > 50) count = 50;
 	group* pgroup = pduel->new_group();
 	uint32_t index = 0;
 	std::unordered_map<int32_t, uint32_t>* p_codes = new std::unordered_map<int32_t, uint32_t>();
@@ -54,7 +54,7 @@ LUA_FUNCTION(GetRandomGroup) {
 	for(auto iter = pduel->cards_data->begin(); iter != pduel->cards_data->end(); iter++) {
 		auto _code = ((std::vector<uint32_t>*)iter->second->at(0))->at(0);
 		auto _type = ((std::vector<uint32_t>*)iter->second->at(0))->at(1);
-		auto _attribute = ((std::vector<uint32_t>*)iter->second->at(2))->at(0);
+		auto _attribute = ((std::vector<uint32_t>*)iter->second->at(0))->at(2);
 		auto _ot = ((std::vector<uint32_t>*)iter->second->at(0))->at(3);
 		auto _setcodes = (std::vector<uint16_t>*)iter->second->at(1);
 		bool isSetCode = false;
@@ -66,12 +66,12 @@ LUA_FUNCTION(GetRandomGroup) {
 					isSetCode = true;
 			}
 		}
-		auto _race = ((std::vector<uint64_t>*)iter->second->at(0))->at(0);
+		auto _race = ((std::vector<uint64_t>*)iter->second->at(2))->at(0);
 		if(!isExtra
-			&& ((_type & (TYPE_XYZ | TYPE_SYNCHRO | TYPE_FUSION)) || ((_type & (TYPE_MONSTER | TYPE_LINK)) == TYPE_MONSTER | TYPE_LINK))) continue;
+			&& ((_type & (TYPE_XYZ | TYPE_SYNCHRO | TYPE_FUSION)) || ((_type & (TYPE_MONSTER | TYPE_LINK)) == (TYPE_MONSTER | TYPE_LINK)))) continue;
 		if((type != 0 ? (_type & type) : true)
-			&& (ot != 0 ? (_ot & ot) : true)
 			&& (attribute != 0 ? (_attribute & attribute) : true)
+			&& (ot != 0 ? (_ot & ot) : true)
 			&& (!setcodes.empty() ? isSetCode : true)
 			&& (race != 0 ? (_race & race) : true)
 			&& (ignoreToken && !(_type & TYPE_TOKEN))) {
