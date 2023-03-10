@@ -75,7 +75,7 @@ LUA_FUNCTION(GetRandomGroup) {
 			&& (!setcodes.empty() ? isSetCode : true)
 			&& (race != 0 ? (_race & race) : true)
 			&& (ignoreToken && !(_type & TYPE_TOKEN))) {
-			p_codes->insert(std::unordered_map<int32_t, uint32_t>::value_type(index, _code));
+			p_codes->insert(std::unordered_map<int32_t, uint32_t>::value_type(index, _code)); //valid candidate cards' codes add to p_codes
 			++index;
 		}
 	}
@@ -83,6 +83,9 @@ LUA_FUNCTION(GetRandomGroup) {
 	uint32_t randStart = 0;
 	if(p_codes->size() <= 0) { interpreter::pushobject(L, pgroup); delete p_codes; return 1; }
 	uint32_t randMax = p_codes->size() - 1;
+	std::map<int32_t, uint32_t> indexset; //count no. of same index randomly picked
+	for(int i = 0; i <= randMax; ++i)
+		indexset[i] = 0; //initial count index to 0
 	for (int32_t i = 0; i < count; ) {
 		index = pduel->get_next_integer(randStart, randMax);
 		uint32_t code = 0;
@@ -91,7 +94,11 @@ LUA_FUNCTION(GetRandomGroup) {
 			code = codeMap->second;
 			if(!code || code == 0)
 				continue;
+			auto indexcount = indexset[index];
+			if(indexcount > 3)
+				continue; //same cards > 3 not add to pgroup
 			i++;
+			indexset[index] = indexcount + 1;
 			card* pcard = pduel->new_card(code);
 			pcard->owner = playerid;
 			pcard->current.location = 0;
