@@ -208,8 +208,8 @@ public:
 	uint32_t second_code(uint32_t code);
 	uint32_t get_code();
 	//////kdiy/////
-	uint32_t get_ocode();	
-	//////kdiy/////	
+	uint32_t get_ocode();
+	//////kdiy/////
 	uint32_t get_another_code();
 	void get_summon_code(std::set<uint32_t>& codes, card* scard = 0, uint64_t sumtype = 0, uint8_t playerid = 2);
 	int32_t is_set_card(uint16_t set_code);

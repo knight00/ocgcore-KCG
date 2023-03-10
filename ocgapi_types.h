@@ -33,10 +33,10 @@ typedef struct OCG_CardData {
 	uint32_t alias;
 	uint16_t* setcodes;
 	uint32_t type;
-	//////////kdiy///////////	
+	//////////kdiy///////////
 	//uint32_t level;
 	int32_t level;
-	//////////kdiy///////////		
+	//////////kdiy///////////
 	uint32_t attribute;
 	uint64_t race;
 	int32_t attack;
@@ -46,7 +46,7 @@ typedef struct OCG_CardData {
 	uint32_t link_marker;
 	///////kdiy///////
 	uint32_t ot;
-	///////kdiy///////	
+	///////kdiy///////
 }OCG_CardData;
 
 typedef struct OCG_Player {

@@ -29,46 +29,67 @@ LUA_FUNCTION(GetRandomGroup) {
 	if (playerid >= PLAYER_NONE) return 0;
 	auto count = lua_get<uint16_t>(L, 2);
 	auto type = lua_get<uint32_t>(L, 3);
-	auto ot = lua_get<uint32_t, 0>(L, 4);
-	auto set_code = lua_get<uint32_t, 0>(L, 5);
-	auto isExtra = lua_get<bool,true>(L, 6);
+	auto attribute = lua_get<uint32_t, 0>(L, 4);
+	auto ot = lua_get<uint32_t, 0>(L, 5);
+	std::set<uint16_t> setcodes;
+	if (lua_gettop(L) > 5 && !lua_isnoneornil(L, 6)) {
+		if (lua_istable(L, 6)) {
+			lua_table_iterate(L, 6, [&set_codes = setcodes, &L] {
+				set_codes.insert(lua_get<uint16_t>(L, -1));
+				});
+		}
+		else
+			setcodes.insert(lua_get<uint16_t>(L, 6));
+	}
+	auto race = lua_get<uint64_t, 0>(L, 7);
+	auto isExtra = lua_get<bool,true>(L, 8);
+	auto ignoreToken = lua_get<bool, true>(L, 9);
 	const auto pduel = lua_get<duel*>(L);
-	if (count <= 0)count = 0;
-	else if (count > 20) count = 20;
+	if(count <= 0) count = 0;
+	else if(count > 20) count = 20;
 	group* pgroup = pduel->new_group();
 	uint32_t index = 0;
 	std::unordered_map<int32_t, uint32_t>* p_codes = new std::unordered_map<int32_t, uint32_t>();
-	for (auto iter = pduel->cards_data->begin(); iter != pduel->cards_data->end(); iter++) {
+
+	for(auto iter = pduel->cards_data->begin(); iter != pduel->cards_data->end(); iter++) {
 		auto _code = ((std::vector<uint32_t>*)iter->second->at(0))->at(0);
 		auto _type = ((std::vector<uint32_t>*)iter->second->at(0))->at(1);
-		auto _ot = ((std::vector<uint32_t>*)iter->second->at(0))->at(2);
+		auto _attribute = ((std::vector<uint32_t>*)iter->second->at(2))->at(0);
+		auto _ot = ((std::vector<uint32_t>*)iter->second->at(0))->at(3);
 		auto _setcodes = (std::vector<uint16_t>*)iter->second->at(1);
 		bool isSetCode = false;
-		for (auto p_setcode = _setcodes->begin(); p_setcode != _setcodes->end(); p_setcode++)
-		{
-			auto setcode = *p_setcode;
-			if (setcode && (set_code & 0xfffu) == (setcode & 0xfffu) && (set_code & setcode) == set_code) {
-				isSetCode = true;
-				break;
+		for(auto p_setcode = _setcodes->begin(); p_setcode != _setcodes->end(); p_setcode++) {
+			auto set_code = *p_setcode;
+			for(auto setcode : setcodes) {
+				if(setcode == 0) isSetCode = true; break;
+				if(setcode && (set_code & 0xfffu) == (setcode & 0xfffu) && (setcode & set_code) == setcode)
+					isSetCode = true;
 			}
 		}
-		if (!isExtra && (_type & (TYPE_XYZ | TYPE_SYNCHRO | TYPE_FUSION | TYPE_LINK))) continue;
-		if ((_type & type) && !(_type & TYPE_TOKEN) && (ot != 0 ? (_ot & ot) : true) && (set_code != 0 ? isSetCode : true)) {
+		auto _race = ((std::vector<uint64_t>*)iter->second->at(0))->at(0);
+		if(!isExtra
+			&& ((_type & (TYPE_XYZ | TYPE_SYNCHRO | TYPE_FUSION)) || ((_type & (TYPE_MONSTER | TYPE_LINK)) == TYPE_MONSTER | TYPE_LINK))) continue;
+		if((type != 0 ? (_type & type) : true)
+			&& (ot != 0 ? (_ot & ot) : true)
+			&& (attribute != 0 ? (_attribute & attribute) : true)
+			&& (!setcodes.empty() ? isSetCode : true)
+			&& (race != 0 ? (_race & race) : true)
+			&& (ignoreToken && !(_type & TYPE_TOKEN))) {
 			p_codes->insert(std::unordered_map<int32_t, uint32_t>::value_type(index, _code));
 			++index;
 		}
 	}
+
 	uint32_t randStart = 0;
-	if (p_codes->size() <= 0) { interpreter::pushobject(L, pgroup); delete p_codes; return 1; }
+	if(p_codes->size() <= 0) { interpreter::pushobject(L, pgroup); delete p_codes; return 1; }
 	uint32_t randMax = p_codes->size() - 1;
-	for (int32_t i = 0; i < count; ++i)
-	{
+	for (int32_t i = 0; i < count; ++i) {
 		index = pduel->get_next_integer(randStart, randMax);
 		uint32_t code = 0;
 		auto codeMap = p_codes->find(index);
-		if (codeMap != p_codes->end()) {
+		if(codeMap != p_codes->end()) {
 			code = codeMap->second;
-			if (!code || code == 0) {
+			if(!code || code == 0) {
 				--i;
 				continue;
 			}
