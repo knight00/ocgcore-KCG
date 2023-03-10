@@ -83,16 +83,15 @@ LUA_FUNCTION(GetRandomGroup) {
 	uint32_t randStart = 0;
 	if(p_codes->size() <= 0) { interpreter::pushobject(L, pgroup); delete p_codes; return 1; }
 	uint32_t randMax = p_codes->size() - 1;
-	for (int32_t i = 0; i < count; ++i) {
+	for (int32_t i = 0; i < count; ) {
 		index = pduel->get_next_integer(randStart, randMax);
 		uint32_t code = 0;
 		auto codeMap = p_codes->find(index);
 		if(codeMap != p_codes->end()) {
 			code = codeMap->second;
-			if(!code || code == 0) {
-				--i;
+			if(!code || code == 0)
 				continue;
-			}
+			i++;
 			card* pcard = pduel->new_card(code);
 			pcard->owner = playerid;
 			pcard->current.location = 0;
