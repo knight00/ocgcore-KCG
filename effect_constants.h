@@ -101,6 +101,40 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 	return static_cast<effect_flag>(static_cast<uint32_t>(flag1) | static_cast<uint32_t>(flag2));
 }
 //========== Codes ==========
+//////////kdiy/////////
+#define EFFECT_GOD_IMMUNE				    2000
+#define EFFECT_ULTIMATE_IMMUNE				2001
+#define EFFECT_OVERINFINITE_ATTACK			2002
+#define EFFECT_OVERINFINITE_DEFENSE			2003
+#define EFFECT_EQUIP_MONSTER			    2004
+#define EFFECT_ORICA		                2005
+#define EFFECT_ORICA_SZONE		            2006
+#define EFFECT_SANCT		                2007
+#define EFFECT_SANCT_MZONE		            2008
+#define EFFECT_LINK_RANK                    2009
+#define EFFECT_LINK_RANK_S                  2010
+#define EFFECT_RANK_LINK                    2011
+#define EFFECT_RANK_LINK_S                  2012
+#define EFFECT_LEVEL_LINK                   2013
+#define EFFECT_LEVEL_LINK_S                 2014
+#define EFFECT_LINK_LEVEL                   2015
+#define EFFECT_LINK_LEVEL_S                 2016
+#define EFFECT_LEVEL_RANK_LINK              2017
+#define EFFECT_LEVEL_RANK_LINK_S            2018
+#define EVENT_OVERLAY                       2019
+#define EVENT_PREEFFECT_DRAW                2020
+#define EFFECT_INF_ATTACK                   2021
+#define EFFECT_INF_DEFENSE                  2022
+#define EFFECT_IMMUNE_OVERLAY               2023
+#define EFFECT_NOT_EXTRA                    2024
+#define EFFECT_ASSUME_ZERO                  2025
+#define EVENT_ZERO_LP                       2026
+#define EFFECT_CHANGE_RECOVER				2027
+#define EFFECT_INCLUDE_CODE				    2028
+#define EVENT_PRECHAINING                   2029
+#define EVENT_PREATTACK_ANNOUNCE            2030
+#define EVENT_PRESPSUMMON_SUCCESS           2031
+//////////kdiy/////////
 #define EFFECT_IMMUNE_EFFECT                1
 #define EFFECT_DISABLE                      2
 #define EFFECT_CANNOT_DISABLE               3
