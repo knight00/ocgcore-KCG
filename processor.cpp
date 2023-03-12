@@ -4956,12 +4956,25 @@ int32_t field::add_chain(uint16_t step) {
 			core.select_options.clear();
 			effect_set eset;
 			phandler->filter_effect(ecode, &eset);
+			bool has_no_side_effect_effs = false;
 			if(!eset.empty()) {
 				for(const auto& peff : eset) {
-					if(peff->check_count_limit(phandler->current.controler)) {
-						core.select_effects.push_back(peff);
-						core.select_options.push_back(peff->description);
+					if(peff->has_function_value() || peff->has_count_limit()) {
+						if(peff->check_count_limit(phandler->current.controler)) {
+							core.select_effects.push_back(peff);
+							core.select_options.push_back(peff->description);
+						}
+					} else {
+						has_no_side_effect_effs = has_no_side_effect_effs || true;
 					}
+				}
+				if(core.select_options.empty()) {
+					core.units.begin()->step = 0;
+					return FALSE;
+				}
+				if(has_no_side_effect_effs) {
+					core.select_options.insert(core.select_options.begin(), 99);
+					core.select_effects.insert(core.select_effects.begin(), nullptr);
 				}
 				if(core.select_options.size() == 1)
 					returns.set<int32_t>(0, 0);
@@ -4979,9 +4992,11 @@ int32_t field::add_chain(uint16_t step) {
 		card* phandler = peffect->get_handler();
 		if(!core.select_effects.empty()) {
 			auto* eff = core.select_effects[returns.at<int32_t>(0)];
-			eff->dec_count(phandler->current.controler);
-			pduel->lua->add_param<PARAM_TYPE_EFFECT>(peffect);
-			eff->get_value(phandler, 1);
+			if(eff) {
+				eff->dec_count(phandler->current.controler);
+				pduel->lua->add_param<PARAM_TYPE_EFFECT>(peffect);
+				eff->get_value(phandler, 1);
+			}
 		}
 		core.units.begin()->step = 0;
 		return FALSE;
