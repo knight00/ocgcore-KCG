@@ -1622,7 +1622,7 @@ LUA_FUNCTION(RegisterEffect) {
 	}
 	int32_t id = -1;
 	if (!peffect->handler)
-	    //////ktest////////
+	    //////kdiy////////
 		//id = pcard->add_effect(peffect);
 		{
 			if (peffect->range && (peffect->range & LOCATION_MZONE) && !(peffect->range & LOCATION_SZONE)) {
@@ -1635,7 +1635,7 @@ LUA_FUNCTION(RegisterEffect) {
 			}
 		    id = pcard->add_effect(peffect);
 		}
-		//////ktest////////
+		//////kdiy////////
 	lua_pushinteger(L, id);
 	return 1;
 }

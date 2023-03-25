@@ -5788,11 +5788,11 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 					peffect = pduel->new_effect();
 					peffect->owner = target;
 					peffect->type = EFFECT_TYPE_FIELD;
-					////ktest///////
+					////kdiy///////
 					if(target->current.location == LOCATION_SZONE)
 					peffect->range = LOCATION_SZONE;
 					else
-					////ktest///////
+					////kdiy///////
 					peffect->range = LOCATION_MZONE;
 					////kdiy///////
 					if(target->previous.location == LOCATION_MZONE)
