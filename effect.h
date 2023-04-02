@@ -29,6 +29,10 @@ public:
 	card* handler{ nullptr };
 	uint8_t effect_owner{ PLAYER_NONE };
 	uint64_t description{};
+    //kdiy////////
+    bool addtotext{ false };
+    uint64_t cardtext{},cardtext2{},cardtext3{},cardtext4{};
+    //kdiy////////
 	uint32_t code{};
 	uint32_t flag[2]{};
 	uint32_t id{};

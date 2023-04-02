@@ -2480,6 +2480,13 @@ int32_t card::add_effect(effect* peffect) {
 		message->write(get_info_location());
 		message->write<uint8_t>(CHINT_DESC_ADD);
 		message->write<uint64_t>(peffect->description);
+        //kdiy////////
+        message->write<bool>(peffect->addtotext);
+        message->write<uint64_t>(peffect->cardtext);
+        message->write<uint64_t>(peffect->cardtext2);
+        message->write<uint64_t>(peffect->cardtext3);
+        message->write<uint64_t>(peffect->cardtext4);
+        //kdiy////////
 	}
 	if(peffect->type & EFFECT_TYPE_SINGLE && peffect->code == EFFECT_UPDATE_LEVEL && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 		int32_t val = peffect->get_value(this);
@@ -2568,6 +2575,13 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		message->write(get_info_location());
 		message->write<uint8_t>(CHINT_DESC_REMOVE);
 		message->write<uint64_t>(peffect->description);
+        //kdiy////////
+        message->write<bool>(peffect->addtotext);
+        message->write<uint64_t>(peffect->cardtext);
+        message->write<uint64_t>(peffect->cardtext2);
+        message->write<uint64_t>(peffect->cardtext3);
+        message->write<uint64_t>(peffect->cardtext4);
+        //kdiy////////
 	}
 	if(peffect->code == EFFECT_UNIQUE_CHECK) {
 		pduel->game_field->remove_unique_card(this);

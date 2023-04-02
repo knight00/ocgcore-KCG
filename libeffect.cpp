@@ -90,6 +90,13 @@ LUA_FUNCTION(SetDescription) {
 	check_param_count(L, 2);
 	auto peffect = lua_get<effect*, true>(L, 1);
 	peffect->description = lua_get<uint64_t>(L, 2);
+    //kdiy////////
+    peffect->addtotext = lua_get<bool, false>(L, 3);
+    peffect->cardtext = lua_get<uint64_t, 0>(L, 4);
+    peffect->cardtext2 = lua_get<uint64_t, 0>(L, 5);
+    peffect->cardtext3 = lua_get<uint64_t, 0>(L, 6);
+    peffect->cardtext4 = lua_get<uint64_t, 0>(L, 7);
+    //kdiy////////
 	return 0;
 }
 LUA_FUNCTION(SetCode) {
