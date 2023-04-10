@@ -106,9 +106,9 @@ LUA_FUNCTION(SetCardData) {
 		pcard->data.link_marker = lua_tointeger(L, 3);
 		break;
 	}		
-	// auto message = pduel->new_message(MSG_CHANGE);
-	// message->write<uint32_t>(pcard->data.code);
-	// message->write(pcard->get_info_location());
+	auto message = pduel->new_message(MSG_CHANGE);
+	message->write<uint32_t>(pcard->data.code);
+	message->write(pcard->get_info_location());
 	return 0;
 }
 LUA_FUNCTION(GetOriginalLinkMarker) {

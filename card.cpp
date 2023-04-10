@@ -22,6 +22,15 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
 	auto message = pduel->new_message(MSG_CHANGE);
 	message->write<uint32_t>(code);
 	message->write(get_info_location());
+	message->write<uint32_t>(data.type);
+	message->write<uint32_t>(data.level);
+	message->write<uint32_t>(data.attribute);
+	message->write<uint64_t>(data.race);
+	message->write<int32_t>(data.attack);
+	message->write<int32_t>(data.defense);
+	message->write<uint32_t>(data.lscale);
+	message->write<uint32_t>(data.rscale);
+	message->write<uint32_t>(data.link_marker);
 	return code;
 }
 ///////////kdiy//////////////
