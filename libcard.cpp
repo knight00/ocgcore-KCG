@@ -51,6 +51,12 @@ LUA_FUNCTION(SetEntityCode) {
 		if (pcard->data.realcode) {
 			pcard->data.realalias = pcard->data.alias;
 			pcard->data.alias = pcard->data.realcode;
+			pcard->data.realchange = lua_get<uint8_t>(L, 16);
+			if (pcard->data.realchange == 1 || pcard->data.realchange == 2)
+			    pcard->data.realsetcode = lua_get<uint16_t>(L, 17);
+		    else if (pcard->data.realchange == 3 || pcard->data.realchange == 4)
+			    pcard->data.realname = lua_get<uint32_t>(L, 17);
+			pcard->data.realaddsetcode = lua_get<uint16_t>(L, 18, pcard->data.realaddsetcode);
 		}
 		lua_pushinteger(L, pcard->set_entity_code(code));
 	}
@@ -67,45 +73,47 @@ LUA_FUNCTION(SetCardData) {
 	// 	pcard->data.code = lua_tointeger(L, 3);
 	// 	break;
 	case CARDDATA_ALIAS:
-		pcard->data.alias = lua_tointeger(L, 3);
+		pcard->data.alias = lua_get<uint32_t>(L, 3, pcard->data.alias);
 		break;
 	case CARDDATA_SETCODE:
-		pcard->data.setcodes.clear();
-		if(lua_istable(L, 3)) {
-			lua_table_iterate(L, 3, [&setcodes = pcard->data.setcodes, &L] {
-			setcodes.insert(lua_get<uint16_t>(L, -1));
-			});
-		} else
-			pcard->data.setcodes.insert(lua_get<uint16_t>(L, 3));
+	    if(lua_gettop(L) > 2 && !lua_isnoneornil(L, 3)) {
+			pcard->data.setcodes.clear();
+			if(lua_istable(L, 3)) {
+				lua_table_iterate(L, 3, [&setcodes = pcard->data.setcodes, &L] {
+					setcodes.insert(lua_get<uint16_t>(L, -1));
+				});
+			} else
+				pcard->data.setcodes.insert(lua_get<uint16_t>(L, 3));
+		}
 		break;
 	case CARDDATA_TYPE:
-		pcard->data.type = lua_tointeger(L, 3);
+		pcard->data.type = lua_get<uint32_t>(L, 3, pcard->data.type);
 		break;
 	case CARDDATA_LEVEL:
-		pcard->data.level = lua_tointeger(L, 3);
+		pcard->data.level = lua_get<uint32_t>(L, 3, pcard->data.level);
 		break;
 	case CARDDATA_ATTRIBUTE:
-		pcard->data.attribute = lua_tointeger(L, 3);
+		pcard->data.attribute = lua_get<uint32_t>(L, 3, pcard->data.attribute);
 		break;
 	case CARDDATA_RACE:
-		pcard->data.race = lua_tointeger(L, 3);
+		pcard->data.race = lua_get<uint64_t>(L, 3, pcard->data.race);
 		break;
 	case CARDDATA_ATTACK:
-		pcard->data.attack = lua_tointeger(L, 3);
+		pcard->data.attack = lua_get<int32_t>(L, 3, pcard->data.attack);
 		break;
 	case CARDDATA_DEFENSE:
-		pcard->data.defense = lua_tointeger(L, 3);
+		pcard->data.defense = lua_get<int32_t>(L, 3, pcard->data.defense);
 		break;
 	case CARDDATA_LSCALE:
-		pcard->data.lscale = lua_tointeger(L, 3);
+		pcard->data.lscale = lua_get<uint32_t>(L, 3, pcard->data.lscale);
 		break;
 	case CARDDATA_RSCALE:
-		pcard->data.rscale = lua_tointeger(L, 3);
+		pcard->data.rscale = lua_get<uint32_t>(L, 3, pcard->data.rscale);
 		break;
 	case CARDDATA_LINK_MARKER:
-		pcard->data.link_marker = lua_tointeger(L, 3);
+		pcard->data.link_marker = lua_get<uint32_t>(L, 3, pcard->data.link_marker);
 		break;
-	}		
+	}
 	auto message = pduel->new_message(MSG_CHANGE);
 	message->write<uint32_t>(pcard->data.code);
 	message->write(pcard->get_info_location());
