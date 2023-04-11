@@ -1617,9 +1617,6 @@ int32_t field::process_point_event(int16_t step, int32_t skip_trigger, int32_t s
 			add_process(PROCESSOR_SOLVE_CHAIN, 0, 0, 0, skip_trigger | ((skip_freechain | skip_new) << 8), skip_new);
 		} else {
 			core.used_event.splice(core.used_event.end(), core.point_event);
-			for(auto& ch_lim_p : core.chain_limit_p)
-				luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim_p.function);
-			core.chain_limit_p.clear();
 			reset_chain();
 			returns.set<int32_t>(0, FALSE);
 		}
@@ -4959,13 +4956,13 @@ int32_t field::add_chain(uint16_t step) {
 			bool has_no_side_effect_effs = false;
 			if(!eset.empty()) {
 				for(const auto& peff : eset) {
-					if(peff->has_function_value() || peff->has_count_limit() || peff->has_condition() || peff->has_target()) {
+					if(peff->has_function_value() || peff->has_count_limit()) {
 						if(peff->check_count_limit(phandler->current.controler)) {
 							core.select_effects.push_back(peff);
 							core.select_options.push_back(peff->description);
 						}
 					} else {
-						has_no_side_effect_effs = true;
+						has_no_side_effect_effs = has_no_side_effect_effs || true;
 					}
 				}
 				if(core.select_options.empty()) {
@@ -5398,9 +5395,6 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 	case 12: {
 		core.used_event.splice(core.used_event.end(), core.point_event);
 		pduel->new_message(MSG_CHAIN_END);
-		for(auto& ch_lim_p : core.chain_limit_p)
-			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim_p.function);
-		core.chain_limit_p.clear();
 		reset_chain();
 		if(core.summoning_card || core.summoning_proc_group_type || core.effect_damage_step == 1)
 			core.subunits.push_back(core.reserved);

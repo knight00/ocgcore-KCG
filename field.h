@@ -295,6 +295,7 @@ struct processor {
 	std::unordered_set<card*> unique_cards[2];
 	effect_count_map effect_count_code;
 	effect_count_map effect_count_code_duel;
+	effect_count_map effect_count_code_chain;
 	std::unordered_map<uint32_t, uint32_t> spsummon_once_map[2];
 	std::unordered_map<uint32_t, uint32_t> spsummon_once_map_rst[2];
 	std::multimap<int32_t, card*, std::greater<int32_t>> xmaterial_lst;
@@ -465,6 +466,7 @@ public:
 	void release_oath_relation(effect* reason_effect);
 	void reset_phase(uint32_t phase);
 	void reset_chain();
+	processor::effect_count_map& get_count_map(uint8_t flag);
 	void add_effect_code(uint32_t code, uint8_t flag, uint8_t hopt_index, uint8_t playerid);
 	uint32_t get_effect_code(uint32_t code, uint8_t flag, uint8_t hopt_index, uint8_t playerid);
 	void dec_effect_code(uint32_t code, uint8_t flag, uint8_t hopt_index, uint8_t playerid);
