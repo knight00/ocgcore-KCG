@@ -47,7 +47,6 @@ struct card_data {
 	uint8_t realchange{};
 	uint16_t realsetcode{};
 	uint32_t realname{};
-	uint16_t realaddsetcode{};
 	///////kdiy///////
 	card_data(const OCG_CardData& data);
 	card_data() {};
