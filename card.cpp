@@ -22,6 +22,14 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
 	auto message = pduel->new_message(MSG_CHANGE);
 	message->write<uint32_t>(code);
 	message->write(get_info_location());
+	uint64_t setnames = 0;
+	int i = 0;
+	for(auto &s : data.setcodes) {
+        setnames = setnames | (s << (i * 16));
+		i++;
+		if(i == 3) break;
+    }
+	message->write<uint64_t>(setnames);
 	message->write<uint32_t>(data.type);
 	message->write<uint32_t>(data.level);
 	message->write<uint32_t>(data.attribute);
@@ -34,7 +42,6 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
 	message->write<uint8_t>(data.realchange);
 	message->write<uint16_t>(data.realsetcode);
 	message->write<uint32_t>(data.realname);
-	message->write<uint16_t>(data.realaddsetcode);
 	return code;
 }
 ///////////kdiy//////////////

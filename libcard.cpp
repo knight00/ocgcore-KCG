@@ -56,7 +56,6 @@ LUA_FUNCTION(SetEntityCode) {
 			    pcard->data.realsetcode = lua_get<uint16_t>(L, 17);
 		    else if (pcard->data.realchange == 3 || pcard->data.realchange == 4)
 			    pcard->data.realname = lua_get<uint32_t>(L, 17);
-			pcard->data.realaddsetcode = lua_get<uint16_t>(L, 18, pcard->data.realaddsetcode);
 		}
 		lua_pushinteger(L, pcard->set_entity_code(code));
 	}
@@ -117,6 +116,26 @@ LUA_FUNCTION(SetCardData) {
 	auto message = pduel->new_message(MSG_CHANGE);
 	message->write<uint32_t>(pcard->data.code);
 	message->write(pcard->get_info_location());
+	uint64_t setnames = 0;
+	int i = 0;
+	for (auto& s : pcard->data.setcodes) {
+		setnames = setnames | (s >> (i * 16));
+		i++;
+		if (i == 3) break;
+	}
+	message->write<uint64_t>(setnames);
+	message->write<uint32_t>(pcard->data.type);
+	message->write<uint32_t>(pcard->data.level);
+	message->write<uint32_t>(pcard->data.attribute);
+	message->write<uint64_t>(pcard->data.race);
+	message->write<int32_t>(pcard->data.attack);
+	message->write<int32_t>(pcard->data.defense);
+	message->write<uint32_t>(pcard->data.lscale);
+	message->write<uint32_t>(pcard->data.rscale);
+	message->write<uint32_t>(pcard->data.link_marker);
+	message->write<uint8_t>(pcard->data.realchange);
+	message->write<uint16_t>(pcard->data.realsetcode);
+	message->write<uint32_t>(pcard->data.realname);
 	return 0;
 }
 LUA_FUNCTION(GetOriginalLinkMarker) {
