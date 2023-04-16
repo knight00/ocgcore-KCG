@@ -25,9 +25,9 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
 	uint64_t setnames = 0;
 	int i = 0;
 	for(auto &s : data.setcodes) {
-        setnames = setnames | (s << (i * 16));
+        setnames |= (uint64_t)(s & 0xffff) << (i * 16);
 		i++;
-		if(i == 3) break;
+		if(i == 4) break;
     }
 	message->write<uint64_t>(setnames);
 	message->write<uint32_t>(data.type);
@@ -39,9 +39,12 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
 	message->write<uint32_t>(data.lscale);
 	message->write<uint32_t>(data.rscale);
 	message->write<uint32_t>(data.link_marker);
-	message->write<uint8_t>(data.realchange);
-	message->write<uint16_t>(data.realsetcode);
-	message->write<uint32_t>(data.realname);
+    if(data.realchange && data.realchange > 0) {
+        message->write<uint8_t>(data.realchange);
+        message->write<uint16_t>(data.realsetcode);
+        message->write<uint32_t>(data.realname);
+        message->write<uint32_t>(data.effcode);
+    }
 	return code;
 }
 ///////////kdiy//////////////

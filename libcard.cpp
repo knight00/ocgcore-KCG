@@ -49,13 +49,15 @@ LUA_FUNCTION(SetEntityCode) {
 			pcard->replace_effect(code, 0, 0, true, true);
 		pcard->data.realcode = lua_get<uint32_t>(L, 15, pcard->data.realcode);
 		if (pcard->data.realcode) {
+            check_param_count(L, 18);
 			pcard->data.realalias = pcard->data.alias;
 			pcard->data.alias = pcard->data.realcode;
 			pcard->data.realchange = lua_get<uint8_t>(L, 16);
-			if (pcard->data.realchange == 1 || pcard->data.realchange == 2)
+			if ((pcard->data.realchange & 1) || (pcard->data.realchange & 2))
 			    pcard->data.realsetcode = lua_get<uint16_t>(L, 17);
-		    else if (pcard->data.realchange == 3 || pcard->data.realchange == 4)
+		    if ((pcard->data.realchange & 4) || (pcard->data.realchange & 8))
 			    pcard->data.realname = lua_get<uint32_t>(L, 17);
+            pcard->data.effcode = lua_get<uint32_t>(L, 18);
 		}
 		lua_pushinteger(L, pcard->set_entity_code(code));
 	}
@@ -118,11 +120,11 @@ LUA_FUNCTION(SetCardData) {
 	message->write(pcard->get_info_location());
 	uint64_t setnames = 0;
 	int i = 0;
-	for (auto& s : pcard->data.setcodes) {
-		setnames = setnames | (s >> (i * 16));
+	for(auto &s : pcard->data.setcodes) {
+        setnames |= (uint64_t)(s & 0xffff) << (i * 16);
 		i++;
-		if (i == 3) break;
-	}
+		if(i == 4) break;
+    }
 	message->write<uint64_t>(setnames);
 	message->write<uint32_t>(pcard->data.type);
 	message->write<uint32_t>(pcard->data.level);
@@ -133,9 +135,6 @@ LUA_FUNCTION(SetCardData) {
 	message->write<uint32_t>(pcard->data.lscale);
 	message->write<uint32_t>(pcard->data.rscale);
 	message->write<uint32_t>(pcard->data.link_marker);
-	message->write<uint8_t>(pcard->data.realchange);
-	message->write<uint16_t>(pcard->data.realsetcode);
-	message->write<uint32_t>(pcard->data.realname);
 	return 0;
 }
 LUA_FUNCTION(GetOriginalLinkMarker) {
