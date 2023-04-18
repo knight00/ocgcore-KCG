@@ -39,12 +39,11 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
 	message->write<uint32_t>(data.lscale);
 	message->write<uint32_t>(data.rscale);
 	message->write<uint32_t>(data.link_marker);
-    if(data.realchange && data.realchange > 0) {
-        message->write<uint8_t>(data.realchange);
-        message->write<uint16_t>(data.realsetcode);
-        message->write<uint32_t>(data.realname);
-        message->write<uint32_t>(data.effcode);
-    }
+	message->write<uint32_t>(data.realcode);
+    message->write<uint32_t>(data.effcode);
+    message->write<uint8_t>(data.realchange);
+    message->write<uint16_t>(data.realsetcode);
+    message->write<uint32_t>(data.realname);
 	return code;
 }
 ///////////kdiy//////////////
@@ -2509,6 +2508,8 @@ int32_t card::add_effect(effect* peffect) {
         message->write<uint64_t>(peffect->cardtext2);
         message->write<uint64_t>(peffect->cardtext3);
         message->write<uint64_t>(peffect->cardtext4);
+        message->write<uint32_t>(peffect->replacetext);
+        message->write<bool>(peffect->addtofront);
         //kdiy////////
 	}
 	if(peffect->type & EFFECT_TYPE_SINGLE && peffect->code == EFFECT_UPDATE_LEVEL && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
@@ -2604,6 +2605,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
         message->write<uint64_t>(peffect->cardtext2);
         message->write<uint64_t>(peffect->cardtext3);
         message->write<uint64_t>(peffect->cardtext4);
+        message->write<uint32_t>(peffect->addtotext);
         //kdiy////////
 	}
 	if(peffect->code == EFFECT_UNIQUE_CHECK) {

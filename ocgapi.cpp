@@ -262,13 +262,6 @@ OCGAPI void* OCG_DuelQueryField(OCG_Duel duel, uint32_t* length) {
 		insert_value<uint8_t>(query, (uint8_t)ch.triggering_location);
 		insert_value<uint32_t>(query, ch.triggering_sequence);
 		insert_value<uint64_t>(query, peffect->description);
-        //kdiy////////
-        insert_value<bool>(query, peffect->addtotext);
-        insert_value<uint64_t>(query, peffect->cardtext);
-        insert_value<uint64_t>(query, peffect->cardtext2);
-        insert_value<uint64_t>(query, peffect->cardtext3);
-        insert_value<uint64_t>(query, peffect->cardtext4);
-        //kdiy////////
 	}
 	if(length)
 		*length = static_cast<uint32_t>(query.size());

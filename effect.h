@@ -31,7 +31,9 @@ public:
 	uint64_t description{};
     //kdiy////////
     bool addtotext{ false };
-    uint64_t cardtext{},cardtext2{},cardtext3{},cardtext4{};
+    uint64_t cardtext{0},cardtext2{0},cardtext3{0},cardtext4{0};
+	uint32_t replacetext{0};
+    bool addtofront{ false };
     //kdiy////////
 	uint32_t code{};
 	uint32_t flag[2]{};

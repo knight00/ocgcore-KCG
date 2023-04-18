@@ -96,6 +96,8 @@ LUA_FUNCTION(SetDescription) {
     peffect->cardtext2 = lua_get<uint64_t, 0>(L, 5);
     peffect->cardtext3 = lua_get<uint64_t, 0>(L, 6);
     peffect->cardtext4 = lua_get<uint64_t, 0>(L, 7);
+    peffect->replacetext = lua_get<uint32_t, 0>(L, 8);
+    peffect->addtofront = lua_get<bool, false>(L, 9);
     //kdiy////////
 	return 0;
 }
