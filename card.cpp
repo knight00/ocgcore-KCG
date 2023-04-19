@@ -44,6 +44,8 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
     message->write<uint8_t>(data.realchange);
     message->write<uint16_t>(data.realsetcode);
     message->write<uint32_t>(data.realname);
+    if(data.effcode == 0 && data.realcard)
+        message->write(data.realcard->get_info_location());
 	return code;
 }
 ///////////kdiy//////////////
@@ -2498,6 +2500,9 @@ int32_t card::add_effect(effect* peffect) {
 	if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 		pduel->game_field->effects.rechargeable.insert(peffect);
 	if(peffect->is_flag(EFFECT_FLAG_CLIENT_HINT)) {
+        //kdiy////////
+        if(!((peffect->type & EFFECT_TYPE_EQUIP) || (peffect->type & EFFECT_TYPE_GRANT) || (peffect->type & EFFECT_TYPE_XMATERIAL) || (peffect->type & EFFECT_TYPE_TARGET))) {
+        //kdiy////////
 		auto message = pduel->new_message(MSG_CARD_HINT);
 		message->write(get_info_location());
 		message->write<uint8_t>(CHINT_DESC_ADD);
@@ -2510,6 +2515,7 @@ int32_t card::add_effect(effect* peffect) {
         message->write<uint64_t>(peffect->cardtext4);
         message->write<uint32_t>(peffect->replacetext);
         message->write<bool>(peffect->addtofront);
+        }
         //kdiy////////
 	}
 	if(peffect->type & EFFECT_TYPE_SINGLE && peffect->code == EFFECT_UPDATE_LEVEL && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {

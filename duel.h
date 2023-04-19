@@ -42,12 +42,13 @@ struct card_data {
 	uint32_t link_marker{};
 	///////kdiy///////
 	uint32_t ot{};
-	uint32_t realcode{};
-	uint32_t realalias{};
+	uint32_t realcode{0};
+	uint32_t realalias{0};
+    uint32_t effcode{0};
 	uint8_t realchange{0};
 	uint16_t realsetcode{0};
 	uint32_t realname{0};
-    uint32_t effcode{0};
+    card* realcard{nullptr};
 	///////kdiy///////
 	card_data(const OCG_CardData& data);
 	card_data() {};
