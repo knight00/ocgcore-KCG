@@ -58,7 +58,7 @@ LUA_FUNCTION(SetEntityCode) {
                  pcard->data.realsetcode = lua_get<uint16_t>(L, 18, 0);
 		    if ((pcard->data.realchange & 0x10) || (pcard->data.realchange & 0x20) || (pcard->data.realchange & 0x40) || (pcard->data.realchange & 0x80))
 			    pcard->data.realname = lua_get<uint32_t>(L, 19, 0);
-            pcard->data.realcard = lua_get<card*, nullptr>(L, 20);
+            pcard->data.realcard = lua_get<card*, false>(L, 20);
 		}
 		lua_pushinteger(L, pcard->set_entity_code(code));
 	}

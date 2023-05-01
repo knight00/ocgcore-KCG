@@ -3343,11 +3343,11 @@ int32_t card::filter_summon_procedure(uint8_t playerid, effect_set* peset, uint8
 			}
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA)) {
-				if(retval.size() < 0 || retval.size() < 3)
+				if(retval.size() < 3)
 					releasable+= 0x1f00;  
 			}
 			if(pduel->game_field->is_player_affected_by_effect(1-playerid,EFFECT_ORICA)) {
-				if(retval.size() < 0 || retval.size() < 3)
+				if(retval.size() < 3)
 					releasable+= 0x1f000000; 
 			}
 			///////kdiy//////
@@ -3398,11 +3398,11 @@ int32_t card::check_summon_procedure(effect* peffect, uint8_t playerid, uint8_t 
 			}
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA)) {
-				if(retval.size() < 0 || retval.size() < 3)
+				if(retval.size() < 3)
 					releasable+= 0x1f00;  
 			}
 			if(pduel->game_field->is_player_affected_by_effect(1-playerid,EFFECT_ORICA)) {
-				if(retval.size() < 0 || retval.size() < 3)
+				if(retval.size() < 3)
 					releasable+= 0x1f000000; 
 			}
 			///////kdiy///////
@@ -3470,11 +3470,11 @@ int32_t card::filter_set_procedure(uint8_t playerid, effect_set* peset, uint8_t 
 			}
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA)) {
-				if(retval.size() < 0 || retval.size() < 3)
+				if(retval.size() < 3)
 					releasable+= 0x1f00;  
 			}
 			if(pduel->game_field->is_player_affected_by_effect(1-playerid,EFFECT_ORICA)) {
-				if(retval.size() < 0 || retval.size() < 3)
+				if(retval.size() < 3)
 					releasable+= 0x1f000000; 
 			}
 			///////kdiy///////
@@ -3522,11 +3522,11 @@ int32_t card::check_set_procedure(effect* peffect, uint8_t playerid, uint8_t ign
 			}
 			///////kdiy///////
 			if(pduel->game_field->is_player_affected_by_effect(playerid,EFFECT_ORICA)) {
-				if(retval.size() < 0 || retval.size() < 3)
+				if(retval.size() < 3)
 					releasable+= 0x1f00;  
 			}
 			if(pduel->game_field->is_player_affected_by_effect(1-playerid,EFFECT_ORICA)) {
-				if(retval.size() < 0 || retval.size() < 3)
+				if(retval.size() < 3)
 					releasable+= 0x1f000000; 
 			}
 			///////kdiy///////
