@@ -2280,25 +2280,36 @@ LUA_FUNCTION(IsLocation) {
 	auto loc = lua_get<uint16_t>(L, 2);
     //////kdiy/////////
 	// if(pcard->current.location == LOCATION_MZONE) {
+        //if(pcard->current.is_location(loc) && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+		// 	lua_pushboolean(L, 1);
+		// else
+		// 	lua_pushboolean(L, 0);
+	//} else if(pcard->current.location == LOCATION_SZONE) {
+		//if(pcard->current.is_location(loc) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
+		// 	lua_pushboolean(L, 1);
+		// else
+		// 	lua_pushboolean(L, 0);
 	if(pcard->current.location == LOCATION_MZONE && loc == LOCATION_RMZONE && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
         lua_pushboolean(L, 1);
 	else if(pcard->current.location == LOCATION_SZONE && loc == LOCATION_RSZONE && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
         lua_pushboolean(L, 1);
+    else if(pcard->current.location == LOCATION_MZONE && (loc & LOCATION_EMZONE) && pcard->current.sequence >= 5 && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+        lua_pushboolean(L, 1);
+    else if(pcard->current.location == LOCATION_SZONE && (loc & LOCATION_FZONE) && pcard->current.sequence == 5 && !pcard->get_status(STATUS_ACTIVATE_DISABLED))
+        lua_pushboolean(L, 1);
+    else if(pcard->current.location == LOCATION_SZONE && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (loc & LOCATION_PZONE) && pcard->current.pzone && !pcard->get_status(STATUS_ACTIVATE_DISABLED))
+        lua_pushboolean(L, 1);
 	else if((pcard->current.location == LOCATION_MZONE && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))) {
-	//////kdiy/////////
-        if(pcard->current.is_location(loc) && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+        if(((loc & LOCATION_MZONE) || ((loc & LOCATION_MMZONE) && pcard->current.sequence < 5)) && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);
-	//////kdiy/////////
-	//} else if(pcard->current.location == LOCATION_SZONE) {
-		//if(pcard->current.is_location(loc) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
 	} else if((pcard->current.location == LOCATION_SZONE && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))) {
-		if(((pcard->current.is_location(loc) && !(loc & LOCATION_SZONE)) || ((pcard->current.location & loc) && (loc & LOCATION_SZONE) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (pcard->current.is_location(loc | LOCATION_MZONE) && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
-	//////kdiy/////////
+		if(((loc & LOCATION_SZONE) || ((loc & LOCATION_STZONE) && pcard->current.sequence < 5)) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);
+	//////kdiy/////////
 	} else
 		lua_pushboolean(L, pcard->current.location & loc);
 	return 1;
