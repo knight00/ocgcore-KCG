@@ -1167,7 +1167,7 @@ LUA_FUNCTION(IsRace) {
 		playerid = pduel->game_field->core.reason_player;
 	//////zdiy/////////
 	//lua_pushboolean(L, (pcard->get_race(scard, sumtype, playerid) & trace) != 0);
-    lua_pushboolean(L, (pcard->get_race(scard, sumtype, playerid) >= 0x100000000 ? ((pcard->get_race(scard, sumtype, playerid) >> 32) & (trace >> 32)) != 0 : (pcard->get_race(scard, sumtype, playerid) & trace) != 0);
+    lua_pushboolean(L, pcard->get_race(scard, sumtype, playerid) >= 0x100000000 ? ((pcard->get_race(scard, sumtype, playerid) >> 32) & (trace >> 32)) != 0 : (pcard->get_race(scard, sumtype, playerid) & trace) != 0);
     //////zdiy/////////
 	return 1;
 }
