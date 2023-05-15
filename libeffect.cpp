@@ -29,16 +29,6 @@ LUA_FUNCTION(SetOwner) {
 	peffect->owner = pcard;
 	return 0;
 }
-LUA_FUNCTION(GetRange) {
-	check_param_count(L, 1);
-	check_param(L, PARAM_TYPE_EFFECT, 1);
-	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	if (peffect) {
-		lua_pushinteger(L, peffect->range);
-		return 1;
-	}
-	return 0;
-}
 //////kdiy//////////////////
 LUA_FUNCTION(CreateEffect) {
 	check_param_count(L, 1);
