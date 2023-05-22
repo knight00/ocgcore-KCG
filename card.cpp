@@ -1367,17 +1367,19 @@ int32_t card::get_defense() {
 ////kdiy//////////
 //uint32_t card::get_level() {
 int32_t card::get_level() {
-	bool is_xyz = ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK)) || ((data.type & TYPE_LINK) && (is_affected_by_effect(EFFECT_LINK_RANK) || is_affected_by_effect(EFFECT_LINK_RANK_S)));
-	bool is_link = ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ)) || ((data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S)));
+	bool is_xyz = ( ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK)) || ((data.type & TYPE_LINK) && (is_affected_by_effect(EFFECT_LINK_RANK) || is_affected_by_effect(EFFECT_LINK_RANK_S))) ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
+	bool is_link = ( ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ)) || ((data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S))) ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
+	bool is_xyzlink = (data.type & TYPE_LINK) && (data.type & TYPE_XYZ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
 	//if(((data.type & TYPE_XYZ) && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
 		//|| (data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL)
-	if ( ((is_xyz && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
-	    || (is_link && !(is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S))) 
+	if ( (((is_xyz && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
+	    || (is_link && !(is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S)))
+		|| (is_xyzlink && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S) || is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S))))
 		&& !(is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 		|| (status & STATUS_NO_LEVEL)
 		//|| (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)))
 	    || (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)) 
-		|| is_affected_by_effect(EFFECT_SANCT_MZONE))	
+		|| is_affected_by_effect(EFFECT_SANCT_MZONE))
 ////////kdiy////////
 		return 0;
 	auto search = assume.find(ASSUME_LEVEL);
@@ -1438,7 +1440,7 @@ int32_t card::get_level() {
 		switch (peffect->code) {
 		//////////kdiy////////
 		case EFFECT_UPDATE_LINK:
-		//////////kdiy////////	
+		//////////kdiy////////
 		case EFFECT_UPDATE_RANK:
 		case EFFECT_UPDATE_LEVEL:
 			if ((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
@@ -1448,7 +1450,7 @@ int32_t card::get_level() {
 			break;
 		//////////kdiy////////
 		case EFFECT_CHANGE_LINK:
-		//////////kdiy////////		
+		//////////kdiy////////
 		case EFFECT_CHANGE_RANK:
 		case EFFECT_CHANGE_LEVEL:
 			level  = peffect->get_value(this);
@@ -1456,7 +1458,7 @@ int32_t card::get_level() {
 			break;
 		//////////kdiy////////
 		case EFFECT_CHANGE_LINK_FINAL:
-		//////////kdiy////////			
+		//////////kdiy////////
 		case EFFECT_CHANGE_RANK_FINAL:
 		case EFFECT_CHANGE_LEVEL_FINAL:
 			level = peffect->get_value(this);
@@ -1469,8 +1471,8 @@ int32_t card::get_level() {
 	level += up + upc;
 	////kdiy///////
 	//if(level < 1 && (get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_ALLOW_NEGATIVE))
-	if(level < 1 && (get_type() & TYPE_MONSTER) && (!is_affected_by_effect(EFFECT_ALLOW_NEGATIVE) && data.level>0))
-	////kdiy///////		
+	if(level < 1 && (get_type() & TYPE_MONSTER) && (!is_affected_by_effect(EFFECT_ALLOW_NEGATIVE) && data.level > 0))
+	////kdiy///////
 	    level = 1;
 	set_max_property_val(temp.level);
 	return level;
@@ -1479,11 +1481,13 @@ int32_t card::get_level() {
 //uint32_t card::get_rank() {
 int32_t card::get_rank() {
 	bool is_lv = !(data.type & (TYPE_XYZ | TYPE_LINK)) || ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S)));
-	bool is_link = ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ)) || (!(data.type & (TYPE_XYZ | TYPE_LINK)) && (is_affected_by_effect(EFFECT_LEVEL_LINK) || is_affected_by_effect(EFFECT_LEVEL_LINK_S)));
+	bool is_link = ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL))) || (!(data.type & (TYPE_XYZ | TYPE_LINK)) && (is_affected_by_effect(EFFECT_LEVEL_LINK) || is_affected_by_effect(EFFECT_LEVEL_LINK_S)));
+	bool is_lvlink = (data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL)) && (data.type & TYPE_LINK) && !(data.type & TYPE_XYZ);
 	//if(((!(data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL)) && !(is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S)))
 	//|| (data.type s& TYPE_LINK))
-	if ( ((is_lv && !(is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S)))
+	if ( (((is_lv && !(is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S)))
 	    || (is_link && !(is_affected_by_effect(EFFECT_LINK_RANK) || is_affected_by_effect(EFFECT_LINK_RANK_S)))
+		|| (is_lvlink && !(is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S) || is_affected_by_effect(EFFECT_LINK_RANK) || is_affected_by_effect(EFFECT_LINK_RANK_S))))
 		&& !(is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 		|| is_affected_by_effect(EFFECT_SANCT_MZONE)
 		|| (status & STATUS_NO_LEVEL))
@@ -1533,7 +1537,7 @@ int32_t card::get_rank() {
 			filter_effect(EFFECT_CHANGE_LINK, &effects, FALSE);
 			filter_effect(EFFECT_CHANGE_LINK_FINAL, &effects, FALSE);
 		}
-	//kdiy///////////		
+	//kdiy///////////
 		filter_effect(EFFECT_UPDATE_RANK, &effects, FALSE);
 		filter_effect(EFFECT_UPDATE_LEVEL, &effects, FALSE);
 		filter_effect(EFFECT_CHANGE_RANK, &effects, FALSE);
@@ -1548,9 +1552,9 @@ int32_t card::get_rank() {
 	}
 	for(const auto& peffect : effects) {
 		switch (peffect->code) {
-		//kdiy///////////	
+		//kdiy///////////
 		case EFFECT_UPDATE_LINK:
-		//kdiy///////////				
+		//kdiy///////////
 		case EFFECT_UPDATE_RANK:
 		case EFFECT_UPDATE_LEVEL:
 			if ((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
@@ -1558,17 +1562,17 @@ int32_t card::get_rank() {
 			else
 				upc += peffect->get_value(this);
 			break;
-		//kdiy///////////	
+		//kdiy///////////
 		case EFFECT_CHANGE_LINK:
-		//kdiy///////////			
+		//kdiy///////////
 		case EFFECT_CHANGE_RANK:
 		case EFFECT_CHANGE_LEVEL:	
 			rank = peffect->get_value(this);
 			up = 0;
 			break;
-		//kdiy///////////	
+		//kdiy///////////
 		case EFFECT_CHANGE_LINK_FINAL:
-		//kdiy///////////			
+		//kdiy///////////
 		case EFFECT_CHANGE_RANK_FINAL:
 		case EFFECT_CHANGE_LEVEL_FINAL:	
 			rank = peffect->get_value(this);
@@ -1581,7 +1585,7 @@ int32_t card::get_rank() {
 	rank += up + upc;
 	////kdiy///////
 	//if(rank < 1 && (get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_ALLOW_NEGATIVE))
-	if(rank < 1 && (get_type() & TYPE_MONSTER) && (!is_affected_by_effect(EFFECT_ALLOW_NEGATIVE) && data.level>0))
+	if(rank < 1 && (get_type() & TYPE_MONSTER) && (!is_affected_by_effect(EFFECT_ALLOW_NEGATIVE) && data.level > 0))
 	////kdiy///////
 		rank = 1;
 	set_max_property_val(temp.rank);
@@ -1591,30 +1595,48 @@ int32_t card::get_rank() {
 //uint32_t card::get_link() {
 int32_t card::get_link() {
     bool is_lv = !(data.type & (TYPE_XYZ | TYPE_LINK)) || ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK) && (is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)));
-	bool is_xyz = ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK)) || (!(data.type & (TYPE_XYZ | TYPE_LINK)) && (is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S)));
+	bool is_xyz = ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL))) || (!(data.type & (TYPE_XYZ | TYPE_LINK)) && (is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S)));
+	bool is_lvxyz = (data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL)) && (data.type & TYPE_XYZ) && !(data.type & TYPE_LINK);
 	//if(!(data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL))
-	if ( ((is_lv && !(is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S)))
+	if( (((is_lv && !(is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S)))
 	    || (is_xyz && !(is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S)))
+		|| (is_lvxyz && !(is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S) || is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S))))
 		&& !(is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 		|| is_affected_by_effect(EFFECT_SANCT_MZONE)
 		|| (status & STATUS_NO_LEVEL))
-////////kdiy////////	
+///////kdiy///////////////
 		return 0;
 	auto search = assume.find(ASSUME_LINK);
 	if(search != assume.end())
 		return search->second;
-	////////kdiy////////			
-	//if(!(current.location & LOCATION_MZONE))
-	if (!(((current.location & LOCATION_MZONE) && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || ((current.location & LOCATION_SZONE) && is_affected_by_effect(EFFECT_ORICA_SZONE))))
 	////////kdiy////////
-		return data.level;
+	uint32_t link_marker = data.link_marker;
+	int32_t mixlink = 0;
+	if(data.type & TYPE_LINK) {
+		if(link_marker & LINK_MARKER_BOTTOM_LEFT) mixlink += 1;
+		if(link_marker & LINK_MARKER_BOTTOM_RIGHT) mixlink += 1;
+		if(link_marker & LINK_MARKER_BOTTOM) mixlink += 1;
+		if(link_marker & LINK_MARKER_LEFT) mixlink += 1;
+		if(link_marker & LINK_MARKER_RIGHT) mixlink += 1;
+		if(link_marker & LINK_MARKER_TOP) mixlink += 1;
+		if(link_marker & LINK_MARKER_TOP_LEFT) mixlink += 1;
+		if(link_marker & LINK_MARKER_TOP_RIGHT) mixlink += 1;
+	} else mixlink = data.level;
+	//if(!(current.location & LOCATION_MZONE))
+	    //return data.level;
+	if(!(((current.location & LOCATION_MZONE) && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || ((current.location & LOCATION_SZONE) && is_affected_by_effect(EFFECT_ORICA_SZONE))))
+		return mixlink;
+	////////kdiy////////
 	if (has_valid_property_val(temp.link))
 		return temp.link;
 	effect_set effects;
-	int32_t link = data.level;
+	////////kdiy////////
+	//int32_t link = data.level;
+	int32_t link = mixlink;
+	////////kdiy////////
 	temp.link = link;
 	int32_t up = 0, upc = 0;
-	////////kdiy////////		
+	////////kdiy////////
 	if (is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)) {
 		filter_effect(EFFECT_UPDATE_RANK, &effects, FALSE);
 		filter_effect(EFFECT_UPDATE_LINK, &effects, FALSE);
@@ -1650,16 +1672,16 @@ int32_t card::get_link() {
 		filter_effect(EFFECT_CHANGE_LEVEL_FINAL, &effects);
 		filter_effect(EFFECT_CHANGE_LINK_FINAL, &effects, FALSE);
 	} else
-	////////kdiy////////		
+	////////kdiy////////
 	filter_effect(EFFECT_UPDATE_LINK, &effects, FALSE);
 	filter_effect(EFFECT_CHANGE_LINK, &effects, FALSE);
 	filter_effect(EFFECT_CHANGE_LINK_FINAL, &effects);
 	for(const auto& peffect : effects) {
 		switch (peffect->code) {
 		////////kdiy////////
-		case EFFECT_UPDATE_LEVEL:	
-		case EFFECT_UPDATE_RANK:	
-		////////kdiy////////	
+		case EFFECT_UPDATE_LEVEL:
+		case EFFECT_UPDATE_RANK:
+		////////kdiy////////
 		case EFFECT_UPDATE_LINK:
 			if ((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 				up += peffect->get_value(this);
@@ -1667,16 +1689,16 @@ int32_t card::get_link() {
 				upc += peffect->get_value(this);
 			break;
 			////////kdiy////////
-			case EFFECT_CHANGE_LEVEL:	
-			case EFFECT_CHANGE_RANK:	
-			////////kdiy////////	
+			case EFFECT_CHANGE_LEVEL:
+			case EFFECT_CHANGE_RANK:
+			////////kdiy////////
 			case EFFECT_CHANGE_LINK:
 			link = peffect->get_value(this);
 			up = 0;
 			break;
 			////////kdiy////////
-			case EFFECT_CHANGE_LEVEL_FINAL:	
-			case EFFECT_CHANGE_RANK_FINAL:	
+			case EFFECT_CHANGE_LEVEL_FINAL:
+			case EFFECT_CHANGE_RANK_FINAL:
 			////////kdiy////////
 			case EFFECT_CHANGE_LINK_FINAL:
 			link = peffect->get_value(this);
@@ -1689,7 +1711,7 @@ int32_t card::get_link() {
 	link += up + upc;
 	///////////kdiy///////////////
 	//if(link < 1 && (get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_ALLOW_NEGATIVE))
-	if(link < 1 && (get_type() & TYPE_MONSTER) && (!is_affected_by_effect(EFFECT_ALLOW_NEGATIVE) && data.level>0))
+	if(link < 1 && (get_type() & TYPE_MONSTER) && (!is_affected_by_effect(EFFECT_ALLOW_NEGATIVE) && data.level > 0))
 	///////////kdiy///////////////
 		link = 1;
 	set_max_property_val(temp.link);
