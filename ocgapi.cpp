@@ -59,7 +59,7 @@ OCGAPI void OCG_DuelNewCard(OCG_Duel duel, OCG_NewCardInfo info) {
 			if(info.loc & LOCATION_ONFIELD) {
 				/////////kdiy////////
 				//if(info.loc == LOCATION_MZONE)
-				if(info.loc == LOCATION_MZONE | LOCATION_SZONE)
+				if(info.loc == (LOCATION_MZONE | LOCATION_SZONE))
 				/////////kdiy////////
 					pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
 			}
