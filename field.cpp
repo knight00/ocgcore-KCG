@@ -2503,23 +2503,23 @@ int32_t field::get_draw_count(uint8_t playerid) {
 }
 void field::get_ritual_material(uint8_t playerid, effect* peffect, card_set* material, bool check_level) {
 	auto mzonecheck = [&](card* pcard) {
-		return pcard && (!check_level || pcard->get_level()) && pcard->is_affect_by_effect(peffect)
+		return  (!check_level || pcard->get_level() > 0) && pcard->is_affect_by_effect(peffect)
 			&& pcard->is_releasable_by_effect(playerid, peffect);
 	};
 	for(auto& pcard : player[playerid].list_mzone) {
 		/////kdiy//////
 		if(!pcard || pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		  continue;
-		/////kdiy//////		
-		if(mzonecheck(pcard) && pcard->is_releasable_by_nonsummon(playerid))
+		/////kdiy//////
+		if(pcard && mzonecheck(pcard) && pcard->is_releasable_by_nonsummon(playerid))
 			material->insert(pcard);
 	}
 	for(auto& pcard : player[1 - playerid].list_mzone) {
 		/////kdiy//////
 		if(!pcard || pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		  continue;
-		/////kdiy//////			
-		if(mzonecheck(pcard) && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE))
+		/////kdiy//////
+		if(pcard && pcard->is_position(POS_FACEUP) && mzonecheck(pcard) && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE))
 			material->insert(pcard);
 	}
 	/////kdiy//////
@@ -2532,18 +2532,26 @@ void field::get_ritual_material(uint8_t playerid, effect* peffect, card_set* mat
 	}
 	for(auto& pcard : player[1 - playerid].list_szone) {
 		if(!pcard || !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
-		  continue;		
-		if(pcard && pcard->get_level() && pcard->is_affect_by_effect(peffect)
+		  continue;
+		if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_level() && pcard->is_affect_by_effect(peffect)
 		        && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
 		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect))
 			material->insert(pcard);
-	}	
+	}
 	/////kdiy//////
 	for(auto& pcard : player[playerid].list_hand)
 		if((pcard->data.type & TYPE_MONSTER) && pcard->is_releasable_by_nonsummon(playerid))
 			material->insert(pcard);
 	for(auto& pcard : player[playerid].list_grave)
 		if((pcard->data.type & TYPE_MONSTER) && pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid, POS_FACEUP, REASON_EFFECT))
+			material->insert(pcard);
+	for(auto& pcard : player[playerid].list_main)
+		if(pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL)
+		   && (!check_level || pcard->get_level() > 0))
+			material->insert(pcard);
+	for(auto& pcard : player[playerid].list_extra)
+		if(pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL)
+		   && (!check_level || pcard->get_level() > 0))
 			material->insert(pcard);
 	for(auto& pcard : player[playerid].list_mzone) {
 		/////kdiy//////
@@ -2604,16 +2612,16 @@ void field::get_fusion_material(uint8_t playerid, card_set* material) {
 			material->insert(pcard);
 }
 void field::ritual_release(const card_set& material) {
-	card_set rel, rem, overlay;
+	card_set rel, rem, tograve;
 	for(auto& pcard : material) {
 		if(pcard->current.location == LOCATION_GRAVE)
 			rem.insert(pcard);
-		else if(pcard->current.location == LOCATION_OVERLAY)
-			overlay.insert(pcard);
+		else if((pcard->current.location & (LOCATION_OVERLAY | LOCATION_EXTRA | LOCATION_DECK)) != 0)
+			tograve.insert(pcard);
 		else
 			rel.insert(pcard);
 	}
-	send_to(std::move(overlay), core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+	send_to(std::move(tograve), core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	release(std::move(rel), core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player);
 	send_to(std::move(rem), core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, POS_FACEUP);
 }
@@ -3304,14 +3312,19 @@ int32_t field::is_player_can_discard_deck_as_cost(uint8_t playerid, int32_t coun
 	card* topcard = player[playerid].list_main.back();
 	if((count == 1) && topcard->is_position(POS_FACEUP))
 		return topcard->is_capable_cost_to_grave(playerid);
-	bool cant_remove = !is_player_can_action(playerid, EFFECT_CANNOT_REMOVE);
+	bool cant_remove_s = !is_player_can_action(playerid, EFFECT_CANNOT_REMOVE);
+	bool cant_remove_o = !is_player_can_action(1 - playerid, EFFECT_CANNOT_REMOVE);
 	effect_set eset;
 	filter_field_effect(EFFECT_TO_GRAVE_REDIRECT, &eset);
 	for(const auto& peff : eset) {
 		uint32_t redirect = peff->get_value();
-		if((redirect & LOCATION_REMOVED) && (cant_remove || topcard->is_affected_by_effect(EFFECT_CANNOT_REMOVE)))
-			continue;
 		uint8_t p = peff->get_handler_player();
+		if(redirect & LOCATION_REMOVED) {
+			if(topcard->is_affected_by_effect(EFFECT_CANNOT_REMOVE))
+				continue;
+			if((cant_remove_s && (p == playerid)) || (cant_remove_o && (p != playerid)))
+				continue;
+		}
 		if((p == playerid && peff->s_range & LOCATION_DECK) || (p != playerid && peff->o_range & LOCATION_DECK))
 			return FALSE;
 	}

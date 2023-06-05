@@ -4275,8 +4275,10 @@ int32_t card::is_affect_by_effect(effect* peffect) {
 		return FALSE;
 	return TRUE;
 }
-int32_t card::is_can_be_disabled_by_effect(effect* reason_effect) {
-	if(is_status(STATUS_DISABLED))
+int32_t card::is_can_be_disabled_by_effect(effect* reason_effect, bool is_monster_effect) {
+	if (is_monster_effect && is_status(STATUS_DISABLED))
+		return FALSE;
+	if(!is_monster_effect && !(get_type() & TYPE_TRAPMONSTER) && is_status(STATUS_DISABLED))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_DISABLE))
 		return FALSE;
@@ -4482,7 +4484,7 @@ int32_t card::is_capable_cost_to_grave(uint8_t playerid) {
 	uint32_t dest = LOCATION_GRAVE;
 	if(data.type & TYPE_TOKEN)
 		return FALSE;
-	if((data.type & TYPE_PENDULUM) && (current.location & LOCATION_ONFIELD) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
+	if((data.type & TYPE_PENDULUM) && (current.location & LOCATION_ONFIELD) && is_capable_send_to_extra(playerid))
 		return FALSE;
 	if(current.location == LOCATION_GRAVE)
 		return FALSE;
