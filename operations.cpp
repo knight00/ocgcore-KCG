@@ -3581,6 +3581,10 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		auto message = pduel->new_message(MSG_SPSUMMONING);
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
+        /////kdiy///////
+        message->write(target->get_pinfo_location());
+        message->write<uint32_t>(target->current.reason);
+        /////kdiy///////
 		return FALSE;
 	}
 	case 6: {
@@ -3847,6 +3851,8 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 			message->write<uint32_t>(pcard->data.code);
 			message->write(pcard->get_info_location());
 		}
+        message->write(pcard->get_pinfo_location());
+        message->write<uint32_t>(pcard->current.reason);
 		//kdiy///////
 		set_control(pcard, pcard->current.controler, 0, 0);
 		pcard->set_status(STATUS_SPSUMMON_STEP, TRUE);
@@ -4152,6 +4158,10 @@ int32_t field::special_summon_step(uint16_t step, group* targets, card* target, 
 		auto message = pduel->new_message(MSG_SPSUMMONING);
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
+        /////kdiy///////
+        message->write(target->get_pinfo_location());
+        message->write<uint32_t>(target->current.reason);
+        /////kdiy///////
 		return FALSE;
 	}
 	case 3: {

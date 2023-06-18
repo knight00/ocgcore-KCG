@@ -208,6 +208,7 @@ public:
 	uint32_t second_code(uint32_t code);
 	uint32_t get_code();
 	//////kdiy/////
+    loc_info get_pinfo_location();
 	uint32_t get_ocode();
 	//////kdiy/////
 	uint32_t get_another_code();

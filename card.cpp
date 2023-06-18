@@ -254,6 +254,15 @@ loc_info card::get_info_location() {
 		return { current.controler, current.location , current.sequence, current.position };
 	}
 }
+/////kdiy///////
+loc_info card::get_pinfo_location() {
+	if(overlay_target) {
+		return { overlay_target->previous.controler, (uint8_t)((overlay_target->previous.location | LOCATION_OVERLAY) & 0xff), overlay_target->previous.sequence, previous.sequence };
+	} else {
+		return { previous.controler, previous.location , previous.sequence, previous.position };
+	}
+}
+/////kdiy///////
 // mapping of double-name cards
 uint32_t card::second_code(uint32_t code){
 	switch(code){
