@@ -3640,8 +3640,8 @@ int32_t field::process_forced_battle(uint16_t step) {
 					continue;
 			    ///////kdiy//////////
 				if(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-					continue;			
-			    ///////kdiy//////////							
+					continue;
+			    ///////kdiy//////////
 				pcard->attack_announce_count = 0;
 				pcard->announce_count = 0;
 				pcard->attacked_count = 0;
@@ -3654,15 +3654,15 @@ int32_t field::process_forced_battle(uint16_t step) {
 				if(!pcard)
 					continue;
 				if(!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && !pcard->is_affected_by_effect(EFFECT_EQUIP_MONSTER))
-					continue;					
+					continue;
 				pcard->attack_announce_count = 0;
 				pcard->announce_count = 0;
 				pcard->attacked_count = 0;
 				pcard->announced_cards.clear();
 				pcard->attacked_cards.clear();
 				pcard->battled_cards.clear();
-			}			
-			///////kdiy//////////			
+			}
+			///////kdiy//////////
 		}
 		core.forced_attack = true;
 		core.attack_cancelable = TRUE;
@@ -3679,6 +3679,9 @@ int32_t field::process_forced_battle(uint16_t step) {
 		core.delayed_quick_tmp.clear();
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(PHASE_BATTLE_START);
+		////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		add_process(PROCESSOR_BATTLE_COMMAND, 1, 0, 0, 0, 0);
 		return FALSE;
 	}
@@ -3710,15 +3713,15 @@ int32_t field::process_forced_battle(uint16_t step) {
 				if(!pcard)
 					continue;
 				if(!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && !pcard->is_affected_by_effect(EFFECT_EQUIP_MONSTER))
-					continue;					
+					continue;
 				pcard->attack_announce_count = 0;
 				pcard->announce_count = 0;
 				pcard->attacked_count = 0;
 				pcard->announced_cards.clear();
 				pcard->attacked_cards.clear();
 				pcard->battled_cards.clear();
-			}			
-			///////kdiy//////////	
+			}
+			///////kdiy//////////
 		}
 		core.attacker = 0;
 		core.attack_target = 0;
@@ -4727,6 +4730,9 @@ int32_t field::add_chain(uint16_t step) {
 		message->write<uint32_t>(clit.triggering_sequence);
 		message->write<uint64_t>(peffect->description);
 		message->write<uint32_t>(core.current_chain.size() + 1);
+		/////kdiy//////
+		message->write(phandler->get_pinfo_location());
+		/////kdiy//////
 		for(auto& ch_lim : core.chain_limit)
 			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim.function);
 		core.chain_limit.clear();

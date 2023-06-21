@@ -31,6 +31,11 @@ int32_t field::negate_chain(uint8_t chaincount) {
 		}
 		auto message = pduel->new_message(MSG_CHAIN_NEGATED);
 		message->write<uint8_t>(chaincount);
+		////kdiy////////
+		message->write<uint8_t>(pchain.disable_player);
+		chain& pchain2 = core.current_chain[chaincount - 2];
+		message->write<uint8_t>(pchain2.triggering_player);
+		////kdiy////////
 		if(!is_flag(DUEL_RETURN_TO_DECK_TRIGGERS) &&
 		   (pchain.triggering_location == LOCATION_DECK
 			|| (pchain.triggering_location == LOCATION_EXTRA && (pchain.triggering_position & POS_FACEDOWN))))
@@ -616,6 +621,9 @@ int32_t field::damage(uint16_t step, effect* reason_effect, uint32_t reason, uin
 		auto message = pduel->new_message(MSG_DAMAGE);
 		message->write<uint8_t>(playerid);
 		message->write<uint32_t>(amount);
+		//////kdiy/////////
+		message->write<uint32_t>(reason);
+		//////kdiy/////////
 		raise_event(reason_card, EVENT_DAMAGE, reason_effect, reason, reason_player, playerid, amount);
 		//////kdiy/////////
 		if(player[playerid].lp < 0) {
