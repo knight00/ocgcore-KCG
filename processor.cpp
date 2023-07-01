@@ -3727,6 +3727,9 @@ int32_t field::process_forced_battle(uint16_t step) {
 		core.attack_target = 0;
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+        ////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		return TRUE;
 	}
 	}
@@ -4352,6 +4355,9 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+        ////kdiy///////////
+		message->write<uint8_t>(turn_player);
+		////kdiy///////////
 		raise_event((card*)0, EVENT_PREDRAW, 0, 0, 0, turn_player, 0);
 		process_instant_event();
 		message = pduel->new_message(MSG_HINT);
@@ -4401,6 +4407,9 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+        ////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		raise_event((card*)0, EVENT_PHASE_START + PHASE_STANDBY, 0, 0, 0, turn_player, 0);
 		process_instant_event();
 		/*if(core.set_forced_attack)
@@ -4437,6 +4446,9 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		core.delayed_quick_tmp.clear();
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+        ////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		add_process(PROCESSOR_IDLE_COMMAND, 0, 0, 0, 0, 0);
 		/*if(core.set_forced_attack)
 			add_process(PROCESSOR_FORCED_BATTLE, 0, 0, 0, 0, 0);*/
@@ -4456,6 +4468,9 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		++core.battle_phase_count[infos.turn_player];
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+        ////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		// Show the texts to indicate that BP is entered and skipped
 		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) || core.force_turn_end) {
 			core.units.begin()->step = 15;
@@ -4569,6 +4584,9 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		core.delayed_quick_tmp.clear();
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+        ////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		infos.can_shuffle = TRUE;
 		add_process(PROCESSOR_IDLE_COMMAND, 0, 0, 0, 0, 0);
 		/*if(core.set_forced_attack)
@@ -4587,6 +4605,9 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+        ////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		raise_event((card*)0, EVENT_PHASE_START + PHASE_END, 0, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();
