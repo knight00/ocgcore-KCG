@@ -3592,6 +3592,7 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
         /////kdiy///////
         message->write(target->get_pinfo_location());
         message->write<uint32_t>(target->current.reason);
+        message->write<uint32_t>(target->summon.type);
         /////kdiy///////
 		return FALSE;
 	}
@@ -3861,6 +3862,7 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		}
         message->write(pcard->get_pinfo_location());
         message->write<uint32_t>(pcard->current.reason);
+        message->write<uint32_t>(pcard->summon.type);
 		//kdiy///////
 		set_control(pcard, pcard->current.controler, 0, 0);
 		pcard->set_status(STATUS_SPSUMMON_STEP, TRUE);
@@ -4169,6 +4171,7 @@ int32_t field::special_summon_step(uint16_t step, group* targets, card* target, 
         /////kdiy///////
         message->write(target->get_pinfo_location());
         message->write<uint32_t>(target->current.reason);
+        message->write<uint32_t>(target->summon.type);
         /////kdiy///////
 		return FALSE;
 	}
