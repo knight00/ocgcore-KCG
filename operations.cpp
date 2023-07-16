@@ -2539,6 +2539,9 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 		auto message = pduel->new_message(MSG_SUMMONING);
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
+        ///kdiy///////
+        message->write<uint8_t>(sumplayer);
+        ///kdiy///////
 		if(is_flag(DUEL_CANNOT_SUMMON_OATH_OLD)) {
 			++core.summon_state_count[sumplayer];
 			++core.normalsummon_state_count[sumplayer];
@@ -2689,6 +2692,9 @@ int32_t field::flip_summon(uint16_t step, uint8_t sumplayer, card* target) {
 		auto message = pduel->new_message(MSG_FLIPSUMMONING);
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
+        ///kdiy///////
+        message->write<uint8_t>(sumplayer);
+        ///kdiy///////
 		if(target->is_affected_by_effect(EFFECT_CANNOT_DISABLE_FLIP_SUMMON))
 			core.units.begin()->step = 2;
 		else {
@@ -3130,6 +3136,9 @@ int32_t field::mset(uint16_t step, uint8_t setplayer, card* target, effect* proc
 		auto message = pduel->new_message(MSG_SET);
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
+        ///kdiy///////
+        message->write<uint8_t>(setplayer);
+        ///kdiy///////
 		adjust_instant();
 		raise_event(target, EVENT_MSET, proc, 0, setplayer, setplayer, 0);
 		process_instant_event();
@@ -3211,6 +3220,9 @@ int32_t field::sset(uint16_t step, uint8_t setplayer, uint8_t toplayer, card* ta
 		auto message = pduel->new_message(MSG_SET);
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
+        ///kdiy///////
+        message->write<uint8_t>(setplayer);
+        ///kdiy///////
 		adjust_instant();
 		raise_event(target, EVENT_SSET, reason_effect, 0, setplayer, setplayer, 0);
 		process_instant_event();
@@ -3342,6 +3354,9 @@ int32_t field::sset_g(uint16_t step, uint8_t setplayer, uint8_t toplayer, group*
 		auto message = pduel->new_message(MSG_SET);
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
+        ///kdiy///////
+        message->write<uint8_t>(setplayer);
+        ///kdiy///////
 		core.set_group_set.insert(target);
 		set_cards->erase(target);
 		if(!set_cards->empty())
@@ -3590,9 +3605,8 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
         /////kdiy///////
-        message->write(target->get_pinfo_location());
-        message->write<uint32_t>(target->current.reason);
         message->write<uint32_t>(target->summon.type);
+        message->write<uint8_t>(sumplayer);
         /////kdiy///////
 		return FALSE;
 	}
@@ -3849,20 +3863,11 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		group* pgroup = core.units.begin()->ptarget;
 		card* pcard = *pgroup->it++;			
 		auto message = pduel->new_message(MSG_SPSUMMONING);
+		message->write<uint32_t>(pcard->data.code);
+		message->write(pcard->get_info_location());
 		//kdiy///////
-		// message->write<uint32_t>(pcard->data.code);
-		// message->write(pcard->get_info_location());
-		if(pgroup->it != pgroup->container.end()) {
-			message->write<uint32_t>(0);
-			message->write(pcard->get_info_location());
-			message->write<uint32_t>(pcard->data.code);
-		} else {
-			message->write<uint32_t>(pcard->data.code);
-			message->write(pcard->get_info_location());
-		}
-        message->write(pcard->get_pinfo_location());
-        message->write<uint32_t>(pcard->current.reason);
         message->write<uint32_t>(pcard->summon.type);
+        message->write<uint8_t>(sumplayer);
 		//kdiy///////
 		set_control(pcard, pcard->current.controler, 0, 0);
 		pcard->set_status(STATUS_SPSUMMON_STEP, TRUE);
@@ -4169,9 +4174,8 @@ int32_t field::special_summon_step(uint16_t step, group* targets, card* target, 
 		message->write<uint32_t>(target->data.code);
 		message->write(target->get_info_location());
         /////kdiy///////
-        message->write(target->get_pinfo_location());
-        message->write<uint32_t>(target->current.reason);
         message->write<uint32_t>(target->summon.type);
+        message->write<uint8_t>(target->summon.player);
         /////kdiy///////
 		return FALSE;
 	}
