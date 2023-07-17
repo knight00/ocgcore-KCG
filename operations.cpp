@@ -3794,10 +3794,7 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		pcard->current.reason_effect = peffect;
 		pcard->current.reason_player = sumplayer;
 		pcard->summon.player = sumplayer;
-		///////kdiy///////
-		//const auto sumtype = (peffect->get_value(pcard) & 0xff00ffff) | SUMMON_TYPE_SPECIAL;
-		const auto sumtype = (peffect->get_value(pcard) & (is_player_affected_by_effect(1 - sumplayer, EFFECT_ORICA) ? 0xffffffff : 0xff00ffff)) | SUMMON_TYPE_SPECIAL;
-		///////kdiy///////
+		const auto sumtype = (peffect->get_value(pcard) & 0xff00ffff) | SUMMON_TYPE_SPECIAL;
 		pcard->summon.type = sumtype;
 		pcard->summon.location = pcard->current.location;
 		pcard->summon.sequence = pcard->current.sequence;
