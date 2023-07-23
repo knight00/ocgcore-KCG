@@ -276,6 +276,9 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					pcard->current.controler = playerid;
 					message->write(pcard->get_info_location());
 					message->write<uint32_t>(pcard->current.reason);
+                    ///kdiy///////////
+                    message->write<bool>(false);
+                    ///kdiy///////////
 					return TRUE;
 				} else
 					remove_card(pcard);
@@ -349,6 +352,9 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 				if(message) {
 					message->write(pcard->get_info_location());
 					message->write<uint32_t>(pcard->current.reason);
+                    ///kdiy///////////
+                    message->write<bool>(!pcard->previous.pzone && pcard->current.pzone);
+                    ///kdiy///////////
 				} else {
 					pcard->fieldid = infos.field_id++;
 					if(check_unique_onfield(pcard, pcard->current.controler, pcard->current.location))
@@ -371,6 +377,9 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					reset_sequence(pcard->current.controler, LOCATION_GRAVE);
 					message->write(pcard->get_info_location());
 					message->write<uint32_t>(pcard->current.reason);
+                    ///kdiy///////////
+                    message->write<bool>(false);
+                    ///kdiy///////////
 				} else if(location == LOCATION_REMOVED) {
 					if(pcard->current.sequence == player[pcard->current.controler].list_remove.size() - 1)
 						return FALSE;
@@ -382,6 +391,9 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					reset_sequence(pcard->current.controler, LOCATION_REMOVED);
 					message->write(pcard->get_info_location());
 					message->write<uint32_t>(pcard->current.reason);
+                    ///kdiy///////////
+                    message->write<bool>(false);
+                    ///kdiy///////////
 				} else {
 					auto message = pduel->new_message(MSG_MOVE);
 					message->write<uint32_t>(pcard->data.code);
@@ -391,6 +403,9 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					reset_sequence(pcard->current.controler, LOCATION_EXTRA);
 					message->write(pcard->get_info_location());
 					message->write<uint32_t>(pcard->current.reason);
+                    ///kdiy///////////
+                    message->write<bool>(false);
+                    ///kdiy///////////
 				}
 				return TRUE;
 			}
@@ -548,22 +563,34 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		message->write(info1);
 		message->write(pcard1->get_info_location());
 		message->write<uint32_t>(0);
+        ///kdiy///////////
+        message->write<bool>(false);
+         ///kdiy///////////
 		message = pduel->new_message(MSG_MOVE);
 		message->write<uint32_t>(pcard2->data.code);
 		message->write(info2);
 		message->write(pcard2->get_info_location());
 		message->write<uint32_t>(0);
+        ///kdiy///////////
+        message->write<bool>(false);
+        ///kdiy///////////
 	} else {
 		auto message = pduel->new_message(MSG_MOVE);
 		message->write<uint32_t>(pcard2->data.code);
 		message->write(info2);
 		message->write(pcard2->get_info_location());
 		message->write<uint32_t>(0);
+        ///kdiy///////////
+        message->write<bool>(false);
+        ///kdiy///////////
 		message = pduel->new_message(MSG_MOVE);
 		message->write<uint32_t>(pcard1->data.code);
 		message->write(info1);
 		message->write(pcard1->get_info_location());
 		message->write<uint32_t>(0);
+        ///kdiy///////////
+        message->write<bool>(false);
+        ///kdiy///////////
 	}
 }
 void field::swap_card(card* pcard1, card* pcard2) {

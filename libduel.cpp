@@ -1083,6 +1083,9 @@ LUA_FUNCTION(MoveSequence) {
 				message->write(previous_loc_info);
 				message->write(pcard->get_info_location());
 				message->write<uint32_t>(pcard->current.reason);
+                ///kdiy///////////
+                message->write<bool>(false);
+                ///kdiy///////////
 			}
 			field.raise_single_event(pcard, 0, EVENT_MOVE, core.reason_effect, 0, core.reason_player, playerid, 0);
 			field.raise_event(pcard, EVENT_MOVE, core.reason_effect, 0, core.reason_player, playerid, 0);

@@ -1064,6 +1064,9 @@ int32_t field::xyz_overlay(uint16_t step, card* target, group* materials, bool s
 			target->xyz_add(pcard);
 			message->write(pcard->get_info_location());
 			message->write<uint32_t>(pcard->current.reason);
+            ///kdiy///////////
+            message->write<bool>(false);
+            ///kdiy///////////
 		}
 		auto writetopcard = [rev = core.deck_reversed, &decktop, &player=player, &s](int playerid) {
 			if(!decktop[playerid])
@@ -5009,6 +5012,9 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 			message->write(pcard->get_info_location());
 			message->write(loc_info{});
 			message->write<uint32_t>(pcard->current.reason);
+            ///kdiy///////////
+            message->write<bool>(false);
+            ///kdiy///////////
 			if(core.current_chain.size() > 0)
 				core.just_sent_cards.insert(pcard);
 			pcard->previous.controler = pcard->current.controler;
@@ -5068,6 +5074,9 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 			pcard->current.position = pcard->sendto_param.position;
 			message->write(pcard->get_info_location());
 			message->write<uint32_t>(pcard->current.reason);
+            ///kdiy///////////
+            message->write<bool>(false);
+            ///kdiy///////////
 		}
 		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
 			param->show_decktop[control_player] = true;
@@ -5144,6 +5153,9 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 		///////kdiy///////////				
 		message->write(pcard->get_info_location());
 		message->write<uint32_t>(pcard->current.reason);
+        ///kdiy///////////
+        message->write<bool>(false);
+        ///kdiy///////////
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
 		if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED)) {
 			pcard->set_status(STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED, FALSE);
@@ -5420,6 +5432,9 @@ int32_t field::discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint
 			pcard->current.position = POS_FACEUP;
 			message->write(pcard->get_info_location());
 			message->write<uint32_t>(pcard->current.reason);
+            ///kdiy///////////
+            message->write<bool>(false);
+            ///kdiy///////////
 			if(dest == LOCATION_HAND) {
 				if(pcard->owner != pcard->current.controler) {
 					effect* deffect = pduel->new_effect();
@@ -5721,6 +5736,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 			target->overlay_target->xyz_remove(target);
 		// call move_card()
 		//kdiy///////
+        bool temp_pzone = target->current.pzone;
 		int8_t location2 = target->temp.location;
 		target->temp.location = location;
 		if(location2 == LOCATION_MZONE || location2 == LOCATION_SZONE)
@@ -5733,6 +5749,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		message->write(target->get_info_location());
 		message->write<uint32_t>(target->current.reason);
 		////kdiy///////
+        message->write<bool>(!temp_pzone && pzone);
 		target->temp.location = 0;
 		target->prev_temp.location = 0;
 		//if((target->current.location != LOCATION_MZONE)) {

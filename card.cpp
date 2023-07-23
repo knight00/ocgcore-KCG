@@ -257,9 +257,9 @@ loc_info card::get_info_location() {
 /////kdiy///////
 loc_info card::get_pinfo_location() {
 	if(overlay_target) {
-		return { overlay_target->previous.controler, (uint8_t)((overlay_target->previous.location | LOCATION_OVERLAY) & 0xff), overlay_target->previous.sequence, previous.sequence };
+		return { overlay_target->prev_temp.controler, (uint8_t)((overlay_target->prev_temp.location | LOCATION_OVERLAY) & 0xff), overlay_target->prev_temp.sequence, prev_temp.sequence };
 	} else {
-		return { previous.controler, previous.location , previous.sequence, previous.position };
+		return { prev_temp.controler, prev_temp.location , prev_temp.sequence, prev_temp.position };
 	}
 }
 /////kdiy///////
