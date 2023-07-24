@@ -3293,13 +3293,19 @@ int32_t field::sset_g(uint16_t step, uint8_t setplayer, uint8_t toplayer, group*
 		// } else {
 		// 	flag = ((flag & 0xff) << 24) | 0xffffff;
 		// }
+		//flag |= 0xe080e080;
 		if(setplayer == toplayer) {
-			flag = ((flag & 0xff00)) | 0xffff00ff;
+            if(is_player_affected_by_effect(toplayer, EFFECT_SANCT))
+			    flag = ((flag & 0xff1f)) | 0xffffe0e0;
+            else
+			    flag = ((flag & 0xff00)) | 0xffffe0ff;
 		} else {
-			flag = ((flag & 0xff00) << 16) | 0xffffff;
+			if(is_player_affected_by_effect(toplayer, EFFECT_SANCT))
+			    flag = ((flag & 0xff1f) << 16) | 0xe0e0ffff;
+            else
+			    flag = ((flag & 0xff00) << 16) | 0xe0ffffff;
 		}
 		///kdiy///////
-		flag |= 0xe080e080;
 		auto message = pduel->new_message(MSG_HINT);
 		message->write<uint8_t>(HINT_SELECTMSG);
 		message->write<uint8_t>(setplayer);

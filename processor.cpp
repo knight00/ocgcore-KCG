@@ -4695,7 +4695,6 @@ int32_t field::add_chain(uint16_t step) {
         uint8_t temp_location = phandler->current.location;
         uint32_t temp_sequence = phandler->current.sequence;
 		uint32_t temp_position = phandler->current.position;
-        bool temp_pzone = phandler->current.pzone;
         ///////kdiy///////
 		if(phandler->current.location == LOCATION_SZONE) {
 			change_position(phandler, 0, phandler->current.controler, POS_FACEUP, 0);
@@ -4750,7 +4749,6 @@ int32_t field::add_chain(uint16_t step) {
         phandler->prev_temp.location = temp_location;
         phandler->prev_temp.sequence = temp_sequence;
         phandler->prev_temp.position = temp_position;
-        phandler->prev_temp.pzone = temp_pzone;
         ///////kdiy///////
 		return FALSE;
 	}
@@ -4771,8 +4769,7 @@ int32_t field::add_chain(uint16_t step) {
 		message->write<uint32_t>(core.current_chain.size() + 1);
 		/////kdiy//////
 		message->write(phandler->get_pinfo_location());
-		message->write<bool>(phandler->prev_temp.pzone);
-		message->write<bool>(phandler->current.pzone);
+		message->write<bool>(!!phandler->current.pzone);
         phandler->prev_temp.location = 0;
 		/////kdiy//////
 		for(auto& ch_lim : core.chain_limit)
