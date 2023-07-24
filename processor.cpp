@@ -754,6 +754,7 @@ int32_t field::process() {
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
                     message->write<bool>(false);
+                    message->write<bool>(false);
                     ///kdiy///////////
 				}
 				if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
@@ -4695,7 +4696,6 @@ int32_t field::add_chain(uint16_t step) {
         uint32_t temp_sequence = phandler->current.sequence;
 		uint32_t temp_position = phandler->current.position;
         bool temp_pzone = phandler->current.pzone;
-		phandler->prev_temp.location = phandler->current.location;
         ///////kdiy///////
 		if(phandler->current.location == LOCATION_SZONE) {
 			change_position(phandler, 0, phandler->current.controler, POS_FACEUP, 0);
@@ -4727,6 +4727,7 @@ int32_t field::add_chain(uint16_t step) {
 			}
 			phandler->enable_field_effect(false);
 			///////kdiy///////
+			phandler->prev_temp.location = phandler->current.location;
 			if(phandler->current.location == LOCATION_SZONE && phandler->is_affected_by_effect(EFFECT_ORICA_SZONE))
 			    phandler->prev_temp.location = LOCATION_MZONE;
 		    if(phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))
@@ -4743,14 +4744,14 @@ int32_t field::add_chain(uint16_t step) {
 			}
 			///////kdiy///////
 			move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, (loc == LOCATION_MZONE) ? POS_FACEUP_ATTACK : POS_FACEUP, FALSE, 0, zone);
-            ///////kdiy///////
-            phandler->prev_temp.controler = temp_controler;
-            phandler->prev_temp.location = temp_location;
-            phandler->prev_temp.sequence = temp_sequence;
-            phandler->prev_temp.position = temp_position;
-            phandler->prev_temp.pzone = temp_pzone;
-            ///////kdiy///////
 		}
+        ///////kdiy///////
+        phandler->prev_temp.controler = temp_controler;
+        phandler->prev_temp.location = temp_location;
+        phandler->prev_temp.sequence = temp_sequence;
+        phandler->prev_temp.position = temp_position;
+        phandler->prev_temp.pzone = temp_pzone;
+        ///////kdiy///////
 		return FALSE;
 	}
 	case 2: {
@@ -4770,7 +4771,8 @@ int32_t field::add_chain(uint16_t step) {
 		message->write<uint32_t>(core.current_chain.size() + 1);
 		/////kdiy//////
 		message->write(phandler->get_pinfo_location());
-		message->write<bool>(!phandler->prev_temp.pzone && phandler->current.pzone);
+		message->write<bool>(phandler->prev_temp.pzone);
+		message->write<bool>(phandler->current.pzone);
         phandler->prev_temp.location = 0;
 		/////kdiy//////
 		for(auto& ch_lim : core.chain_limit)
