@@ -1084,7 +1084,8 @@ LUA_FUNCTION(MoveSequence) {
 				message->write(pcard->get_info_location());
 				message->write<uint32_t>(pcard->current.reason);
                 ///kdiy///////////
-                message->write<bool>(false);
+                message->write<bool>(cur_pzone);
+                message->write<bool>(pzone);
                 ///kdiy///////////
 			}
 			field.raise_single_event(pcard, 0, EVENT_MOVE, core.reason_effect, 0, core.reason_player, playerid, 0);
@@ -2194,12 +2195,12 @@ LUA_FUNCTION(GetMZoneCount) {
 		pduel->game_field->player[1].used_location = used_location[1];
 		pduel->game_field->player[0].list_mzone.swap(list_mzone[0]);
 		pduel->game_field->player[1].list_mzone.swap(list_mzone[1]);
-		///////kdiy//////				
+		///////kdiy//////
 		if(pduel->game_field->is_player_affected_by_effect(0, EFFECT_ORICA))
 		pduel->game_field->player[0].list_szone.swap(list_szone[0]);
 		if(pduel->game_field->is_player_affected_by_effect(1, EFFECT_ORICA))
 		pduel->game_field->player[1].list_szone.swap(list_szone[1]);
-		///////kdiy//////						
+		///////kdiy//////
 	}
 	return 2;
 }
@@ -3763,21 +3764,38 @@ LUA_FUNCTION(SelectDisableField) {
 	if(location1 & LOCATION_SZONE) {
 		ct2 = pduel->game_field->get_useable_count(nullptr, playerid, LOCATION_SZONE, PLAYER_NONE, 0, 0xff, &plist);
 		if (all_field) {
-			plist &= ~0xe0;
+		///////////kdiy////////
+		// 	plist &= ~0xe0;
+		// 	if (!pduel->game_field->is_location_useable(playerid, LOCATION_SZONE, 5))
+		// 		plist |= 0x20;
+		// 	else
+		// 		++ct2;
+		// 	if (!pduel->game_field->is_location_useable(playerid, LOCATION_SZONE, 6))
+		// 		plist |= 0x40;
+		// 	else
+		// 		++ct2;
+		// 	if (!pduel->game_field->is_location_useable(playerid, LOCATION_SZONE, 7))
+		// 		plist |= 0x80;
+		// 	else
+		// 		++ct2;
+		// }
+		// flag = (flag & 0xffff00ff) | (plist << 8);
+			plist &= ~0xe000;
 			if (!pduel->game_field->is_location_useable(playerid, LOCATION_SZONE, 5))
-				plist |= 0x20;
+				plist |= 0x2000;
 			else
 				++ct2;
 			if (!pduel->game_field->is_location_useable(playerid, LOCATION_SZONE, 6))
-				plist |= 0x40;
+				plist |= 0x4000;
 			else
 				++ct2;
 			if (!pduel->game_field->is_location_useable(playerid, LOCATION_SZONE, 7))
-				plist |= 0x80;
+				plist |= 0x8000;
 			else
 				++ct2;
 		}
-		flag = (flag & 0xffff00ff) | (plist << 8);
+		flag = (flag & 0xffff00ff) | plist;
+		///////////kdiy////////
 	}
 	if(location2 & LOCATION_MZONE) {
 		ct3 = pduel->game_field->get_useable_count(nullptr, 1 - playerid, LOCATION_MZONE, PLAYER_NONE, 0, 0xff, &plist);
@@ -3797,21 +3815,38 @@ LUA_FUNCTION(SelectDisableField) {
 	if(location2 & LOCATION_SZONE) {
 		ct4 = pduel->game_field->get_useable_count(nullptr, 1 - playerid, LOCATION_SZONE, PLAYER_NONE, 0, 0xff, &plist);
 		if (all_field) {
-			plist &= ~0xe0;
+		///////////kdiy////////
+		// 	plist &= ~0xe0;
+		// 	if (!pduel->game_field->is_location_useable(1 - playerid, LOCATION_SZONE, 5))
+		// 		plist |= 0x20;
+		// 	else
+		// 		++ct4;
+		// 	if (!pduel->game_field->is_location_useable(1 - playerid, LOCATION_SZONE, 6))
+		// 		plist |= 0x40;
+		// 	else
+		// 		++ct4;
+		// 	if (!pduel->game_field->is_location_useable(1 - playerid, LOCATION_SZONE, 7))
+		// 		plist |= 0x80;
+		// 	else
+		// 		++ct4;
+		// }
+		// flag = (flag & 0xffffff) | (plist << 24);
+			plist &= ~0xe000;
 			if (!pduel->game_field->is_location_useable(1 - playerid, LOCATION_SZONE, 5))
-				plist |= 0x20;
+				plist |= 0x2000;
 			else
 				++ct4;
 			if (!pduel->game_field->is_location_useable(1 - playerid, LOCATION_SZONE, 6))
-				plist |= 0x40;
+				plist |= 0x4000;
 			else
 				++ct4;
 			if (!pduel->game_field->is_location_useable(1 - playerid, LOCATION_SZONE, 7))
-				plist |= 0x80;
+				plist |= 0x8000;
 			else
 				++ct4;
 		}
-		flag = (flag & 0xffffff) | (plist << 24);
+		flag = (flag & 0xffffff) | (plist << 16);
+		///////////kdiy////////
 	}
 	flag |= filter | ((all_field) ? 0x800080 : 0xe0e0e0e0);
 	if(count > ct1 + ct2 + ct3 + ct4)
