@@ -145,7 +145,7 @@ insert_value<type>(pduel->query_buffer, value);\
 }
 #define CHECK_AND_INSERT(query, value)CHECK_AND_INSERT_T(query, value, uint32_t)
 
-void card::get_infos(int32_t query_flag) {
+void card::get_infos(uint32_t query_flag) {
 	CHECK_AND_INSERT(QUERY_CODE, data.code);
 	CHECK_AND_INSERT(QUERY_POSITION, get_info_location().position);
 	//////kdiy//////////
@@ -3869,9 +3869,9 @@ int32_t card::check_unique_code(card* pcard) {
 		return TRUE;
 	return FALSE;
 }
-void card::get_unique_target(card_set* cset, int32_t controler, card* icard) {
+void card::get_unique_target(card_set* cset, uint8_t controler, card* icard) {
 	cset->clear();
-	for(int32_t p = 0; p < 2; ++p) {
+	for(uint8_t p = 0; p < 2; ++p) {
 		if(!unique_pos[p])
 			continue;
 		const auto& player = pduel->game_field->player[controler ^ p];
@@ -3890,7 +3890,7 @@ void card::get_unique_target(card_set* cset, int32_t controler, card* icard) {
 		}
 	}
 }
-int32_t card::check_cost_condition(int32_t ecode, int32_t playerid) {
+int32_t card::check_cost_condition(uint32_t ecode, uint8_t playerid) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, ecode, &eset, FALSE);
 	filter_effect(ecode, &eset);
@@ -3903,7 +3903,7 @@ int32_t card::check_cost_condition(int32_t ecode, int32_t playerid) {
 	}
 	return TRUE;
 }
-int32_t card::check_cost_condition(int32_t ecode, int32_t playerid, int32_t sumtype) {
+int32_t card::check_cost_condition(uint32_t ecode, uint8_t playerid, uint32_t sumtype) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, ecode, &eset, FALSE);
 	filter_effect(ecode, &eset);
@@ -4367,7 +4367,7 @@ int32_t card::is_destructable_by_effect(effect* peffect, uint8_t playerid) {
 	}
 	return TRUE;
 }
-int32_t card::is_removeable(uint8_t playerid, int32_t pos, uint32_t reason) {
+int32_t card::is_removeable(uint8_t playerid, uint8_t pos, uint32_t reason) {
 	if(!pduel->game_field->is_player_can_remove(playerid, this, reason))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_REMOVE))
@@ -4376,7 +4376,7 @@ int32_t card::is_removeable(uint8_t playerid, int32_t pos, uint32_t reason) {
 		return FALSE;
 	return TRUE;
 }
-int32_t card::is_removeable_as_cost(uint8_t playerid, int32_t pos) {
+int32_t card::is_removeable_as_cost(uint8_t playerid, uint8_t pos) {
 	uint32_t redirect = 0;
 	uint32_t dest = LOCATION_REMOVED;
 	if(current.location == LOCATION_REMOVED)
@@ -4385,18 +4385,18 @@ int32_t card::is_removeable_as_cost(uint8_t playerid, int32_t pos) {
 		return FALSE;
 	if(!is_removeable(playerid, pos, REASON_COST))
 		return FALSE;
-	int32_t redirchk = FALSE;
+	bool redirchk = false;
 	auto op_param = sendto_param;
 	sendto_param.location = dest;
 	if (current.location & LOCATION_ONFIELD)
 		redirect = leave_field_redirect(REASON_COST) & 0xffff;
 	if(redirect) {
-		redirchk = TRUE;
+		redirchk = true;
 		dest = redirect;
 	}
 	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
 	if(redirect) {
-		redirchk = TRUE;
+		redirchk = true;
 		dest = redirect;
 	}
 	sendto_param = op_param;

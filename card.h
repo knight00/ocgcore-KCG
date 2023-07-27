@@ -12,7 +12,6 @@
 #include "common.h"
 #include "lua_obj.h"
 #include "effectset.h"
-#include "ocgapi.h"
 #include "duel.h"
 #include <set>
 #include <map>
@@ -202,7 +201,7 @@ public:
 	}
 	bool is_extra_deck_monster() const { return !!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)) && !!(data.type & TYPE_MONSTER); }
 
-	void get_infos(int32_t query_flag);
+	void get_infos(uint32_t query_flag);
 	int32_t is_related_to_chains();
 	loc_info get_info_location();
 	uint32_t second_code(uint32_t code);
@@ -341,9 +340,9 @@ public:
 	int32_t is_not_tuner(card* scard, uint8_t playerid);
 
 	int32_t check_unique_code(card* pcard);
-	void get_unique_target(card_set* cset, int32_t controler, card* icard = 0);
-	int32_t check_cost_condition(int32_t ecode, int32_t playerid);
-	int32_t check_cost_condition(int32_t ecode, int32_t playerid, int32_t sumtype);
+	void get_unique_target(card_set* cset, uint8_t controler, card* icard = nullptr);
+	int32_t check_cost_condition(uint32_t ecode, uint8_t playerid);
+	int32_t check_cost_condition(uint32_t ecode, uint8_t playerid, uint32_t sumtype);
 	int32_t is_summonable_card();
 	int32_t is_fusion_summonable_card(uint32_t summon_type);
 	int32_t is_spsummonable(effect* peffect);
@@ -362,8 +361,8 @@ public:
 	int32_t is_destructable_by_battle(card* pcard);
 	effect* check_indestructable_by_effect(effect* peffect, uint8_t playerid);
 	int32_t is_destructable_by_effect(effect* peffect, uint8_t playerid);
-	int32_t is_removeable(uint8_t playerid, int32_t pos = 0x5/*POS_FACEUP*/, uint32_t reason = 0x40/*REASON_EFFECT*/);
-	int32_t is_removeable_as_cost(uint8_t playerid, int32_t pos = 0x5/*POS_FACEUP*/);
+	int32_t is_removeable(uint8_t playerid, uint8_t pos = POS_FACEUP, uint32_t reason = REASON_EFFECT);
+	int32_t is_removeable_as_cost(uint8_t playerid, uint8_t pos = POS_FACEUP);
 	int32_t is_releasable_by_summon(uint8_t playerid, card* pcard);
 	int32_t is_releasable_by_nonsummon(uint8_t playerid);
 	int32_t is_releasable_by_effect(uint8_t playerid, effect* peffect);
@@ -384,7 +383,6 @@ public:
 	int32_t is_control_can_be_changed(int32_t ignore_mzone, uint32_t zone);
 	int32_t is_capable_be_battle_target(card* pcard);
 	int32_t is_capable_be_effect_target(effect* peffect, uint8_t playerid);
-	int32_t is_capable_overlay(uint8_t playerid);
 	int32_t is_can_be_fusion_material(card* fcard, uint64_t summon_type, uint8_t playerid);
 	int32_t is_can_be_synchro_material(card* scard, uint8_t playerid, card* tuner = 0);
 	int32_t is_can_be_ritual_material(card* scard, uint8_t playerid);
