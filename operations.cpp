@@ -1067,6 +1067,7 @@ int32_t field::xyz_overlay(uint16_t step, card* target, group* materials, bool s
             ///kdiy///////////
             message->write<bool>(pcard->current.pzone);
             message->write<bool>(false);
+            message->write<bool>(pcard == *cv.begin());
             ///kdiy///////////
 		}
 		auto writetopcard = [rev = core.deck_reversed, &decktop, &player=player, &s](int playerid) {
@@ -5029,6 +5030,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
             ///kdiy///////////
             message->write<bool>(pcard->current.pzone);
             message->write<bool>(false);
+            message->write<bool>(param->cvit == param->cv.begin());
             ///kdiy///////////
 			if(core.current_chain.size() > 0)
 				core.just_sent_cards.insert(pcard);
@@ -5092,6 +5094,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
             ///kdiy///////////
 			message->write<bool>(pcard->previous.pzone);
             message->write<bool>(false);
+            message->write<bool>(param->cvit == param->cv.begin());
             ///kdiy///////////
 		}
 		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
@@ -5172,6 +5175,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
         ///kdiy///////////
         message->write<bool>(pcard->previous.pzone);
         message->write<bool>(false);
+        message->write<bool>(param->cvit == param->cv.begin());
         ///kdiy///////////
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
 		if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED)) {
@@ -5452,6 +5456,7 @@ int32_t field::discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint
             ///kdiy///////////
             message->write<bool>(false);
             message->write<bool>(false);
+            message->write<bool>(i == 0);
             ///kdiy///////////
 			if(dest == LOCATION_HAND) {
 				if(pcard->owner != pcard->current.controler) {
@@ -5769,6 +5774,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		////kdiy///////
         message->write<bool>(temp_pzone);
         message->write<bool>(pzone);
+        message->write<bool>(true);
 		target->temp.location = 0;
 		target->prev_temp.location = 0;
 		//if((target->current.location != LOCATION_MZONE)) {

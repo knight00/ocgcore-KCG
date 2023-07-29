@@ -755,6 +755,7 @@ int32_t field::process() {
                     ///kdiy///////////
                     message->write<bool>(false);
                     message->write<bool>(false);
+                    message->write<bool>(i == 0);
                     ///kdiy///////////
 				}
 				if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {

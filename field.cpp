@@ -279,6 +279,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     ///kdiy///////////
                     message->write<bool>(false);
                     message->write<bool>(pzone);
+                    message->write<bool>(true);
                     ///kdiy///////////
 					return TRUE;
 				} else
@@ -356,6 +357,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     ///kdiy///////////
                     message->write<bool>(pcard->previous.pzone);
                     message->write<bool>(pzone);
+                    message->write<bool>(true);
                     ///kdiy///////////
 				} else {
 					pcard->fieldid = infos.field_id++;
@@ -382,6 +384,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     ///kdiy///////////
                     message->write<bool>(pcard->current.pzone);
                     message->write<bool>(false);
+                    message->write<bool>(true);
                     ///kdiy///////////
 				} else if(location == LOCATION_REMOVED) {
 					if(pcard->current.sequence == player[pcard->current.controler].list_remove.size() - 1)
@@ -397,6 +400,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     ///kdiy///////////
                     message->write<bool>(pcard->current.pzone);
                     message->write<bool>(false);
+                    message->write<bool>(true);
                     ///kdiy///////////
 				} else {
 					auto message = pduel->new_message(MSG_MOVE);
@@ -410,6 +414,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     ///kdiy///////////
                     message->write<bool>(pcard->current.pzone);
                     message->write<bool>(false);
+                    message->write<bool>(true);
                     ///kdiy///////////
 				}
 				return TRUE;
@@ -571,6 +576,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
         ///kdiy///////////
         message->write<bool>(false);
         message->write<bool>(false);
+        message->write<bool>(true);
          ///kdiy///////////
 		message = pduel->new_message(MSG_MOVE);
 		message->write<uint32_t>(pcard2->data.code);
@@ -580,6 +586,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
         ///kdiy///////////
         message->write<bool>(false);
         message->write<bool>(false);
+        message->write<bool>(true);
         ///kdiy///////////
 	} else {
 		auto message = pduel->new_message(MSG_MOVE);
@@ -590,6 +597,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
         ///kdiy///////////
         message->write<bool>(false);
         message->write<bool>(false);
+        message->write<bool>(true);
         ///kdiy///////////
 		message = pduel->new_message(MSG_MOVE);
 		message->write<uint32_t>(pcard1->data.code);
@@ -599,6 +607,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
         ///kdiy///////////
         message->write<bool>(false);
         message->write<bool>(false);
+        message->write<bool>(true);
         ///kdiy///////////
 	}
 }
