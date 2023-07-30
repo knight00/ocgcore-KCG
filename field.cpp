@@ -280,6 +280,8 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     message->write<bool>(false);
                     message->write<bool>(pzone);
                     message->write<bool>(true);
+                    message->write<bool>(false);
+                    message->write<bool>(false);
                     ///kdiy///////////
 					return TRUE;
 				} else
@@ -358,6 +360,8 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     message->write<bool>(pcard->previous.pzone);
                     message->write<bool>(pzone);
                     message->write<bool>(true);
+                    message->write<bool>(false);
+                    message->write<bool>(false);
                     ///kdiy///////////
 				} else {
 					pcard->fieldid = infos.field_id++;
@@ -385,6 +389,8 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     message->write<bool>(pcard->current.pzone);
                     message->write<bool>(false);
                     message->write<bool>(true);
+                    message->write<bool>(false);
+                    message->write<bool>(false);
                     ///kdiy///////////
 				} else if(location == LOCATION_REMOVED) {
 					if(pcard->current.sequence == player[pcard->current.controler].list_remove.size() - 1)
@@ -401,6 +407,8 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     message->write<bool>(pcard->current.pzone);
                     message->write<bool>(false);
                     message->write<bool>(true);
+                    message->write<bool>(false);
+                    message->write<bool>(false);
                     ///kdiy///////////
 				} else {
 					auto message = pduel->new_message(MSG_MOVE);
@@ -415,6 +423,8 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     message->write<bool>(pcard->current.pzone);
                     message->write<bool>(false);
                     message->write<bool>(true);
+                    message->write<bool>(false);
+                    message->write<bool>(false);
                     ///kdiy///////////
 				}
 				return TRUE;
