@@ -4698,8 +4698,9 @@ int32_t field::add_chain(uint16_t step) {
         uint8_t temp_location = phandler->current.location;
         uint32_t temp_sequence = phandler->current.sequence;
 		uint32_t temp_position = phandler->current.position;
+		//if(phandler->current.location == LOCATION_SZONE) {
+		if((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))) {
         ///////kdiy///////
-		if(phandler->current.location == LOCATION_SZONE) {
 			change_position(phandler, 0, phandler->current.controler, POS_FACEUP, 0);
 		} else {
 			uint32_t zone = 0xff;
@@ -5857,6 +5858,9 @@ int32_t field::adjust_step(uint16_t step) {
 		for(uint8_t p = 0; p < 2; ++p) {
 			for(auto& pcard : player[p].list_mzone) {
 				if(!pcard) continue;
+				////////kdiy//////
+				if(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) continue;
+				////////kdiy//////
 				if((pcard->get_type() & TYPE_TRAPMONSTER) && pcard->is_affected_by_effect(EFFECT_DISABLE_TRAPMONSTER)) {
 					core.trap_monster_adjust_set[p].insert(pcard);
 				}
@@ -5864,11 +5868,12 @@ int32_t field::adjust_step(uint16_t step) {
 			////////kdiy//////
 			for(auto& pcard : player[p].list_szone) {
 				if(!pcard) continue;
+				if(!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) continue;
 				if((pcard->get_type() & TYPE_TRAPMONSTER) && pcard->is_affected_by_effect(EFFECT_DISABLE_TRAPMONSTER)) {
 					core.trap_monster_adjust_set[p].insert(pcard);
 				}
 			}
-			////////kdiy//////			
+			////////kdiy//////
 		}
 		if(core.trap_monster_adjust_set[0].size() || core.trap_monster_adjust_set[1].size()) {
 			core.re_adjust = TRUE;

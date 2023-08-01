@@ -5173,17 +5173,14 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 		//kdiy///////
 		move_card(pcard->current.controler, pcard, LOCATION_SZONE, seq);
 		pcard->current.position = POS_FACEUP;
-		///////kdiy///////////
-		pcard->temp.location = 0;
-		///////kdiy///////////
 		message->write(pcard->get_info_location());
 		message->write<uint32_t>(pcard->current.reason);
         ///kdiy///////////
         message->write<bool>(pcard->previous.pzone);
         message->write<bool>(false);
         message->write<bool>(param->cvit == param->cv.begin());
-        message->write<bool>(false);
-        message->write<bool>(false);
+        message->write<bool>(pcard->temp.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
+		pcard->temp.location = 0;
         ///kdiy///////////
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
 		if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED)) {
@@ -5320,18 +5317,18 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 				remove.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_REMOVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
-			//kdiy///////	
+			//kdiy///////
 			effect* seffect = is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT);	
 			if(nloc == LOCATION_MZONE && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP) && !(pcard->get_type() & TYPE_TRAPMONSTER)) && is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 				effect* deffect = pduel->new_effect();
 				deffect->owner = seffect->owner;
 				deffect->code = EFFECT_SANCT_MZONE;
-				deffect->type = EFFECT_TYPE_SINGLE;		
+				deffect->type = EFFECT_TYPE_SINGLE;
 				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 				deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 				pcard->add_effect(deffect);
-			}	
-			//kdiy///////				
+			}
+			//kdiy///////
 			if(pcard->current.reason & REASON_DISCARD) {
 				discard.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_DISCARD, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
@@ -5785,8 +5782,8 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
         message->write<bool>(temp_pzone);
         message->write<bool>(pzone);
         message->write<bool>(true);
-        message->write<bool>(location2 == LOCATION_SZONE && location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE));
-        message->write<bool>(location2 == LOCATION_MZONE && location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE));
+        message->write<bool>(((location2 == LOCATION_SZONE && location == LOCATION_MZONE) || Rloc == 0x80) && target->is_affected_by_effect(EFFECT_ORICA_SZONE));
+        message->write<bool>(((location2 == LOCATION_MZONE && location == LOCATION_SZONE) || Rloc == 0x40) && target->is_affected_by_effect(EFFECT_SANCT_MZONE));
 		target->temp.location = 0;
 		target->prev_temp.location = 0;
 		//if((target->current.location != LOCATION_MZONE)) {
@@ -5889,8 +5886,8 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 			target->enable_field_effect(true);
 		////////////kdiy///////	
 		//if(ret == 1 && target->current.location == LOCATION_MZONE && !(target->data.type & TYPE_MONSTER))
-		if(ret == 1 && ((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))) && !(target->data.type & TYPE_MONSTER))		
-		////////////kdiy///////	
+		if(ret == 1 && ((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))) && !(target->data.type & TYPE_MONSTER))
+		////////////kdiy///////
 			send_to(target, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
 		else {
 			if(target->previous.location == LOCATION_GRAVE) {

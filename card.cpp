@@ -4655,9 +4655,9 @@ int32_t card::is_capable_change_control() {
 int32_t card::is_control_can_be_changed(int32_t ignore_mzone, uint32_t zone) {
 	if(current.controler == PLAYER_NONE)
 		return FALSE;
-	///////////kdiy/////	
-	//if(current.location != LOCATION_MZONE)		
-	if (!((current.location == LOCATION_MZONE && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || (current.location == LOCATION_SZONE && is_affected_by_effect(EFFECT_ORICA_SZONE))))	
+	///////////kdiy/////
+	//if(current.location != LOCATION_MZONE)
+	if (!((current.location == LOCATION_MZONE && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || (current.location == LOCATION_SZONE && is_affected_by_effect(EFFECT_ORICA_SZONE))))
 	////////kdiy////////
 		return FALSE;	
 	if(!ignore_mzone && pduel->game_field->get_useable_count(this, 1 - current.controler, LOCATION_MZONE, current.controler, LOCATION_REASON_CONTROL, zone) <= 0)
