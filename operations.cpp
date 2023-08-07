@@ -31,11 +31,6 @@ int32_t field::negate_chain(uint8_t chaincount) {
 		}
 		auto message = pduel->new_message(MSG_CHAIN_NEGATED);
 		message->write<uint8_t>(chaincount);
-		////kdiy////////
-		message->write<uint8_t>(pchain.disable_player);
-		chain& pchain2 = core.current_chain[chaincount - 2];
-		message->write<uint8_t>(pchain2.triggering_player);
-		////kdiy////////
 		if(!is_flag(DUEL_RETURN_TO_DECK_TRIGGERS) &&
 		   (pchain.triggering_location == LOCATION_DECK
 			|| (pchain.triggering_location == LOCATION_EXTRA && (pchain.triggering_position & POS_FACEDOWN))))
@@ -1065,6 +1060,7 @@ int32_t field::xyz_overlay(uint16_t step, card* target, group* materials, bool s
 			message->write(pcard->get_info_location());
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
+			message->write<uint8_t>(pcard->current.reason_player);
             message->write<bool>(pcard->current.pzone);
             message->write<bool>(false);
             message->write<bool>(pcard == *cv.begin());
@@ -5030,6 +5026,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 			message->write(loc_info{});
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
+			message->write<uint8_t>(pcard->current.reason_player);
             message->write<bool>(pcard->current.pzone);
             message->write<bool>(false);
             message->write<bool>(param->cvit == param->cv.begin());
@@ -5096,6 +5093,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 			message->write(pcard->get_info_location());
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
+			message->write<uint8_t>(pcard->current.reason_player);
 			message->write<bool>(pcard->previous.pzone);
             message->write<bool>(false);
             message->write<bool>(param->cvit == param->cv.begin());
@@ -5176,6 +5174,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 		message->write(pcard->get_info_location());
 		message->write<uint32_t>(pcard->current.reason);
         ///kdiy///////////
+		message->write<uint8_t>(pcard->current.reason_player);
         message->write<bool>(pcard->previous.pzone);
         message->write<bool>(false);
         message->write<bool>(param->cvit == param->cv.begin());
@@ -5459,6 +5458,7 @@ int32_t field::discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint
 			message->write(pcard->get_info_location());
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
+			message->write<uint8_t>(pcard->current.reason_player);
             message->write<bool>(false);
             message->write<bool>(false);
             message->write<bool>(i == 0);
@@ -5779,6 +5779,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		message->write(target->get_info_location());
 		message->write<uint32_t>(target->current.reason);
 		////kdiy///////
+		message->write<uint8_t>(target->current.reason_player);
         message->write<bool>(temp_pzone);
         message->write<bool>(pzone);
         message->write<bool>(true);

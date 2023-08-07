@@ -1066,6 +1066,7 @@ LUA_FUNCTION(MoveSequence) {
 				message->write(pcard->get_info_location());
 				message->write<uint32_t>(pcard->current.reason);
                 ///kdiy///////////
+				message->write<uint8_t>(pcard->current.reason_player);
                 message->write<bool>(cur_pzone);
                 message->write<bool>(pzone);
                 message->write<bool>(true);
