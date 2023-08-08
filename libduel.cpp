@@ -1095,7 +1095,21 @@ LUA_FUNCTION(SwapSequence) {
 		&& (location == LOCATION_MZONE || location == LOCATION_SZONE) && pcard2->current.location == location
 		&& pcard1->is_affect_by_effect(pduel->game_field->core.reason_effect)
 		&& pcard2->is_affect_by_effect(pduel->game_field->core.reason_effect)) {
+		/////kdiy////////
+		if(pduel->game_field->is_player_affected_by_effect(player,EFFECT_ORICA) && pcard1->current.location == LOCATION_SZONE) {
+			pcard1->temp.location = LOCATION_SZONE;
+			pcard2->temp.location = LOCATION_SZONE;
+		}
+		if(pduel->game_field->is_player_affected_by_effect(player,EFFECT_SANCT) && pcard1->current.location == LOCATION_MZONE) {
+			pcard1->temp.location = LOCATION_MZONE;
+			pcard2->temp.location = LOCATION_MZONE;
+		}
+		/////kdiy////////
 		pduel->game_field->swap_card(pcard1, pcard2);
+		/////kdiy////////
+		pcard1->temp.location = 0;
+		pcard2->temp.location = 0;
+		/////kdiy////////
 		card_set swapped{ pcard1, pcard2 };
 		pduel->game_field->raise_single_event(pcard1, 0, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, player, 0);
 		pduel->game_field->raise_single_event(pcard2, 0, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, player, 0);

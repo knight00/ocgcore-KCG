@@ -362,8 +362,8 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
                     message->write<bool>(pcard->previous.pzone);
                     message->write<bool>(pzone);
                     message->write<bool>(true);
-                    message->write<bool>(false);
-                    message->write<bool>(false);
+                    message->write<bool>(pcard->temp.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE));
+                    message->write<bool>(pcard->temp.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
                     ///kdiy///////////
 				} else {
 					pcard->fieldid = infos.field_id++;
@@ -505,7 +505,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		pcard2->current.controler = p1;
 		//////kdiy///////////
 		//pcard2->current.location = l1;
-		pcard2->current.location = loc2;	
+		pcard2->current.location = loc2;
 		//////kdiy///////////
 		pcard2->current.sequence = new_sequence1;
 		if(p1 != p2) {
@@ -573,6 +573,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 	}
 	//////kdiy//////////
 	//if(s1 == new_sequence1 && s2 == new_sequence2) {
+	//swap controler
 	if(s1 == new_sequence1 && s2 == new_sequence2 && loc2 == l1 && loc1 == l2) {
 	//////kdiy//////////
 		auto message = pduel->new_message(MSG_SWAP);
@@ -593,7 +594,9 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
         message->write<bool>(false);
         message->write<bool>(false);
         message->write<bool>(true);
-         ///kdiy///////////
+        message->write<bool>(pcard1->temp.location == LOCATION_SZONE && pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE));
+        message->write<bool>(pcard1->temp.location == LOCATION_MZONE && pcard1->is_affected_by_effect(EFFECT_SANCT_MZONE));
+        ///kdiy///////////
 		message = pduel->new_message(MSG_MOVE);
 		message->write<uint32_t>(pcard2->data.code);
 		message->write(info2);
@@ -604,6 +607,8 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
         message->write<bool>(false);
         message->write<bool>(false);
         message->write<bool>(true);
+        message->write<bool>(pcard2->temp.location == LOCATION_SZONE && pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE));
+        message->write<bool>(pcard2->temp.location == LOCATION_MZONE && pcard2->is_affected_by_effect(EFFECT_SANCT_MZONE));
         ///kdiy///////////
 	} else {
 		auto message = pduel->new_message(MSG_MOVE);
@@ -616,6 +621,8 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
         message->write<bool>(false);
         message->write<bool>(false);
         message->write<bool>(true);
+        message->write<bool>(pcard2->temp.location == LOCATION_SZONE && pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE));
+        message->write<bool>(pcard2->temp.location == LOCATION_MZONE && pcard2->is_affected_by_effect(EFFECT_SANCT_MZONE));
         ///kdiy///////////
 		message = pduel->new_message(MSG_MOVE);
 		message->write<uint32_t>(pcard1->data.code);
@@ -627,6 +634,8 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
         message->write<bool>(false);
         message->write<bool>(false);
         message->write<bool>(true);
+        message->write<bool>(pcard1->temp.location == LOCATION_SZONE && pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE));
+        message->write<bool>(pcard1->temp.location == LOCATION_MZONE && pcard1->is_affected_by_effect(EFFECT_SANCT_MZONE));
         ///kdiy///////////
 	}
 }
