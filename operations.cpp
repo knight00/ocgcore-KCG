@@ -25,7 +25,7 @@ int32_t field::negate_chain(uint8_t chaincount) {
 		pchain.flag |= CHAIN_DISABLE_ACTIVATE;
 		pchain.disable_reason = core.reason_effect;
 		pchain.disable_player = core.reason_player;
-		if((pchain.triggering_effect->type & EFFECT_TYPE_ACTIVATE) && (effect_handler->current.location == LOCATION_SZONE)) {
+		if((pchain.triggering_effect->type & EFFECT_TYPE_ACTIVATE) && (effect_handler->is_has_relation(pchain)) && (effect_handler->current.location == LOCATION_SZONE)) {
 			effect_handler->set_status(STATUS_LEAVE_CONFIRMED, TRUE);
 			effect_handler->set_status(STATUS_ACTIVATE_DISABLED, TRUE);
 		}
@@ -6202,9 +6202,9 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		return FALSE;
 	}
 	case 3: {
-		if(core.continuous_chain.rbegin()->target_cards)
-			pduel->delete_group(core.continuous_chain.rbegin()->target_cards);
-		for(auto& oit : core.continuous_chain.rbegin()->opinfos) {
+		if(core.continuous_chain.back().target_cards)
+			pduel->delete_group(core.continuous_chain.back().target_cards);
+		for(auto& oit : core.continuous_chain.back().opinfos) {
 			if(oit.second.op_cards)
 				pduel->delete_group(oit.second.op_cards);
 		}
@@ -6269,9 +6269,9 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		return FALSE;
 	}
 	case 8: {
-		if(core.continuous_chain.rbegin()->target_cards)
-			pduel->delete_group(core.continuous_chain.rbegin()->target_cards);
-		for(auto& oit : core.continuous_chain.rbegin()->opinfos) {
+		if(core.continuous_chain.back().target_cards)
+			pduel->delete_group(core.continuous_chain.back().target_cards);
+		for(auto& oit : core.continuous_chain.back().opinfos) {
 			if(oit.second.op_cards)
 				pduel->delete_group(oit.second.op_cards);
 		}
@@ -6386,9 +6386,9 @@ int32_t field::operation_replace(uint16_t step, effect* replace_effect, group* t
 		return FALSE;
 	}
 	case 16: {
-		if(core.continuous_chain.rbegin()->target_cards)
-			pduel->delete_group(core.continuous_chain.rbegin()->target_cards);
-		for(auto& oit : core.continuous_chain.rbegin()->opinfos) {
+		if(core.continuous_chain.back().target_cards)
+			pduel->delete_group(core.continuous_chain.back().target_cards);
+		for(auto& oit : core.continuous_chain.back().opinfos) {
 			if(oit.second.op_cards)
 				pduel->delete_group(oit.second.op_cards);
 		}

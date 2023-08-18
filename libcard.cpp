@@ -1089,7 +1089,7 @@ LUA_FUNCTION(IsOriginalType) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto ttype = lua_get<uint32_t>(L, 2);
-	lua_pushboolean(L, pcard->data.type & ttype);
+	lua_pushboolean(L, (pcard->data.type & ttype) != 0);
 	return 1;
 }
 ////////kdiy///////////
@@ -1208,14 +1208,14 @@ LUA_FUNCTION(IsOriginalAttribute) {
 	if(pcard->status & STATUS_NO_LEVEL)
 		lua_pushboolean(L, FALSE);
 	else
-		lua_pushboolean(L, pcard->data.attribute & tattrib);
+		lua_pushboolean(L, (pcard->data.attribute & tattrib) != 0);
 	return 1;
 }
 LUA_FUNCTION(IsReason) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto treason = lua_get<uint32_t>(L, 2);
-	lua_pushboolean(L, pcard->current.reason & treason);
+	lua_pushboolean(L, (pcard->current.reason & treason) != 0);
 	return 1;
 }
 LUA_FUNCTION(IsSummonType) {
@@ -1248,11 +1248,11 @@ LUA_FUNCTION(IsStatus) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto tstatus = lua_get<uint32_t>(L, 2);
-    ///kdiy/////////
-    if(!(pcard->status & tstatus) && (pcard->status & STATUS_NO_LEVEL) && (pcard->data.type & TYPE_XYZ) && pcard->data.level == 0)
+	///kdiy/////////
+    if((pcard->status & tstatus) == 0 && (pcard->status & STATUS_NO_LEVEL) != 0 && (pcard->data.type & TYPE_XYZ) && pcard->data.level == 0)
         lua_pushboolean(L, true);
     ///kdiy/////////
-	lua_pushboolean(L, pcard->status & tstatus);
+	lua_pushboolean(L, (pcard->status & tstatus) != 0);
 	return 1;
 }
 LUA_FUNCTION(IsNotTuner) {
@@ -2247,7 +2247,7 @@ LUA_FUNCTION(IsPreviousPosition) {
 	check_param_count(L, 2);
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto pos = lua_get<uint8_t>(L, 2);
-	lua_pushboolean(L, pcard->previous.position & pos);
+	lua_pushboolean(L, (pcard->previous.position & pos) != 0);
 	return 1;
 }
 LUA_FUNCTION(IsControler) {
@@ -2311,7 +2311,7 @@ LUA_FUNCTION(IsLocation) {
 			lua_pushboolean(L, 0);
 	//////kdiy/////////
 	} else
-		lua_pushboolean(L, pcard->current.location & loc);
+		lua_pushboolean(L, (pcard->current.location & loc) != 0);
 	return 1;
 }
 LUA_FUNCTION(IsPreviousLocation) {
@@ -2919,7 +2919,7 @@ LUA_FUNCTION(GetAttackableTarget) {
 	pduel->game_field->get_attack_target(pcard, &targets, chain_attack);
 	group* newgroup = pduel->new_group(targets);
 	interpreter::pushobject(L, newgroup);
-	lua_pushboolean(L, (int32_t)pcard->direct_attackable);
+	lua_pushboolean(L, pcard->direct_attackable);
 	return 2;
 }
 LUA_FUNCTION(SetHint) {

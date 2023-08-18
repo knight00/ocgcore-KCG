@@ -2775,7 +2775,7 @@ int32_t field::process_battle_command(uint16_t step) {
 			}
 			else if(core.tpchain.size() == 1){
 				core.sub_solving_event.push_back(nil_event);
-				add_process(PROCESSOR_EXECUTE_OPERATION, 0, core.tpchain.begin()->triggering_effect, 0, infos.turn_player, 0);
+				add_process(PROCESSOR_EXECUTE_OPERATION, 0, core.tpchain.front().triggering_effect, 0, infos.turn_player, 0);
 				adjust_all();
 			}
 			return FALSE;
@@ -3036,7 +3036,7 @@ int32_t field::process_battle_command(uint16_t step) {
 			return FALSE;
 		}
 		// replay
-		if(is_flag(DUEL_STORE_ATTACK_REPLAYS)) {
+		if(is_flag(DUEL_STORE_ATTACK_REPLAYS) && !core.chain_attack) {
 			returns.set<int32_t>(0, FALSE);
 		} else if(!core.attacker->is_affected_by_effect(EFFECT_MUST_ATTACK))
 			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, infos.turn_player, 30);
@@ -3056,7 +3056,7 @@ int32_t field::process_battle_command(uint16_t step) {
 		return FALSE;
 	}
 	case 13: {
-		if(core.attacker->fieldid_r == core.pre_field[0] && (!is_flag(DUEL_STORE_ATTACK_REPLAYS) || core.attacker->is_status(STATUS_ATTACK_CANCELED))) {
+		if(core.attacker->fieldid_r == core.pre_field[0] && (!(is_flag(DUEL_STORE_ATTACK_REPLAYS) && !core.chain_attack) || core.attacker->is_status(STATUS_ATTACK_CANCELED))) {
 			++core.attacker->announce_count;
 			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
