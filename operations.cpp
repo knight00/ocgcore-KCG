@@ -5164,7 +5164,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 		}
 		//kdiy///////
 		effect* seffect = is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT);	
-		if(pcard->temp.location == LOCATION_MZONE && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP) && !(pcard->get_type() & TYPE_TRAPMONSTER)) && is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+		if(pcard->temp.location == LOCATION_MZONE && is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 			effect* deffect = pduel->new_effect();
 			deffect->owner = seffect->owner;
 			deffect->code = EFFECT_SANCT_MZONE;
@@ -5173,6 +5173,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			pcard->add_effect(deffect);
 		}
+        int8_t location2 = pcard->temp.location;
 		if(pcard->temp.location == LOCATION_MZONE || pcard->temp.location == LOCATION_SZONE)
 		move_card(pcard->current.controler, pcard, pcard->temp.location, seq);
 		else
@@ -5187,7 +5188,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
         message->write<bool>(false);
         message->write<bool>(param->cvit == param->cv.begin());
         message->write<bool>(false);
-        message->write<bool>(pcard->temp.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
+        message->write<bool>(location2 == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
 		pcard->temp.location = 0;
         ///kdiy///////////
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
@@ -5325,18 +5326,6 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 				remove.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_REMOVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
-			//kdiy///////
-			effect* seffect = is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT);	
-			if(nloc == LOCATION_MZONE && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP) && !(pcard->get_type() & TYPE_TRAPMONSTER)) && is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
-				effect* deffect = pduel->new_effect();
-				deffect->owner = seffect->owner;
-				deffect->code = EFFECT_SANCT_MZONE;
-				deffect->type = EFFECT_TYPE_SINGLE;
-				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-				deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-				pcard->add_effect(deffect);
-			}
-			//kdiy///////
 			if(pcard->current.reason & REASON_DISCARD) {
 				discard.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_DISCARD, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
