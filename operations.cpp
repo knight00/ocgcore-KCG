@@ -4723,7 +4723,7 @@ int32_t field::release(uint16_t step, group* targets, effect* reason_effect, uin
 				|| (((!(pcard->current.reason & (REASON_SUMMON | REASON_COST)))
 				  && ((!(pcard->current.reason & REASON_RULE)) || (pcard->is_affected_by_effect(EFFECT_GOD_IMMUNE) && pcard->current.reason_effect && !pcard->current.reason_effect->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))))
 	            ////////kdiy//////////
-					&& (!pcard->is_affect_by_effect(pcard->current.reason_effect) || !pcard->is_releasable_by_nonsummon(reason_player)))) {
+					&& (!pcard->is_affect_by_effect(pcard->current.reason_effect) || !pcard->is_releasable_by_nonsummon(reason_player, reason)))) {
 				pcard->current.reason = pcard->temp.reason;
 				pcard->current.reason_effect = pcard->temp.reason_effect;
 				pcard->current.reason_player = pcard->temp.reason_player;

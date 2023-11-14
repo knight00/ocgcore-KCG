@@ -2153,7 +2153,8 @@ LUA_FUNCTION(IsReleasable) {
 	check_param_count(L, 1);
 	const auto pduel = lua_get<duel*>(L);
 	auto pcard = lua_get<card*, true>(L, 1);
-	lua_pushboolean(L, pcard->is_releasable_by_nonsummon(pduel->game_field->core.reason_player));
+	const auto reason = lua_get<uint32_t, REASON_COST>(L, 2);
+	lua_pushboolean(L, pcard->is_releasable_by_nonsummon(pduel->game_field->core.reason_player, reason));
 	return 1;
 }
 LUA_FUNCTION(IsReleasableByEffect) {
@@ -2162,7 +2163,7 @@ LUA_FUNCTION(IsReleasableByEffect) {
 	auto pcard = lua_get<card*, true>(L, 1);
 	auto p = pduel->game_field->core.reason_player;
 	effect* re = pduel->game_field->core.reason_effect;
-	lua_pushboolean(L, pcard->is_releasable_by_nonsummon(p) && pcard->is_releasable_by_effect(p, re));
+	lua_pushboolean(L, pcard->is_releasable_by_nonsummon(p, REASON_EFFECT) && pcard->is_releasable_by_effect(p, re));
 	return 1;
 }
 LUA_FUNCTION(IsDiscardable) {
