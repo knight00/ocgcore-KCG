@@ -21,6 +21,9 @@ namespace scriptlib {
 	bool check_param(lua_State* L, LuaParamType param_type, int32_t index, bool retfalse = false, void* retobj = nullptr);
 	void check_action_permission(lua_State* L);
 	int32_t push_return_cards(lua_State* L, int32_t status, lua_KContext ctx);
+	inline int32_t push_return_cards(lua_State* L, bool cancelable) {
+		return lua_yieldk(L, 0, (lua_KContext)cancelable, push_return_cards);
+	}
 	int32_t is_deleted_object(lua_State* L);
 
 	template<typename... Args>
@@ -190,8 +193,16 @@ namespace scriptlib {
 		}
 	}
 
+#if !defined(__ANDROID__) && ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
+	template<typename T, typename... Arg>
+	using FunctionResult = std::invoke_result_t<T, Arg...>;
+#else
+	template<typename T, typename... Arg>
+	using FunctionResult = std::result_of_t<T(Arg...)>;
+#endif
+
 	template<typename T, typename T2>
-	using EnableOnReturn = std::enable_if_t<std::is_same<std::result_of_t<T()>, T2>::value, int>;
+	using EnableOnReturn = std::enable_if_t<std::is_same<FunctionResult<T>, T2>::value, int>;
 
 	template<typename T, EnableOnReturn<T, void> = 0>
 	inline void lua_iterate_table_or_stack(lua_State* L, int idx, int max, T&& func) {
@@ -235,7 +246,7 @@ namespace scriptlib {
 
 	template<typename T>
 	inline bool lua_find_in_table_or_in_stack(lua_State* L, int idx, int max, T&& func) {
-		static_assert(std::is_same<std::result_of_t<T()>, bool>::value, "Callback function must return bool");
+		static_assert(std::is_same<FunctionResult<T>, bool>::value, "Callback function must return bool");
 		if(lua_istable(L, idx)) {
 			lua_pushnil(L);
 			while(lua_next(L, idx) != 0) {
@@ -279,5 +290,16 @@ namespace scriptlib {
 		return 1;
 	}
 }
+
+#define yieldk(...) lua_yieldk(L, 0, 0, [](lua_State* L, int32_t status, lua_KContext ctx) -> int {\
+	(void)status; \
+	(void)ctx; \
+	auto pduel = lua_get<duel*>(L); \
+	(void)pduel; \
+	do __VA_ARGS__ while(0); \
+	unreachable(); \
+})
+
+#define yield() lua_yield(L, 0)
 
 #endif /* SCRIPTLIB_H_ */
