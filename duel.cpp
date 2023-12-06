@@ -43,7 +43,7 @@ duel::~duel() {
 	delete cards_data;
 	/////zdiy/////
 }
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang_analyzer__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
@@ -151,8 +151,7 @@ int32_t duel::get_next_integer(int32_t l, int32_t h) {
 	return static_cast<int32_t>((n % range) + l);
 }
 duel::duel_message* duel::new_message(uint8_t message) {
-	messages.emplace_back(message);
-	return &(messages.back());
+	return &(messages.emplace_back(message));
 }
 const card_data& duel::read_card(uint32_t code) {
 	card_data* ret;

@@ -1180,17 +1180,13 @@ LUA_FUNCTION(GetTurnCounter) {
 }
 LUA_FUNCTION(SetMaterial) {
 	check_param_count(L, 2);
-	if(!lua_isnoneornil(L, 2)) {
-		card* matcard{ nullptr };
-		group* pgroup{ nullptr };
-		get_card_or_group(L, 2, matcard, pgroup);
-		if(matcard) {
-			card_set mats{ matcard };
-			self->set_material(&mats);
-		} else
-			self->set_material(&pgroup->container);
-	} else
-		self->set_material(nullptr);
+	if(auto [pcard, pgroup] = lua_get_card_or_group<true>(L, 2); pcard) {
+		self->set_material({ pcard });
+	} else if(pgroup) {
+		self->set_material(pgroup->container);
+	} else {
+		self->set_material({});
+	}
 	return 0;
 }
 LUA_FUNCTION(GetMaterial) {
@@ -2739,7 +2735,7 @@ LUA_FUNCTION_EXISTING(IsDeleted, is_deleted_object);
 
 void scriptlib::push_card_lib(lua_State* L) {
 	static constexpr auto cardlib = GET_LUA_FUNCTIONS_ARRAY();
-	static_assert(cardlib.back().name == nullptr, "");
+	static_assert(cardlib.back().name == nullptr);
 	lua_createtable(L, 0, static_cast<int>(cardlib.size() - 1));
 	luaL_setfuncs(L, cardlib.data(), 0);
 	lua_pushstring(L, "__index");

@@ -3105,11 +3105,8 @@ int32_t card::get_counter(uint16_t countertype) {
 		return 0;
 	return cmit->second[0] + cmit->second[1];
 }
-void card::set_material(card_set* materials) {
-	if(!materials) {
-		material_cards.clear();
-	} else
-		material_cards = *materials;
+void card::set_material(card_set materials) {
+	material_cards = std::move(materials);
 	for(auto& pcard : material_cards)
 		pcard->current.reason_card = this;
 	effect_set eset;
@@ -4682,6 +4679,8 @@ int32_t card::is_capable_be_effect_target(effect* peffect, uint8_t playerid) {
 	if(is_status(STATUS_SUMMONING) || is_status(STATUS_BATTLE_DESTROYED))
 		return FALSE;
 	if(current.location & (LOCATION_DECK | LOCATION_EXTRA | LOCATION_HAND))
+		return FALSE;
+	if((data.type & TYPE_TOKEN) && !(current.location & LOCATION_ONFIELD))
 		return FALSE;
 	effect_set eset;
 	filter_effect(EFFECT_CANNOT_BE_EFFECT_TARGET, &eset);

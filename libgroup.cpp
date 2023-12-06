@@ -75,13 +75,10 @@ LUA_FUNCTION(AddCard) {
 	check_param_count(L, 2);
 	assert_readonly_group(L, self);
 	self->is_iterator_dirty = true;
-	card* pcard = nullptr;
-	group* sgroup = nullptr;
-	get_card_or_group(L, 2, pcard, sgroup);
-	if(pcard)
+	if(auto [pcard, pgroup] = lua_get_card_or_group(L, 2); pcard)
 		self->container.insert(pcard);
 	else
-		self->container.insert(sgroup->container.begin(), sgroup->container.end());
+		self->container.insert(pgroup->container.begin(), pgroup->container.end());
 	interpreter::pushobject(L, self);
 	return 1;
 }
@@ -90,15 +87,12 @@ LUA_FUNCTION(RemoveCard) {
 	check_param_count(L, 2);
 	assert_readonly_group(L, self);
 	self->is_iterator_dirty = true;
-	card* pcard = nullptr;
-	group* sgroup = nullptr;
-	get_card_or_group(L, 2, pcard, sgroup);
-	if(pcard)
+	if(auto [pcard, pgroup] = lua_get_card_or_group(L, 2); pcard)
 		self->container.erase(pcard);
 	else {
-		if(self == sgroup)
+		if(self == pgroup)
 			lua_error(L, "Attempting to remove a group from itself");
-		for(auto& _pcard : sgroup->container)
+		for(auto& _pcard : pgroup->container)
 			self->container.erase(_pcard);
 	}
 	interpreter::pushobject(L, self);
@@ -109,21 +103,17 @@ LUA_FUNCTION(GetNext) {
 	check_param_count(L, 1);
 	if(self->is_iterator_dirty)
 		lua_error(L, "Called Group.GetNext without first calling Group.GetFirst");
-	if(self->it == self->container.end())
+	if(self->it == self->container.end() || (++self->it) == self->container.end())
 		lua_pushnil(L);
-	else {
-		if((++self->it) == self->container.end())
-			lua_pushnil(L);
-		else
-			interpreter::pushobject(L, *self->it);
-	}
+	else
+		interpreter::pushobject(L, *self->it);
 	return 1;
 }
 LUA_FUNCTION(GetFirst) {
 	check_param_count(L, 1);
 	self->is_iterator_dirty = false;
-	if(self->container.size())
-		interpreter::pushobject(L, *(self->it = self->container.begin()));
+	if(self->it = self->container.begin(); self->it != self->container.end())
+		interpreter::pushobject(L, *self->it);
 	else
 		lua_pushnil(L);
 	return 1;
@@ -149,9 +139,9 @@ LUA_FUNCTION(Filter) {
 	check_param_count(L, 3);
 	const auto findex = lua_get<function, true>(L, 2);
 	card_set cset(self->container);
-	if(auto pexception = lua_get<card*>(L, 3))
+	if(auto [pexception, pexgroup] = lua_get_card_or_group<true>(L, 3); pexception) {
 		cset.erase(pexception);
-	else if(auto pexgroup = lua_get<group*>(L, 3)) {
+	} else if(pexgroup) {
 		for(auto& pcard : pexgroup->container)
 			cset.erase(pcard);
 	}
@@ -170,13 +160,9 @@ LUA_FUNCTION(Match) {
 	const auto findex = lua_get<function, true>(L, 2);
 	assert_readonly_group(L, self);
 	self->is_iterator_dirty = true;
-	card* pexception = nullptr;
-	group* pexgroup = nullptr;
-	if((pexception = lua_get<card*>(L, 3)) == nullptr)
-		pexgroup = lua_get<group*>(L, 3);
 	uint32_t extraargs = lua_gettop(L) - 3;
 	auto& cset = self->container;
-	if(pexception) {
+	if(auto [pexception, pexgroup] = lua_get_card_or_group<true>(L, 3); pexception) {
 		for(auto cit = cset.begin(), cend = cset.end(); cit != cend; ) {
 			auto rm = cit++;
 			auto* pcard = *rm;
@@ -184,9 +170,7 @@ LUA_FUNCTION(Match) {
 				cset.erase(rm);
 		}
 	} else if(pexgroup) {
-		auto pexbegin = pexgroup->container.cbegin();
-		auto pexend = pexgroup->container.cend();
-		auto should_remove = [&pexbegin, &pexend](card* pcard) {
+		auto should_remove = [pexbegin = pexgroup->container.cbegin(), pexend = pexgroup->container.cend()](card* pcard) mutable {
 			if(pexbegin == pexend)
 				return false;
 			if(*pexbegin == pcard) {
@@ -216,11 +200,9 @@ LUA_FUNCTION(FilterCount) {
 	check_param_count(L, 3);
 	const auto findex = lua_get<function, true>(L, 2);
 	card_set cset(self->container);
-	card* pexception = nullptr;
-	group* pexgroup = nullptr;
-	if((pexception = lua_get<card*>(L, 3)) != nullptr)
+	if(auto [pexception, pexgroup] = lua_get_card_or_group<true>(L, 3); pexception) {
 		cset.erase(pexception);
-	else if((pexgroup = lua_get<group*>(L, 3)) != nullptr) {
+	} else if(pexgroup) {
 		for(auto& pcard : pexgroup->container)
 			cset.erase(pcard);
 	}
@@ -244,9 +226,9 @@ LUA_FUNCTION(FilterSelect) {
 		cancelable = lua_get<bool, false>(L, lastarg);
 		++lastarg;
 	}
-	if(auto pexception = lua_get<card*>(L, lastarg))
+	if(auto [pexception, pexgroup] = lua_get_card_or_group<true>(L, lastarg); pexception) {
 		cset.erase(pexception);
-	else if(auto pexgroup = lua_get<group*>(L, lastarg)) {
+	} else if(pexgroup) {
 		for(auto& pcard : pexgroup->container)
 			cset.erase(pcard);
 	}
@@ -274,9 +256,9 @@ LUA_FUNCTION(Select) {
 		cancelable = lua_get<bool, false>(L, lastarg);
 		++lastarg;
 	}
-	if(auto pexception = lua_get<card*>(L, lastarg))
+	if(auto [pexception, pexgroup] = lua_get_card_or_group<true>(L, lastarg); pexception) {
 		cset.erase(pexception);
-	else if(auto pexgroup = lua_get<group*>(L, lastarg)) {
+	} else if(pexgroup) {
 		for(auto& pcard : pexgroup->container)
 			cset.erase(pcard);
 	}
@@ -366,9 +348,9 @@ LUA_FUNCTION(IsExists) {
 	check_param_count(L, 4);
 	const auto findex = lua_get<function, true>(L, 2);
 	card_set cset(self->container);
-	if(auto pexception = lua_get<card*>(L, 4))
+	if(auto [pexception, pexgroup] = lua_get_card_or_group<true>(L, 4); pexception) {
 		cset.erase(pexception);
-	else if(auto pexgroup = lua_get<group*>(L, 4)) {
+	} else if(pexgroup) {
 		for(auto& pcard : pexgroup->container)
 			cset.erase(pcard);
 	}
@@ -623,46 +605,65 @@ LUA_FUNCTION(Remove) {
 	const auto findex = lua_get<function, true>(L, 2);
 	assert_readonly_group(L, self);
 	self->is_iterator_dirty = true;
-	card* pexception = 0;
-	if(!lua_isnoneornil(L, 3))
-		pexception = lua_get<card*, true>(L, 3);
 	uint32_t extraargs = lua_gettop(L) - 3;
-	for(auto cit = self->container.begin(); cit != self->container.end();) {
-		auto rm = cit++;
-		if((*rm) != pexception && pduel->lua->check_matching(*rm, findex, extraargs)) {
-			self->container.erase(rm);
+	auto& cset = self->container;
+	if(auto [pexception, pexgroup] = lua_get_card_or_group<true>(L, 3); pexception) {
+		for(auto cit = cset.begin(), cend = cset.end(); cit != cend; ) {
+			auto rm = cit++;
+			auto* pcard = *rm;
+			if(pcard != pexception && pduel->lua->check_matching(pcard, findex, extraargs))
+				cset.erase(rm);
+		}
+	} else if(pexgroup) {
+		auto should_keep = [pexbegin = pexgroup->container.cbegin(), pexend = pexgroup->container.cend()](card* pcard) mutable {
+			if(pexbegin == pexend)
+				return false;
+			if(*pexbegin == pcard) {
+				++pexbegin;
+				return true;
+			}
+			return false;
+		};
+		for(auto cit = cset.begin(), cend = cset.end(); cit != cend; ) {
+			auto rm = cit++;
+			auto* pcard = *rm;
+			if(!should_keep(pcard) && pduel->lua->check_matching(pcard, findex, extraargs))
+				cset.erase(rm);
+		}
+	} else {
+		for(auto cit = cset.begin(), cend = cset.end(); cit != cend; ) {
+			auto rm = cit++;
+			auto* pcard = *rm;
+			if(pduel->lua->check_matching(pcard, findex, extraargs))
+				cset.erase(rm);
 		}
 	}
 	interpreter::pushobject(L, self);
 	return 1;
 }
-void get_groupcard(lua_State* L, group*& pgroup1, group*& pgroup2, card*& pcard) {
+std::tuple<group*, group*, card*> get_binary_op_group_card_parameters(lua_State* L) {
 	auto obj1 = lua_get<lua_obj*>(L, 1);
 	auto obj2 = lua_get<lua_obj*>(L, 2);
-	uint32_t type = 0;
-	if((!obj1 || !obj2) || ((type = obj1->lua_type | obj2->lua_type) & PARAM_TYPE_GROUP) == 0)
+	if(!obj1 || !obj2)
 		lua_error(L, "At least 1 parameter should be \"Group\".");
-	if((type & ~(PARAM_TYPE_GROUP | PARAM_TYPE_CARD)) != 0)
+	if(obj1->lua_type != PARAM_TYPE_GROUP)
+		std::swap(obj1, obj2);
+	if(obj1->lua_type != PARAM_TYPE_GROUP)
+		lua_error(L, "At least 1 parameter should be \"Group\".");
+
+	switch(obj2->lua_type) {
+	case PARAM_TYPE_GROUP:
+		return { static_cast<group*>(obj1), static_cast<group*>(obj2), nullptr};
+	case PARAM_TYPE_CARD:
+		return { static_cast<group*>(obj1), nullptr, static_cast<card*>(obj2) };
+	default:
 		lua_error(L, "A parameter isn't \"Group\" nor \"Card\".");
-	if(obj1->lua_type == PARAM_TYPE_CARD) {
-		pcard = static_cast<card*>(obj1);
-		pgroup1 = static_cast<group*>(obj2);
-	} else if(obj2->lua_type == PARAM_TYPE_CARD) {
-		pgroup1 = static_cast<group*>(obj1);
-		pcard = static_cast<card*>(obj2);
-	} else {
-		pgroup1 = static_cast<group*>(obj1);
-		pgroup2 = static_cast<group*>(obj2);
 	}
 }
 LUA_STATIC_FUNCTION(__band) {
 	check_param_count(L, 2);
-	group* pgroup1 = nullptr;
-	group* pgroup2 = nullptr;
-	card* pcard = nullptr;
-	get_groupcard(L, pgroup1, pgroup2, pcard);
 	card_set cset;
-	if(pcard) {
+	if(auto [pgroup1, pgroup2, pcard] = get_binary_op_group_card_parameters(L); pcard) {
 		if(pgroup1->has_card(pcard)) {
 			cset.insert(pcard);
 		}
@@ -675,10 +676,7 @@ LUA_STATIC_FUNCTION(__band) {
 }
 LUA_STATIC_FUNCTION(__add) {
 	check_param_count(L, 2);
-	group* pgroup1 = nullptr;
-	group* pgroup2 = nullptr;
-	card* pcard = nullptr;
-	get_groupcard(L, pgroup1, pgroup2, pcard);
+	auto [pgroup1, pgroup2, pcard] = get_binary_op_group_card_parameters(L);
 	group* newgroup = pduel->new_group(pgroup1);
 	if(pcard) {
 		newgroup->container.insert(pcard);
@@ -690,12 +688,10 @@ LUA_STATIC_FUNCTION(__add) {
 }
 LUA_FUNCTION(__sub) {
 	check_param_count(L, 2);
-	group* pgroup2 = nullptr;
-	card* pcard = nullptr;
-	get_card_or_group(L, 2, pcard, pgroup2);
+	auto [pcard, pgroup] = lua_get_card_or_group(L, 2);
 	group* newgroup = pduel->new_group(self);
-	if(pgroup2) {
-		for(auto& _pcard : pgroup2->container)
+	if(pgroup) {
+		for(auto& _pcard : pgroup->container)
 			newgroup->container.erase(_pcard);
 	} else
 		newgroup->container.erase(pcard);
@@ -753,10 +749,10 @@ LUA_FUNCTION(Split) {
 	const auto findex = lua_get<function, true>(L, 2);
 	card_set cset(self->container);
 	card_set notmatching;
-	if(auto pexception = lua_get<card*>(L, 3)) {
+	if(auto [pexception, pexgroup] = lua_get_card_or_group<true>(L, 3); pexception) {
 		cset.erase(pexception);
 		notmatching.insert(pexception);
-	} else if(auto pexgroup = lua_get<group*>(L, 3)) {
+	} else if(pexgroup) {
 		for(auto& pcard : pexgroup->container) {
 			cset.erase(pcard);
 			notmatching.insert(pcard);
@@ -804,7 +800,7 @@ LUA_FUNCTION_EXISTING(IsDeleted, is_deleted_object);
 
 void scriptlib::push_group_lib(lua_State* L) {
 	static constexpr auto grouplib = GET_LUA_FUNCTIONS_ARRAY();
-	static_assert(grouplib.back().name == nullptr, "");
+	static_assert(grouplib.back().name == nullptr);
 	lua_createtable(L, 0, static_cast<int>(grouplib.size() - 1));
 	luaL_setfuncs(L, grouplib.data(), 0);
 	lua_pushstring(L, "__index");
