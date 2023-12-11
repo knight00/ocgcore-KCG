@@ -1567,31 +1567,16 @@ LUA_STATIC_FUNCTION(GetControl) {
 LUA_STATIC_FUNCTION(SwapControl) {
 	check_action_permission(L);
 	check_param_count(L, 2);
-	card* pcard1 = nullptr;
-	card* pcard2 = nullptr;
-	group* pgroup1 = nullptr;
-	group* pgroup2 = nullptr;
-	auto obj1 = lua_get<lua_obj*>(L, 1);
-	auto obj2 = lua_get<lua_obj*>(L, 2);
-	if((!obj1 || !obj2) ||
-		((obj1->lua_type | obj2->lua_type) & ~(PARAM_TYPE_CARD | PARAM_TYPE_GROUP)) ||
-	    obj1->lua_type != obj2->lua_type) {
-		lua_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
-	}
-	if(obj1->lua_type == PARAM_TYPE_CARD) {
-		pcard1 = static_cast<card*>(obj1);
-		pcard2 = static_cast<card*>(obj2);
-	} else if(obj1->lua_type == PARAM_TYPE_GROUP) {
-		pgroup1 = static_cast<group*>(obj1);
-		pgroup2 = static_cast<group*>(obj2);
-	} else
-		unreachable();
 	uint16_t reset_phase = lua_get<uint16_t, 0>(L, 3) & 0x3ff;
 	auto reset_count = lua_get<uint8_t, 0>(L, 4);
-	if(pcard1)
-		pduel->game_field->swap_control(pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, pcard1, pcard2, reset_phase, reset_count);
-	else
-		pduel->game_field->swap_control(pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, pgroup1->container, pgroup2->container, reset_phase, reset_count);
+	auto& field = *pduel->game_field;
+	if(auto [pcard1, pgroup1] = lua_get_card_or_group(L, 1); pcard1) {
+		auto pcard2 = lua_get<card*, true>(L, 2);
+		field.swap_control(field.core.reason_effect, field.core.reason_player, pcard1, pcard2, reset_phase, reset_count);
+	} else {
+		auto pgroup2 = lua_get<group*, true>(L, 2);
+		field.swap_control(field.core.reason_effect, field.core.reason_player, pgroup1->container, pgroup2->container, reset_phase, reset_count);
+	}
 	return yieldk({
 		lua_pushboolean(L, pduel->game_field->returns.at<int32_t>(0));
 		return 1;
@@ -2290,30 +2275,27 @@ LUA_STATIC_FUNCTION(GetChainInfo) {
 	uint32_t args = static_cast<uint32_t>(lua_istable(L, 2) ? lua_rawlen(L, 2) : top - 1);
 	luaL_checkstack(L, args, nullptr);
 	lua_iterate_table_or_stack(L, 2, top, [L, ch, pduel]() -> int {
-		auto flag = lua_get<uint32_t>(L, -1);
+		auto flag = lua_get<CHAININFO>(L, -1);
 		switch(flag) {
-		case CHAININFO_CHAIN_COUNT:
-			lua_pushinteger(L, ch->chain_count);
-			break;
-		case CHAININFO_TRIGGERING_EFFECT:
+		case CHAININFO::TRIGGERING_EFFECT:
 			interpreter::pushobject(L, ch->triggering_effect);
 			break;
-		case CHAININFO_TRIGGERING_PLAYER:
+		case CHAININFO::TRIGGERING_PLAYER:
 			lua_pushinteger(L, ch->triggering_player);
 			break;
-		case CHAININFO_TRIGGERING_CONTROLER:
+		case CHAININFO::TRIGGERING_CONTROLER:
 			lua_pushinteger(L, ch->triggering_controler);
 			break;
-		case CHAININFO_TRIGGERING_LOCATION:
+		case CHAININFO::TRIGGERING_LOCATION:
 			lua_pushinteger(L, ch->triggering_location & ~(LOCATION_STZONE | LOCATION_MMZONE | LOCATION_EMZONE));
 			break;
-		case CHAININFO_TRIGGERING_LOCATION_SYMBOLIC:
+		case CHAININFO::TRIGGERING_LOCATION_SYMBOLIC:
 			lua_pushinteger(L, ch->triggering_location & ~(LOCATION_MZONE | LOCATION_SZONE));
 			break;
-		case CHAININFO_TRIGGERING_SEQUENCE:
+		case CHAININFO::TRIGGERING_SEQUENCE:
 			lua_pushinteger(L, ch->triggering_sequence);
 			break;
-		case CHAININFO_TRIGGERING_SEQUENCE_SYMBOLIC:
+		case CHAININFO::TRIGGERING_SEQUENCE_SYMBOLIC:
 			if(pduel->game_field->is_flag(DUEL_3_COLUMNS_FIELD) && (ch->triggering_location & ~(LOCATION_STZONE | LOCATION_MMZONE)))
 				lua_pushinteger(L, ch->triggering_sequence + 1);
 			else if(ch->triggering_location & LOCATION_PZONE) {
@@ -2321,68 +2303,92 @@ LUA_STATIC_FUNCTION(GetChainInfo) {
 					lua_pushinteger(L, 0);
 				else
 					lua_pushinteger(L, 1);
-			}
-			else if(ch->triggering_location & LOCATION_FZONE) {
+			} else if(ch->triggering_location & LOCATION_FZONE) {
 				lua_pushinteger(L, 0);
-			}
-			else if(ch->triggering_location & LOCATION_EMZONE) {
+			} else if(ch->triggering_location & LOCATION_EMZONE) {
 				lua_pushinteger(L, ch->triggering_sequence - 5);
 			} else
 				lua_pushinteger(L, ch->triggering_sequence);
 			break;
-		case CHAININFO_TRIGGERING_POSITION:
+		case CHAININFO::TRIGGERING_POSITION:
 			lua_pushinteger(L, ch->triggering_position);
 			break;
-		case CHAININFO_TRIGGERING_CODE:
+		case CHAININFO::TRIGGERING_CODE:
 			lua_pushinteger(L, ch->triggering_state.code);
 			break;
-		case CHAININFO_TRIGGERING_CODE2:
+		case CHAININFO::TRIGGERING_CODE2:
 			lua_pushinteger(L, ch->triggering_state.code2);
 			break;
-		case CHAININFO_TRIGGERING_LEVEL:
+		case CHAININFO::TRIGGERING_TYPE:
+			lua_pushinteger(L, ch->triggering_state.type);
+			break;
+		case CHAININFO::TRIGGERING_LEVEL:
 			lua_pushinteger(L, ch->triggering_state.level);
 			break;
-		case CHAININFO_TRIGGERING_RANK:
+		case CHAININFO::TRIGGERING_RANK:
 			lua_pushinteger(L, ch->triggering_state.rank);
 			break;
-		case CHAININFO_TRIGGERING_ATTRIBUTE:
+		case CHAININFO::TRIGGERING_ATTRIBUTE:
 			lua_pushinteger(L, ch->triggering_state.attribute);
 			break;
-		case CHAININFO_TRIGGERING_RACE:
+		case CHAININFO::TRIGGERING_RACE:
 			lua_pushinteger(L, ch->triggering_state.race);
 			break;
-		case CHAININFO_TRIGGERING_ATTACK:
+		case CHAININFO::TRIGGERING_ATTACK:
 			lua_pushinteger(L, ch->triggering_state.attack);
 			break;
-		case CHAININFO_TRIGGERING_DEFENSE:
+		case CHAININFO::TRIGGERING_DEFENSE:
 			lua_pushinteger(L, ch->triggering_state.defense);
 			break;
-		case CHAININFO_TARGET_CARDS:
+		case CHAININFO::TARGET_CARDS:
 			interpreter::pushobject(L, ch->target_cards);
 			break;
-		case CHAININFO_TARGET_PLAYER:
+		case CHAININFO::TARGET_PLAYER:
 			lua_pushinteger(L, ch->target_player);
 			break;
-		case CHAININFO_TARGET_PARAM:
+		case CHAININFO::TARGET_PARAM:
 			lua_pushinteger(L, ch->target_param);
 			break;
-		case CHAININFO_DISABLE_REASON:
+		case CHAININFO::DISABLE_REASON:
 			interpreter::pushobject(L, ch->disable_reason);
 			break;
-		case CHAININFO_DISABLE_PLAYER:
+		case CHAININFO::DISABLE_PLAYER:
 			lua_pushinteger(L, ch->disable_player);
 			break;
-		case CHAININFO_CHAIN_ID:
+		case CHAININFO::CHAIN_ID:
 			lua_pushinteger(L, ch->chain_id);
 			break;
-		case CHAININFO_TYPE:
+		case CHAININFO::TYPE:
 			if((ch->triggering_effect->card_type & (TYPE_MONSTER | TYPE_SPELL | TYPE_TRAP)) == (TYPE_TRAP | TYPE_MONSTER))
 				lua_pushinteger(L, TYPE_MONSTER);
 			else lua_pushinteger(L, (ch->triggering_effect->card_type & (TYPE_MONSTER | TYPE_SPELL | TYPE_TRAP)));
 			break;
-		case CHAININFO_EXTTYPE:
+		case CHAININFO::EXTTYPE:
 			lua_pushinteger(L, ch->triggering_effect->card_type);
 			break;
+		case CHAININFO::TRIGGERING_STATUS:
+			lua_pushinteger(L, ch->triggering_status);
+			break;
+		case CHAININFO::TRIGGERING_SUMMON_LOCATION:
+			lua_pushinteger(L, ch->triggering_summon_location);
+			break;
+		case CHAININFO::TRIGGERING_SUMMON_TYPE:
+			lua_pushinteger(L, ch->triggering_summon_type);
+			break;
+		case CHAININFO::TRIGGERING_SUMMON_PROC_COMPLETE:
+			lua_pushboolean(L, ch->triggering_summon_proc_complete);
+			break;
+		case CHAININFO::TRIGGERING_SETCODES: {
+			const auto& setcodes = ch->triggering_state.setcodes;
+			lua_createtable(L, setcodes.size(), 0);
+			int i = 1;
+			for(const auto& setcode : setcodes) {
+				lua_pushinteger(L, i++);
+				lua_pushinteger(L, setcode);
+				lua_settable(L, -3);
+			}
+			break;
+		}
 		default:
 			lua_error(L, "Passed invalid CHAININFO flag.");
 		}
@@ -2753,7 +2759,7 @@ LUA_STATIC_FUNCTION(SelectCardsFromCodes) {
 			luaL_checkstack(L, static_cast<int>(ret_codes.list.size() + (3 * ret_index) /* account for table creation */), nullptr);
 			for(const auto& obj : ret_codes.list) {
 				if(ret_index) {
-					lua_newtable(L);
+					lua_createtable(L, 2, 0);
 					lua_pushinteger(L, 1);
 				}
 				lua_pushinteger(L, obj.first);
@@ -3234,7 +3240,7 @@ LUA_STATIC_FUNCTION(SetOperationInfo) {
 	if(!ch)
 		return 0;
 	optarget opt{ nullptr, count, playerid, param };
-	if(pobj && (pobj->lua_type & (PARAM_TYPE_CARD | PARAM_TYPE_GROUP))) {
+	if(pobj && (pobj->lua_type == LuaParam::CARD || pobj->lua_type == LuaParam::GROUP)) {
 		opt.op_cards = pduel->new_group(pobj);
 		// spear creting and similar stuff, they set CATEGORY_SPECIAL_SUMMON with PLAYER_ALL to increase the summon counters
 		// and the core always assume the group is exactly 2 cards
@@ -3285,7 +3291,7 @@ LUA_STATIC_FUNCTION(SetPossibleOperationInfo) {
 	if(!ch)
 		return 0;
 	optarget opt{ nullptr, count, playerid, param };
-	if(pobj && (pobj->lua_type & (PARAM_TYPE_CARD | PARAM_TYPE_GROUP))) {
+	if(pobj && (pobj->lua_type == LuaParam::CARD || pobj->lua_type == LuaParam::GROUP)) {
 		opt.op_cards = pduel->new_group(pobj);
 		opt.op_cards->is_readonly = TRUE;
 	}
@@ -4325,11 +4331,11 @@ inline int32_t is_player_can_procedure_summon_group(lua_State* L, uint32_t summo
 		core.reason_effect = peff;
 		core.reason_player = pcard->current.controler;
 		pduel->game_field->save_lp_cost();
-		pduel->lua->add_param<PARAM_TYPE_EFFECT>(peff);
-		pduel->lua->add_param<PARAM_TYPE_CARD>(pcard);
-		pduel->lua->add_param<PARAM_TYPE_BOOLEAN>(TRUE);
-		pduel->lua->add_param<PARAM_TYPE_EFFECT>(oreason);
-		pduel->lua->add_param<PARAM_TYPE_INT>(playerid);
+		pduel->lua->add_param<LuaParam::EFFECT>(peff);
+		pduel->lua->add_param<LuaParam::CARD>(pcard);
+		pduel->lua->add_param<LuaParam::BOOLEAN>(TRUE);
+		pduel->lua->add_param<LuaParam::EFFECT>(oreason);
+		pduel->lua->add_param<LuaParam::INT>(playerid);
 		if(pduel->lua->check_condition(peff->condition, 5)) {
 			pduel->game_field->restore_lp_cost();
 			core.reason_effect = oreason;
@@ -4570,7 +4576,7 @@ LUA_STATIC_FUNCTION(MajesticCopy) {
 	auto ccard = lua_get<card*, true>(L, 2);
 	uint32_t resv = 0;
 	uint16_t resc = 0;
-	if(check_param(L, PARAM_TYPE_INT, 3, true)) {
+	if(check_param(L, LuaParam::INT, 3, true)) {
 		resv = lua_get<uint32_t>(L, 3);
 		resc = lua_get<uint16_t, 1>(L, 4);
 	} else {

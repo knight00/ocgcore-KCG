@@ -867,9 +867,9 @@ LUA_FUNCTION(IsSummonCode) {
 	for (const auto& peff : eset) {
 		if (!peff->operation)
 			continue;
-		pduel->lua->add_param<PARAM_TYPE_CARD>(scard);
-		pduel->lua->add_param<PARAM_TYPE_INT>(sumtype);
-		pduel->lua->add_param<PARAM_TYPE_INT>(playerid);
+		pduel->lua->add_param<LuaParam::CARD>(scard);
+		pduel->lua->add_param<LuaParam::INT>(sumtype);
+		pduel->lua->add_param<LuaParam::INT>(playerid);
 		if (!pduel->lua->check_condition(peff->operation, 3))
 			continue;
 		if (peff->code == EFFECT_ADD_CODE)
@@ -2296,7 +2296,7 @@ LUA_FUNCTION(GetCounter) {
 }
 LUA_FUNCTION(GetAllCounters) {
 	check_param_count(L, 1);
-	lua_newtable(L);
+	lua_createtable(L, self->counters.size(), 0);
 	for(const auto& counter : self->counters) {
 		lua_pushinteger(L, counter.first);
 		lua_pushinteger(L, counter.second[0] + counter.second[1]);
