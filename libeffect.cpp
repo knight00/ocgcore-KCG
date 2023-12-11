@@ -23,7 +23,7 @@ using namespace scriptlib;
 //////kdiy//////////////////
 LUA_FUNCTION(SetOwner) {
 	check_param_count(L, 2);
-	check_param(L, PARAM_TYPE_CARD, 2);
+	check_param(L, LuaParam::CARD, 2);
 	card* pcard = *(card**) lua_touserdata(L, 2);
 	self->owner = pcard;
 	return 0;

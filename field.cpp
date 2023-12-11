@@ -2370,9 +2370,9 @@ int32_t field::get_release_list(uint8_t playerid, card_set* release_list, card_s
 					effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_NONSUM);
 					if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit == 0))
 						continue;
-					pduel->lua->add_param<PARAM_TYPE_EFFECT>(core.reason_effect);
-					pduel->lua->add_param<PARAM_TYPE_INT>(REASON_COST);
-					pduel->lua->add_param<PARAM_TYPE_INT>(core.reason_player);
+					pduel->lua->add_param<LuaParam::EFFECT>(core.reason_effect);
+					pduel->lua->add_param<LuaParam::INT>(REASON_COST);
+					pduel->lua->add_param<LuaParam::INT>(core.reason_player);
 					if(!peffect->check_value_condition(3))
 						continue;
 					if(ex_list_oneof)

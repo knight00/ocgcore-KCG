@@ -680,10 +680,10 @@ int32_t field::recover(uint16_t step, effect* reason_effect, uint32_t reason, ui
 		eset.clear();
 		filter_player_effect(playerid, EFFECT_CHANGE_RECOVER, &eset);
 		for (const auto& peff : eset) {
-			pduel->lua->add_param<PARAM_TYPE_EFFECT>(reason_effect);
-			pduel->lua->add_param<PARAM_TYPE_INT>(val);
-			pduel->lua->add_param<PARAM_TYPE_INT>(reason);
-			pduel->lua->add_param<PARAM_TYPE_INT>(reason_player);
+			pduel->lua->add_param<LuaParam::EFFECT>(reason_effect);
+			pduel->lua->add_param<LuaParam::INT>(val);
+			pduel->lua->add_param<LuaParam::INT>(reason);
+			pduel->lua->add_param<LuaParam::INT>(reason_player);
 			val = peff->get_value(4);
 			returns.set<uint32_t>(0, val);
 			if (val == 0)

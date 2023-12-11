@@ -128,7 +128,7 @@ LUA_STATIC_FUNCTION(GetMasterRule) {
 LUA_STATIC_FUNCTION(ReadCard) {
 	check_param_count(L, 2);
 	card_data dat;
-	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
+	if(check_param(L, LuaParam::CARD, 1, TRUE)) {
 		card* pcard = *(card**) lua_touserdata(L, 1);
 		dat = pcard->data;
 	} else {
@@ -1827,7 +1827,7 @@ LUA_STATIC_FUNCTION(ForceAttack) {
 	auto attacker = lua_get<card*, true>(L, 1);
 	//////kdiy//////////
 	//auto attack_target = lua_get<card*, true>(L, 2);
-	auto attack_target = check_param(L, PARAM_TYPE_CARD, 2, true)? lua_get<card*, true>(L, 2): 0;
+	auto attack_target = check_param(L, LuaParam::CARD, 2, true)? lua_get<card*, true>(L, 2): 0;
 	//////kdiy//////////
 	pduel->game_field->core.set_forced_attack = true;
 	pduel->game_field->core.forced_attacker = attacker;
