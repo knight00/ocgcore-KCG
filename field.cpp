@@ -2658,34 +2658,18 @@ void field::get_ritual_material(uint8_t playerid, effect* peffect, card_set* mat
 void field::get_fusion_material(uint8_t playerid, card_set* material) {
 	for(auto& pcard : player[playerid].list_mzone) {
 		/////kdiy//////
-		if(!pcard || pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		  continue;
-		/////kdiy//////			
-		if(pcard)
+		//if(pcard)
+		if(pcard && (pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL) || !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)))
+		/////kdiy//////
 			material->insert(pcard);
 	}
 	for(auto& pcard : player[playerid].list_szone) {
 		/////kdiy//////
-		if(!pcard || !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
-		  continue;	
-		/////kdiy//////			
-		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+		//if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+		if(pcard && (pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL) || pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)))
+		/////kdiy//////
 			material->insert(pcard);
 	}
-	/////kdiy//////
-	for(auto& pcard : player[playerid].list_szone) {
-		if(!pcard || !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
-		  continue;	
-		if(pcard)
-			material->insert(pcard);
-	}
-	for(auto& pcard : player[playerid].list_mzone) {
-		if(!pcard || pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		  continue;				  		
-		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
-			material->insert(pcard);
-	}	
-	/////kdiy//////
 	for(auto& pcard : player[playerid].list_hand)
 		if(pcard->data.type & TYPE_MONSTER || pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
 			material->insert(pcard);
@@ -3179,7 +3163,7 @@ int32_t field::get_attack_target(card* pcard, card_vector* v, uint8_t chain_atta
 				if (atarget && !atarget->is_affected_by_effect(EFFECT_SANCT_MZONE))
 				//////kdiy//////////
 					attack_tg.push_back(atarget);
-			//////kdiy//////////		
+			//////kdiy//////////
 			for(auto& atarget : player[p].list_szone)
 				if (atarget && (atarget->is_affected_by_effect(EFFECT_ORICA_SZONE) || atarget->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))
 					attack_tg.push_back(atarget);

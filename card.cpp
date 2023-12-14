@@ -3874,14 +3874,20 @@ void card::get_unique_target(card_set* cset, uint8_t controler, card* icard) {
 		const auto& player = pduel->game_field->player[controler ^ p];
 		if(unique_location & LOCATION_MZONE) {
 			for(auto& pcard : player.list_mzone) {
-				if(pcard && (pcard != icard) && pcard->is_position(POS_FACEUP) && !pcard->get_status(STATUS_SPSUMMON_STEP)
-					&& check_unique_code(pcard))
+                //////kdiy//////////
+				// if(pcard && (pcard != icard) && pcard->is_position(POS_FACEUP) && !pcard->get_status(STATUS_SPSUMMON_STEP)
+				// 	&& check_unique_code(pcard))
+				if(pcard && (pcard != icard) && pcard->is_position(POS_FACEUP) && check_unique_code(pcard) && !(!pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && pcard->get_status(STATUS_SPSUMMON_STEP)))
+                //////kdiy//////////
 					cset->insert(pcard);
 			}
 		}
 		if(unique_location & LOCATION_SZONE) {
 			for(auto& pcard : player.list_szone) {
-				if(pcard && (pcard != icard) && pcard->is_position(POS_FACEUP) && check_unique_code(pcard))
+                //////kdiy//////////
+				//if(pcard && (pcard != icard) && pcard->is_position(POS_FACEUP) && check_unique_code(pcard))
+				if(pcard && (pcard != icard) && pcard->is_position(POS_FACEUP) && check_unique_code(pcard) && !(pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && pcard->get_status(STATUS_SPSUMMON_STEP)))
+                //////kdiy//////////
 					cset->insert(pcard);
 			}
 		}
