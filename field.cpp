@@ -1205,6 +1205,17 @@ void field::shuffle(uint8_t playerid, uint8_t location) {
 						_message->write(pcard->get_info_location());
 						_message->write<uint8_t>(CHINT_DESC_ADD);
 						_message->write<uint64_t>(peffect->description);
+                        //kdiy////////
+                        if(!((peffect->type & EFFECT_TYPE_EQUIP) || (peffect->type & EFFECT_TYPE_GRANT) || (peffect->type & EFFECT_TYPE_XMATERIAL) || (peffect->type & EFFECT_TYPE_TARGET))) {
+                            _message->write<bool>(peffect->addtotext);
+                            _message->write<uint64_t>(peffect->cardtext);
+							_message->write<uint64_t>(peffect->cardtext2);
+                            _message->write<uint64_t>(peffect->cardtext3);
+                            _message->write<uint64_t>(peffect->cardtext4);
+                            _message->write<uint32_t>(peffect->replacetext);
+                            _message->write<bool>(peffect->addtofront);
+                        }
+                        //kdiy////////
 					}
 				}
 			}

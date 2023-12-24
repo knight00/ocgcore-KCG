@@ -2532,14 +2532,12 @@ int32_t card::add_effect(effect* peffect) {
 	if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 		pduel->game_field->effects.rechargeable.insert(peffect);
 	if(peffect->is_flag(EFFECT_FLAG_CLIENT_HINT)) {
-        //kdiy////////
-        if(!((peffect->type & EFFECT_TYPE_EQUIP) || (peffect->type & EFFECT_TYPE_GRANT) || (peffect->type & EFFECT_TYPE_XMATERIAL) || (peffect->type & EFFECT_TYPE_TARGET))) {
-        //kdiy////////
 		auto message = pduel->new_message(MSG_CARD_HINT);
 		message->write(get_info_location());
 		message->write<uint8_t>(CHINT_DESC_ADD);
 		message->write<uint64_t>(peffect->description);
         //kdiy////////
+        if(!((peffect->type & EFFECT_TYPE_EQUIP) || (peffect->type & EFFECT_TYPE_GRANT) || (peffect->type & EFFECT_TYPE_XMATERIAL) || (peffect->type & EFFECT_TYPE_TARGET))) {
         message->write<bool>(peffect->addtotext);
         message->write<uint64_t>(peffect->cardtext);
         message->write<uint64_t>(peffect->cardtext2);
@@ -2637,14 +2635,6 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		message->write(get_info_location());
 		message->write<uint8_t>(CHINT_DESC_REMOVE);
 		message->write<uint64_t>(peffect->description);
-        //kdiy////////
-        message->write<bool>(peffect->addtotext);
-        message->write<uint64_t>(peffect->cardtext);
-        message->write<uint64_t>(peffect->cardtext2);
-        message->write<uint64_t>(peffect->cardtext3);
-        message->write<uint64_t>(peffect->cardtext4);
-        message->write<uint32_t>(peffect->addtotext);
-        //kdiy////////
 	}
 	if(peffect->code == EFFECT_UNIQUE_CHECK) {
 		pduel->game_field->remove_unique_card(this);
