@@ -995,11 +995,7 @@ LUA_STATIC_FUNCTION(MoveSequence) {
 				message->write<uint32_t>(pcard->current.reason);
                 ///kdiy///////////
 				message->write<uint8_t>(pcard->current.reason_player);
-                message->write<bool>(cur_pzone);
-                message->write<bool>(pzone);
                 message->write<bool>(true);
-                message->write<bool>(false);
-                message->write<bool>(false);
                 ///kdiy///////////
 			}
 			field.raise_single_event(pcard, 0, EVENT_MOVE, core.reason_effect, 0, core.reason_player, playerid, 0);

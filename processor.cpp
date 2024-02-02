@@ -752,11 +752,7 @@ int32_t field::process() {
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
                     message->write<uint8_t>(pcard->current.reason_player);
-                    message->write<bool>(false);
-                    message->write<bool>(false);
                     message->write<bool>(i == 0);
-                    message->write<bool>(false);
-                    message->write<bool>(false);
                     ///kdiy///////////
 				}
 				if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
@@ -3603,8 +3599,8 @@ int32_t field::process_forced_battle(uint16_t step) {
 		card_vector cv;
 		get_attack_target(tmp_attacker, &cv);
 		///////kdiy//////////
-		// if((cv.size() == 0 && tmp_attacker->direct_attackable == 0) || (tmp_attack_target && std::find(cv.begin(), cv.end(), tmp_attack_target)==cv.end()))		
-		// 	return TRUE;	
+		// if((cv.size() == 0 && tmp_attacker->direct_attackable == 0) || (tmp_attack_target && std::find(cv.begin(), cv.end(), tmp_attack_target)==cv.end()))
+		// 	return TRUE;
 		///////kdiy//////////
 		core.attacker = tmp_attacker;
 		core.attack_target = tmp_attack_target;
@@ -3653,9 +3649,6 @@ int32_t field::process_forced_battle(uint16_t step) {
 		core.delayed_quick_tmp.clear();
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(PHASE_BATTLE_START);
-		////kdiy///////////
-		message->write<uint8_t>(infos.turn_player);
-		////kdiy///////////
 		add_process(PROCESSOR_BATTLE_COMMAND, 1, 0, 0, 0, 0);
 		return FALSE;
 	}
@@ -3701,9 +3694,6 @@ int32_t field::process_forced_battle(uint16_t step) {
 		core.attack_target = 0;
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
-        ////kdiy///////////
-		message->write<uint8_t>(infos.turn_player);
-		////kdiy///////////
 		return TRUE;
 	}
 	}
@@ -4331,9 +4321,6 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
-        ////kdiy///////////
-		message->write<uint8_t>(turn_player);
-		////kdiy///////////
 		raise_event((card*)0, EVENT_PREDRAW, 0, 0, 0, turn_player, 0);
 		process_instant_event();
 		message = pduel->new_message(MSG_HINT);
@@ -4383,9 +4370,6 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
-        ////kdiy///////////
-		message->write<uint8_t>(infos.turn_player);
-		////kdiy///////////
 		raise_event((card*)0, EVENT_PHASE_START + PHASE_STANDBY, 0, 0, 0, turn_player, 0);
 		process_instant_event();
 		/*if(core.set_forced_attack)
@@ -4422,9 +4406,6 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		core.delayed_quick_tmp.clear();
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
-        ////kdiy///////////
-		message->write<uint8_t>(infos.turn_player);
-		////kdiy///////////
 		add_process(PROCESSOR_IDLE_COMMAND, 0, 0, 0, 0, 0);
 		/*if(core.set_forced_attack)
 			add_process(PROCESSOR_FORCED_BATTLE, 0, 0, 0, 0, 0);*/
@@ -4444,9 +4425,6 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		++core.battle_phase_count[infos.turn_player];
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
-        ////kdiy///////////
-		message->write<uint8_t>(infos.turn_player);
-		////kdiy///////////
 		// Show the texts to indicate that BP is entered and skipped
 		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) || core.force_turn_end) {
 			core.units.begin()->step = 15;
@@ -4560,9 +4538,6 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		core.delayed_quick_tmp.clear();
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
-        ////kdiy///////////
-		message->write<uint8_t>(infos.turn_player);
-		////kdiy///////////
 		infos.can_shuffle = TRUE;
 		add_process(PROCESSOR_IDLE_COMMAND, 0, 0, 0, 0, 0);
 		/*if(core.set_forced_attack)
@@ -4581,9 +4556,6 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
-        ////kdiy///////////
-		message->write<uint8_t>(infos.turn_player);
-		////kdiy///////////
 		raise_event((card*)0, EVENT_PHASE_START + PHASE_END, 0, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();

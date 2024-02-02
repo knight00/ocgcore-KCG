@@ -287,11 +287,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
 					message->write<uint8_t>(pcard->current.reason_player);
-                    message->write<bool>(false);
-                    message->write<bool>(pzone);
                     message->write<bool>(true);
-                    message->write<bool>(false);
-                    message->write<bool>(false);
                     ///kdiy///////////
 					return TRUE;
 				} else
@@ -320,7 +316,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 				pcard->previous.position = pcard->current.position;
 				pcard->previous.pzone = pcard->current.pzone;
 				if (location == LOCATION_MZONE) {
-					///kdiy//////	
+					///kdiy//////
 					// if (pcard->current.location == LOCATION_SZONE) {
 					// player[preplayer].list_szone[presequence] = 0;
 					// player[preplayer].used_location &= ~(256 << presequence);
@@ -329,18 +325,18 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					// pcard->current.controler = playerid;
 					// pcard->current.sequence = sequence;
 					// } else {
-					///kdiy//////	
+					///kdiy//////
 					player[preplayer].list_mzone[presequence] = 0;
 					player[preplayer].used_location &= ~(1 << presequence);
 					player[playerid].list_mzone[sequence] = pcard;
 					player[playerid].used_location |= 1 << sequence;
 					pcard->current.controler = playerid;
 					pcard->current.sequence = sequence;
-					///kdiy//////	
+					///kdiy//////
 					// }
-					///kdiy//////	
+					///kdiy//////
 				} else {
-					///kdiy//////	
+					///kdiy//////
 					// if (pcard->current.location == LOCATION_MZONE) {
 					// player[preplayer].list_mzone[presequence] = 0;
 					// player[preplayer].used_location &= ~(1 << presequence);
@@ -349,30 +345,26 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					// pcard->current.controler = playerid;
 					// pcard->current.sequence = sequence;
 					// } else {
-					///kdiy//////	
+					///kdiy//////
 					player[preplayer].list_szone[presequence] = 0;
 					player[preplayer].used_location &= ~(256 << presequence);
 					player[playerid].list_szone[sequence] = pcard;
 					player[playerid].used_location |= 256 << sequence;
 					pcard->current.controler = playerid;
 					pcard->current.sequence = sequence;
-					///kdiy//////	
+					///kdiy//////
 					// }
-					///kdiy//////	
+					///kdiy//////
 				}
-				///kdiy//////	
+				///kdiy//////
 				pcard->current.location = location;
-				///kdiy//////	
+				///kdiy//////
 				if(message) {
 					message->write(pcard->get_info_location());
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
 					message->write<uint8_t>(pcard->current.reason_player);
-                    message->write<bool>(pcard->previous.pzone);
-                    message->write<bool>(pzone);
                     message->write<bool>(true);
-                    message->write<bool>(pcard->temp.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE));
-                    message->write<bool>(pcard->temp.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
                     ///kdiy///////////
 				} else {
 					pcard->fieldid = infos.field_id++;
@@ -398,11 +390,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
 					message->write<uint8_t>(pcard->current.reason_player);
-                    message->write<bool>(pcard->current.pzone);
-                    message->write<bool>(false);
                     message->write<bool>(true);
-                    message->write<bool>(false);
-                    message->write<bool>(false);
                     ///kdiy///////////
 				} else if(location == LOCATION_REMOVED) {
 					if(pcard->current.sequence == player[pcard->current.controler].list_remove.size() - 1)
@@ -417,11 +405,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
 					message->write<uint8_t>(pcard->current.reason_player);
-                    message->write<bool>(pcard->current.pzone);
-                    message->write<bool>(false);
                     message->write<bool>(true);
-                    message->write<bool>(false);
-                    message->write<bool>(false);
                     ///kdiy///////////
 				} else {
 					auto message = pduel->new_message(MSG_MOVE);
@@ -434,11 +418,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
 					message->write<uint8_t>(pcard->current.reason_player);
-                    message->write<bool>(pcard->current.pzone);
-                    message->write<bool>(false);
                     message->write<bool>(true);
-                    message->write<bool>(false);
-                    message->write<bool>(false);
                     ///kdiy///////////
 				}
 				return TRUE;
@@ -600,11 +580,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		message->write<uint32_t>(0);
         ///kdiy///////////
 		message->write<uint8_t>(2);
-        message->write<bool>(false);
-        message->write<bool>(false);
         message->write<bool>(true);
-        message->write<bool>(pcard1->temp.location == LOCATION_SZONE && pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE));
-        message->write<bool>(pcard1->temp.location == LOCATION_MZONE && pcard1->is_affected_by_effect(EFFECT_SANCT_MZONE));
         ///kdiy///////////
 		message = pduel->new_message(MSG_MOVE);
 		message->write<uint32_t>(pcard2->data.code);
@@ -613,11 +589,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		message->write<uint32_t>(0);
         ///kdiy///////////
 		message->write<uint8_t>(2);
-        message->write<bool>(false);
-        message->write<bool>(false);
         message->write<bool>(true);
-        message->write<bool>(pcard2->temp.location == LOCATION_SZONE && pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE));
-        message->write<bool>(pcard2->temp.location == LOCATION_MZONE && pcard2->is_affected_by_effect(EFFECT_SANCT_MZONE));
         ///kdiy///////////
 	} else {
 		auto message = pduel->new_message(MSG_MOVE);
@@ -627,11 +599,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		message->write<uint32_t>(0);
         ///kdiy///////////
 		message->write<uint8_t>(2);
-        message->write<bool>(false);
-        message->write<bool>(false);
         message->write<bool>(true);
-        message->write<bool>(pcard2->temp.location == LOCATION_SZONE && pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE));
-        message->write<bool>(pcard2->temp.location == LOCATION_MZONE && pcard2->is_affected_by_effect(EFFECT_SANCT_MZONE));
         ///kdiy///////////
 		message = pduel->new_message(MSG_MOVE);
 		message->write<uint32_t>(pcard1->data.code);
@@ -640,11 +608,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		message->write<uint32_t>(0);
         ///kdiy///////////
 		message->write<uint8_t>(2);
-        message->write<bool>(false);
-        message->write<bool>(false);
         message->write<bool>(true);
-        message->write<bool>(pcard1->temp.location == LOCATION_SZONE && pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE));
-        message->write<bool>(pcard1->temp.location == LOCATION_MZONE && pcard1->is_affected_by_effect(EFFECT_SANCT_MZONE));
         ///kdiy///////////
 	}
 }

@@ -1061,11 +1061,7 @@ int32_t field::xyz_overlay(uint16_t step, card* target, group* materials, bool s
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
 			message->write<uint8_t>(pcard->current.reason_player);
-            message->write<bool>(pcard->current.pzone);
-            message->write<bool>(false);
             message->write<bool>(pcard == *cv.begin());
-            message->write<bool>(false);
-            message->write<bool>(false);
             ///kdiy///////////
 		}
 		auto writetopcard = [rev = core.deck_reversed, &decktop, &player=player, &s](int playerid) {
@@ -5035,11 +5031,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
 			message->write<uint8_t>(pcard->current.reason_player);
-            message->write<bool>(pcard->current.pzone);
-            message->write<bool>(false);
             message->write<bool>(param->cvit == param->cv.begin());
-            message->write<bool>(false);
-            message->write<bool>(false);
             ///kdiy///////////
 			if(core.current_chain.size() > 0)
 				core.just_sent_cards.insert(pcard);
@@ -5102,11 +5094,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
 			message->write<uint8_t>(pcard->current.reason_player);
-			message->write<bool>(pcard->previous.pzone);
-            message->write<bool>(false);
             message->write<bool>(param->cvit == param->cv.begin());
-            message->write<bool>(false);
-            message->write<bool>(false);
             ///kdiy///////////
 		}
 		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
@@ -5158,7 +5146,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 		auto message = pduel->new_message(MSG_MOVE);
 		message->write<uint32_t>(pcard->data.code);
 		message->write(pcard->get_info_location());
-		if(pcard->overlay_target) {				
+		if(pcard->overlay_target) {
 			param->detach.insert(pcard->overlay_target);
 			pcard->overlay_target->xyz_remove(pcard);
 		}
@@ -5184,11 +5172,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 		message->write<uint32_t>(pcard->current.reason);
         ///kdiy///////////
 		message->write<uint8_t>(pcard->current.reason_player);
-        message->write<bool>(pcard->previous.pzone);
-        message->write<bool>(false);
         message->write<bool>(param->cvit == param->cv.begin());
-        message->write<bool>(false);
-        message->write<bool>(location2 == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
 		pcard->temp.location = 0;
         ///kdiy///////////
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
@@ -5457,11 +5441,7 @@ int32_t field::discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
 			message->write<uint8_t>(pcard->current.reason_player);
-            message->write<bool>(false);
-            message->write<bool>(false);
             message->write<bool>(i == 0);
-            message->write<bool>(false);
-            message->write<bool>(false);
             ///kdiy///////////
 			if(dest == LOCATION_HAND) {
 				if(pcard->owner != pcard->current.controler) {
@@ -5778,11 +5758,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		message->write<uint32_t>(target->current.reason);
 		////kdiy///////
 		message->write<uint8_t>(target->current.reason_player);
-        message->write<bool>(temp_pzone);
-        message->write<bool>(pzone);
         message->write<bool>(true);
-        message->write<bool>(((location2 == LOCATION_SZONE && location == LOCATION_MZONE) || Rloc == 0x80) && target->is_affected_by_effect(EFFECT_ORICA_SZONE));
-        message->write<bool>(((location2 == LOCATION_MZONE && location == LOCATION_SZONE) || Rloc == 0x40) && target->is_affected_by_effect(EFFECT_SANCT_MZONE));
 		target->temp.location = 0;
 		target->prev_temp.location = 0;
 		//if((target->current.location != LOCATION_MZONE)) {
