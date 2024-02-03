@@ -1061,6 +1061,7 @@ int32_t field::xyz_overlay(uint16_t step, card* target, group* materials, bool s
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
 			message->write<uint8_t>(pcard->current.reason_player);
+            message->write<bool>(false);
             message->write<bool>(pcard == *cv.begin());
             ///kdiy///////////
 		}
@@ -5031,6 +5032,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
 			message->write<uint8_t>(pcard->current.reason_player);
+            message->write<bool>(false);
             message->write<bool>(param->cvit == param->cv.begin());
             ///kdiy///////////
 			if(core.current_chain.size() > 0)
@@ -5094,6 +5096,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
 			message->write<uint8_t>(pcard->current.reason_player);
+            message->write<bool>(false);
             message->write<bool>(param->cvit == param->cv.begin());
             ///kdiy///////////
 		}
@@ -5172,6 +5175,7 @@ int32_t field::send_to(uint16_t step, group* targets, effect* reason_effect, uin
 		message->write<uint32_t>(pcard->current.reason);
         ///kdiy///////////
 		message->write<uint8_t>(pcard->current.reason_player);
+        message->write<bool>(false);
         message->write<bool>(param->cvit == param->cv.begin());
 		pcard->temp.location = 0;
         ///kdiy///////////
@@ -5441,6 +5445,7 @@ int32_t field::discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint
 			message->write<uint32_t>(pcard->current.reason);
             ///kdiy///////////
 			message->write<uint8_t>(pcard->current.reason_player);
+            message->write<bool>(false);
             message->write<bool>(i == 0);
             ///kdiy///////////
 			if(dest == LOCATION_HAND) {
@@ -5758,6 +5763,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint8_t enable, uint8_
 		message->write<uint32_t>(target->current.reason);
 		////kdiy///////
 		message->write<uint8_t>(target->current.reason_player);
+        message->write<bool>(pzone && !temp_pzone);
         message->write<bool>(true);
 		target->temp.location = 0;
 		target->prev_temp.location = 0;

@@ -995,6 +995,7 @@ LUA_STATIC_FUNCTION(MoveSequence) {
 				message->write<uint32_t>(pcard->current.reason);
                 ///kdiy///////////
 				message->write<uint8_t>(pcard->current.reason_player);
+                message->write<bool>(pzone && !cur_pzone);
                 message->write<bool>(true);
                 ///kdiy///////////
 			}

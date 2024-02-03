@@ -752,6 +752,7 @@ int32_t field::process() {
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
                     message->write<uint8_t>(pcard->current.reason_player);
+                    message->write<bool>(false);
                     message->write<bool>(i == 0);
                     ///kdiy///////////
 				}

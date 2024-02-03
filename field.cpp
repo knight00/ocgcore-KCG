@@ -287,6 +287,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
 					message->write<uint8_t>(pcard->current.reason_player);
+                    message->write<bool>(pzone);
                     message->write<bool>(true);
                     ///kdiy///////////
 					return TRUE;
@@ -364,6 +365,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
 					message->write<uint8_t>(pcard->current.reason_player);
+                    message->write<bool>(pzone && !pcard->previous.pzone);
                     message->write<bool>(true);
                     ///kdiy///////////
 				} else {
@@ -390,6 +392,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
 					message->write<uint8_t>(pcard->current.reason_player);
+                    message->write<bool>(false);
                     message->write<bool>(true);
                     ///kdiy///////////
 				} else if(location == LOCATION_REMOVED) {
@@ -405,6 +408,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
 					message->write<uint8_t>(pcard->current.reason_player);
+                    message->write<bool>(false);
                     message->write<bool>(true);
                     ///kdiy///////////
 				} else {
@@ -418,6 +422,7 @@ uint8_t field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_
 					message->write<uint32_t>(pcard->current.reason);
                     ///kdiy///////////
 					message->write<uint8_t>(pcard->current.reason_player);
+                    message->write<bool>(false);
                     message->write<bool>(true);
                     ///kdiy///////////
 				}
@@ -580,6 +585,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		message->write<uint32_t>(0);
         ///kdiy///////////
 		message->write<uint8_t>(2);
+        message->write<bool>(false);
         message->write<bool>(true);
         ///kdiy///////////
 		message = pduel->new_message(MSG_MOVE);
@@ -589,6 +595,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		message->write<uint32_t>(0);
         ///kdiy///////////
 		message->write<uint8_t>(2);
+        message->write<bool>(false);
         message->write<bool>(true);
         ///kdiy///////////
 	} else {
@@ -599,6 +606,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		message->write<uint32_t>(0);
         ///kdiy///////////
 		message->write<uint8_t>(2);
+        message->write<bool>(false);
         message->write<bool>(true);
         ///kdiy///////////
 		message = pduel->new_message(MSG_MOVE);
@@ -608,6 +616,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		message->write<uint32_t>(0);
         ///kdiy///////////
 		message->write<uint8_t>(2);
+        message->write<bool>(false);
         message->write<bool>(true);
         ///kdiy///////////
 	}
