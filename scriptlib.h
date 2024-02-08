@@ -1,13 +1,15 @@
 /*
- * scriptlib.h
+ * Copyright (c) 2016-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
- *  Created on: 2009-1-20
- *      Author: Argon.Sun
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
 #ifndef SCRIPTLIB_H_
 #define SCRIPTLIB_H_
 
+#include <cmath> //std::round
+#include <cstring> //std::memcpy
+#include <type_traits> //std::is_same_v, std::enable_if_t, std::invoke_result_t, std::result_of_t
+#include <utility> //std::pair
 #include "common.h"
 #include "interpreter.h"
 #include "lua_obj.h"
@@ -27,7 +29,7 @@ namespace scriptlib {
 	int32_t is_deleted_object(lua_State* L);
 
 	template<typename... Args>
-	[[noreturn]] __forceinline void lua_error(Args... args) {
+	[[noreturn]] ForceInline void lua_error(Args... args) {
 		// std::forward is not used as visual studio 17+ isn't able to optimize
 		// it out even with the highest optimization level, the passed parameters are always
 		// integers/pointers so there's no loss in passing them by value.
@@ -67,11 +69,11 @@ namespace scriptlib {
 
 	template<typename T>
 	inline constexpr auto get_lua_param_type() {
-		if constexpr(std::is_same_v<T, card*>)
+		if constexpr(IsCard<T>)
 			return LuaParam::CARD;
-		if constexpr(std::is_same_v<T, group*>)
+		if constexpr(IsGroup<T>)
 			return LuaParam::GROUP;
-		if constexpr(std::is_same_v<T, effect*>)
+		if constexpr(IsEffect<T>)
 			return LuaParam::EFFECT;
 		if constexpr(std::is_same_v<T, function>)
 			return LuaParam::FUNCTION;
@@ -84,7 +86,7 @@ namespace scriptlib {
 	template<typename T, EnableIfTemplate<T, duel*> = 0>
 	inline duel* lua_get(lua_State* L) {
 		duel* pduel = nullptr;
-		memcpy(&pduel, lua_getextraspace(L), sizeof(duel*));
+		std::memcpy(&pduel, lua_getextraspace(L), sizeof(duel*));
 		return pduel;
 	}
 
@@ -190,7 +192,8 @@ namespace scriptlib {
 		}
 	}
 
-#if !defined(__ANDROID__) && ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
+#if (!defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 7000) && \
+	((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
 	template<typename T, typename... Arg>
 	using FunctionResult = std::invoke_result_t<T, Arg...>;
 #else
@@ -203,10 +206,8 @@ namespace scriptlib {
 
 	template<typename T, EnableOnReturn<T, void> = 0>
 	inline void lua_iterate_table_or_stack(lua_State* L, int idx, int max, T&& func) {
-		if(lua_istable(L, idx)) {
-			lua_table_iterate(L, idx, func);
-			return;
-		}
+		if(lua_istable(L, idx))
+			return lua_table_iterate(L, idx, func);
 		for(; idx <= max; ++idx) {
 			lua_pushvalue(L, idx);
 			func();
@@ -243,7 +244,7 @@ namespace scriptlib {
 
 	template<typename T>
 	inline bool lua_find_in_table_or_in_stack(lua_State* L, int idx, int max, T&& func) {
-		static_assert(std::is_same<FunctionResult<T>, bool>::value, "Callback function must return bool");
+		static_assert(std::is_same_v<FunctionResult<T>, bool>, "Callback function must return bool");
 		if(lua_istable(L, idx)) {
 			lua_pushnil(L);
 			while(lua_next(L, idx) != 0) {
@@ -273,15 +274,16 @@ namespace scriptlib {
 	}
 	template<typename T>
 	static int32_t from_lua_ref(lua_State* L) {
+		static_assert(IsCard<T*> || IsGroup<T*> || IsEffect<T*>);
 		auto ref = lua_get<int32_t>(L, 1);
 		lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
 		auto obj = lua_get<T*>(L, -1);
 		if(!obj) {
-			if(std::is_same<T, card>::value)
+			if constexpr(IsCard<T*>)
 				lua_error(L, "Parameter 1 should be a lua reference to a Card.");
-			else if(std::is_same<T, group>::value)
+			else if constexpr(IsGroup<T*>)
 				lua_error(L, "Parameter 1 should be a lua reference to a Group.");
-			else if(std::is_same<T, effect>::value)
+			else if constexpr(IsEffect<T*>)
 				lua_error(L, "Parameter 1 should be a lua reference to an Effect.");
 		}
 		return 1;

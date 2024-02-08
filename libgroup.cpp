@@ -1,18 +1,20 @@
 /*
- * libgroup.cpp
+ * Copyright (c) 2010-2015, Argon Sun (Fluorohydride)
+ * Copyright (c) 2017-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
- *  Created on: 2010-5-6
- *      Author: Argon
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
-#include <iterator>
-#include <algorithm>
-#include "scriptlib.h"
-#include "group.h"
-#include "card.h"
-#include "effect.h"
-#include "duel.h"
+#include <algorithm> //std::find, std::remove, std::includes, std::set_intersection
+#include <iterator> //std::advance, std::inserter
+#include <set>
+#include <tuple>
+#include <utility> //std::move, std::swap
 #include "bit.h"
+#include "card.h"
+#include "duel.h"
+#include "field.h"
+#include "group.h"
+#include "scriptlib.h"
 
 #define LUA_MODULE Group
 using LUA_CLASS = group;
@@ -243,7 +245,7 @@ LUA_FUNCTION(FilterSelect) {
 		if(pduel->lua->check_matching(pcard, findex, extraargs))
 			pduel->game_field->core.select_cards.push_back(pcard);
 	}
-	pduel->game_field->add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + (cancelable << 16), min + (max << 16));
+	pduel->game_field->emplace_process<Processors::SelectCard>(playerid, cancelable, min, max);
 	return push_return_cards(L, cancelable);
 }
 LUA_FUNCTION(Select) {
@@ -268,7 +270,7 @@ LUA_FUNCTION(Select) {
 	auto min = lua_get<uint16_t>(L, 3);
 	auto max = lua_get<uint16_t>(L, 4);
 	pduel->game_field->core.select_cards.assign(cset.begin(), cset.end());
-	pduel->game_field->add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + (cancelable << 16), min + (max << 16));
+	pduel->game_field->emplace_process<Processors::SelectCard>(playerid, cancelable, min, max);
 	return push_return_cards(L, cancelable);
 }
 LUA_FUNCTION(SelectUnselect) {
@@ -305,7 +307,7 @@ LUA_FUNCTION(SelectUnselect) {
 		pduel->game_field->core.unselect_cards.assign(pgroup2->container.begin(), pgroup2->container.end());
 	else
 		pduel->game_field->core.unselect_cards.clear();
-	pduel->game_field->add_process(PROCESSOR_SELECT_UNSELECT_CARD, 0, 0, 0, playerid + (cancelable << 16), min + (max << 16), finishable);
+	pduel->game_field->emplace_process<Processors::SelectUnselectCard>(playerid, cancelable, min, max, finishable);
 	return yieldk({
 		if(pduel->game_field->return_cards.canceled)
 			lua_pushnil(L);
@@ -425,7 +427,7 @@ LUA_FUNCTION(SelectWithSumEqual) {
 		interpreter::pushobject(L, empty_group);
 		return 1;
 	}
-	pduel->game_field->add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, acc, playerid + (min << 16) + (max << 24));
+	pduel->game_field->emplace_process<Processors::SelectSum>(playerid, acc, min, max);
 	return yieldk({
 		group* pgroup = pduel->new_group(pduel->game_field->return_cards.list);
 		pduel->game_field->core.must_select_cards.clear();
@@ -479,7 +481,7 @@ LUA_FUNCTION(SelectWithSumGreater) {
 		interpreter::pushobject(L, empty_group);
 		return 1;
 	}
-	pduel->game_field->add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, acc, playerid);
+	pduel->game_field->emplace_process<Processors::SelectSum>(playerid, acc, 0, 0);
 	return yieldk({
 		group* pgroup = pduel->new_group(pduel->game_field->return_cards.list);
 		pduel->game_field->core.must_select_cards.clear();

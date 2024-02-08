@@ -1,16 +1,13 @@
 /*
- * libeffect.cpp
+ * Copyright (c) 2010-2015, Argon Sun (Fluorohydride)
+ * Copyright (c) 2017-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
- *  Created on: 2010-7-20
- *      Author: Argon
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
-#include "scriptlib.h"
 #include "duel.h"
-#include "field.h"
-#include "card.h"
 #include "effect.h"
-#include "group.h"
+#include "field.h"
+#include "scriptlib.h"
 
 #define LUA_MODULE Effect
 using LUA_CLASS = effect;

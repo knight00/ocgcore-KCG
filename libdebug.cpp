@@ -1,14 +1,13 @@
 /*
- * libdebug.cpp
+ * Copyright (c) 2012-2015, Argon Sun (Fluorohydride)
+ * Copyright (c) 2017-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
- *  Created on: 2012-2-8
- *      Author: Argon
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
-#include "scriptlib.h"
+#include "card.h"
 #include "duel.h"
 #include "field.h"
-#include "card.h"
+#include "scriptlib.h"
 /////kdiy//////////
 #include "effect.h"
 /////kdiy//////////
@@ -191,10 +190,10 @@ LUA_STATIC_FUNCTION(ReloadFieldBegin) {
 LUA_STATIC_FUNCTION(ReloadFieldEnd) {
 	auto& field = pduel->game_field;
 	auto& core = field->core;
-	core.shuffle_hand_check[0] = FALSE;
-	core.shuffle_hand_check[1] = FALSE;
-	core.shuffle_deck_check[0] = FALSE;
-	core.shuffle_deck_check[1] = FALSE;
+	core.shuffle_hand_check[0] = false;
+	core.shuffle_hand_check[1] = false;
+	core.shuffle_deck_check[0] = false;
+	core.shuffle_deck_check[1] = false;
 	field->reload_field_info();
 	if(lua_isyieldable(L))
 		return yield();

@@ -1,13 +1,13 @@
 /*
- * scriptlib.cpp
+ * Copyright (c) 2010-2015, Argon Sun (Fluorohydride)
+ * Copyright (c) 2018-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
- *  Created on: 2010-7-29
- *      Author: Argon
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-#include "scriptlib.h"
 #include "duel.h"
-#include "lua_obj.h"
 #include "field.h"
+#include "lua_obj.h"
+#include "scriptlib.h"
 
 namespace scriptlib {
 
@@ -47,7 +47,6 @@ bool check_param(lua_State* L, LuaParam param_type, int32_t index, bool retfalse
 		break;
 	default:
 		unreachable();
-		break;
 	}
 	if(retfalse)
 		return false;

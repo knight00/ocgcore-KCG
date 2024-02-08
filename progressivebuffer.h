@@ -1,19 +1,18 @@
-// Copyright (c) 2019-2022 Edoardo Lolletti <edoardo762@gmail.com>
-// SPDX-License-Identifier: AGPL-3.0-or-later
-// Refer to the COPYING file included.
-
+/*
+ * Copyright (c) 2019-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
 #ifndef PROGRESSIVEBUFFER_H_
 #define PROGRESSIVEBUFFER_H_
 
-#include <vector>
 #include <cstdint>
-#include <cstddef>
-#include <cstring>
+#include <cstring> //std::memcpy
+#include <vector>
 
 class ProgressiveBuffer {
 public:
 	std::vector<uint8_t> data;
-	ProgressiveBuffer() {};
 	void clear() {
 		data.clear();
 	}
@@ -24,7 +23,7 @@ public:
 		T ret{};
 		if(data.size() < size)
 			return ret;
-		memcpy(&ret, data.data() + pos * valsize, sizeof(T));
+		std::memcpy(&ret, data.data() + pos * valsize, sizeof(T));
 		return ret;
 	}
 	template<class T>
@@ -33,7 +32,7 @@ public:
 		size_t size = (pos + 1) * valsize;
 		if(data.size() < size)
 			data.resize(size);
-		memcpy(data.data() + pos * valsize, &val, sizeof(T));
+		std::memcpy(data.data() + pos * valsize, &val, sizeof(T));
 	}
 	bool bitGet(const size_t pos) const {
 		size_t real_pos = pos / 8u;

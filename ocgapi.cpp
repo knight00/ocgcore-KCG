@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2019, Dylam De La Torre, (DyXel)
+ * Copyright (c) 2019-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+#include <cstring> //std::memcpy
+#include <new> //std::nothrow
+#include <vector>
 #include "ocgapi.h"
 #include "interpreter.h"
 #include "duel.h"
@@ -87,17 +96,17 @@ OCGAPI void OCG_DuelNewCard(OCG_Duel ocg_duel, OCG_NewCardInfo info) {
 
 OCGAPI void OCG_StartDuel(OCG_Duel ocg_duel) {
 	auto* pduel = static_cast<duel*>(ocg_duel);
-	pduel->game_field->add_process(PROCESSOR_STARTUP, 0, 0, 0, 0, 0);
+	pduel->game_field->emplace_process<Processors::Startup>();
 }
 
 OCGAPI int OCG_DuelProcess(OCG_Duel ocg_duel) {
 	auto* pduel = static_cast<duel*>(ocg_duel);
 	pduel->buff.clear();
-	auto flag = 0;
+	auto flag = OCG_DUEL_STATUS_END;
 	do {
 		flag = pduel->game_field->process();
 		pduel->generate_buffer();
-	} while(pduel->buff.size() == 0 && flag == PROCESSOR_FLAG_CONTINUE);
+	} while(pduel->buff.size() == 0 && flag == OCG_DUEL_STATUS_CONTINUE);
 	return flag;
 }
 
@@ -153,7 +162,7 @@ void insert_value_int(std::vector<uint8_t>& vec, T val) {
 	std::memcpy(&vec[vec_size], &val, val_size);
 }
 template<typename T, typename T2>
-__forceinline void insert_value(std::vector<uint8_t>& vec, T2 val) {
+ForceInline void insert_value(std::vector<uint8_t>& vec, T2 val) {
 	insert_value_int<T>(vec, static_cast<T>(val));
 }
 

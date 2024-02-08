@@ -1,11 +1,15 @@
 local ocgcore_config=function()
-	files { "*.h", "*.cpp" }
+	files { "**.h", "**.hpp", "**.cpp" }
 	warnings "Extra"
 	optimize "Speed"
 	cppdialect "C++17"
 
 	filter "action:not vs*"
 		buildoptions { "-Wno-unused-parameter", "-pedantic" }
+	if os.istarget("macosx") then
+		filter { "files:processor_visit.cpp" }
+			buildoptions { "-fno-exceptions" }
+	end
 end
 
 if not subproject then
@@ -22,7 +26,8 @@ if not subproject then
 	language "C++"
 	objdir "obj"
 	configurations { "Debug", "Release" }
-	
+	symbols "On"
+
 	filter "system:windows"
 		defines { "WIN32", "_WIN32", "NOMINMAX" }
 		platforms {"Win32", "x64"}
@@ -37,7 +42,7 @@ if not subproject then
 		filter {}
 			toolset "v141_xp"
 	end
-	
+
 	filter "action:vs*"
 		flags "MultiProcessorCompile"
 		vectorextensions "SSE2"
@@ -51,19 +56,18 @@ if not subproject then
 			includedirs "/usr/local/include"
 			libdirs "/usr/local/lib"
 		end
-	
+
 	filter "configurations:Debug"
-		symbols "On"
 		defines "_DEBUG"
 		targetdir "bin/debug"
 		runtime "Debug"
 
 	filter { "action:vs*", "configurations:Debug", "architecture:*64" }
 		targetdir "bin/x64/debug"
-	
+
 	filter { "configurations:Release" , "action:not vs*" }
 		defines "NDEBUG"
-	
+
 	filter "configurations:Release"
 		optimize "Size"
 		targetdir "bin/release"
@@ -75,7 +79,7 @@ if not subproject then
 		buildoptions { "-static-libgcc", "-static-libstdc++", "-static", "-lpthread" }
 		linkoptions { "-mthreads", "-municode", "-static-libgcc", "-static-libstdc++", "-static", "-lpthread" }
 		defines { "UNICODE", "_UNICODE" }
-	
+
 	local function vcpkgStaticTriplet(prj)
 		premake.w('<VcpkgTriplet Condition="\'$(Platform)\'==\'Win32\'">x86-windows-static</VcpkgTriplet>')
 		premake.w('<VcpkgTriplet Condition="\'$(Platform)\'==\'x64\'">x64-windows-static</VcpkgTriplet>')
@@ -90,9 +94,9 @@ if not subproject then
 		premake.w('<VcpkgUseStatic>true</VcpkgUseStatic>')
 		premake.w('<VcpkgAutoLink>true</VcpkgAutoLink>')
 	end
-	
+
 	require('vstudio')
-	
+
 	premake.override(premake.vstudio.vc2010.elements, "globals", function(base, prj)
 		local calls = base(prj)
 		table.insertafter(calls, premake.vstudio.vc2010.targetPlatformVersionGlobal, vcpkgStaticTriplet)
@@ -114,6 +118,6 @@ project "ocgcoreshared"
 	staticruntime "on"
 	visibility "Hidden"
 	ocgcore_config()
-	
+
 	filter "action:not vs*"
 		links "lua"

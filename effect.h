@@ -1,24 +1,22 @@
 /*
- * effect.h
+ * Copyright (c) 2010-2015, Argon Sun (Fluorohydride)
+ * Copyright (c) 2016-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
- *  Created on: 2010-3-13
- *      Author: Argon
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
 #ifndef EFFECT_H_
 #define EFFECT_H_
 
-#include <cstdlib>
+#include <lua.h> //lua_Integer
 #include <vector>
-#include <map>
 #include "common.h"
-#include "lua_obj.h"
-#include "field.h"
 #include "effect_constants.h"
+#include "lua_obj.h"
 
 class card;
 class duel;
 class group;
+struct chain;
 struct tevent;
 enum effect_flag : uint32_t;
 enum effect_flag2 : uint32_t;
@@ -67,8 +65,7 @@ public:
 	uint64_t description{};
 	std::vector<lua_Integer> label;
 
-	explicit effect(duel* pd) : lua_obj_helper(pd) {};
-	~effect() = default;
+	explicit effect(duel* pd) : lua_obj_helper(pd) {}
 
 	int32_t is_disable_related();
 	int32_t is_self_destroy_related();

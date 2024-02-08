@@ -1,14 +1,14 @@
 /*
- * effect.cpp
+ * Copyright (c) 2010-2015, Argon Sun (Fluorohydride)
+ * Copyright (c) 2016-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
- *  Created on: 2010-5-7
- *      Author: Argon
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-
-#include "effect.h"
+#include <vector>
 #include "card.h"
 #include "duel.h"
-#include "group.h"
+#include "effect.h"
+#include "field.h"
 #include "interpreter.h"
 
 bool effect_sort_id(const effect* e1, const effect* e2) {
@@ -620,11 +620,9 @@ int32_t effect::reset(uint32_t reset_level, uint32_t reset_type) {
 		if(reset_level & 0xffff0000 & reset_flag)
 			return TRUE;
 		return FALSE;
-		break;
 	}
 	case RESET_CARD: {
 		return owner && (owner->data.code == reset_level);
-		break;
 	}
 	case RESET_PHASE: {
 		if(!(reset_flag & RESET_PHASE))
@@ -637,15 +635,12 @@ int32_t effect::reset(uint32_t reset_level, uint32_t reset_type) {
 		if(reset_count == 0)
 			return TRUE;
 		return FALSE;
-		break;
 	}
 	case RESET_CODE: {
 		return (code == reset_level) && (type & EFFECT_TYPE_SINGLE) && !(type & EFFECT_TYPE_ACTIONS);
-		break;
 	}
 	case RESET_COPY: {
 		return copy_id == reset_level;
-		break;
 	}
 	}
 	return FALSE;
@@ -778,7 +773,7 @@ effect* effect::clone(int32_t majestic) {
 	int32_t ref = ceffect->ref_handle;
 	*ceffect = *this;
 	ceffect->ref_handle = ref;
-	ceffect->handler = 0;
+	ceffect->handler = nullptr;
 	if(condition)
 		ceffect->condition = pduel->lua->clone_lua_ref(condition);
 	if(cost)
