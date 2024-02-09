@@ -312,6 +312,9 @@ struct processor {
 	card* attacker;
 	card* attack_target;
 	bool set_forced_attack;
+	//////kdiy//////////
+	bool mainphase_attack;
+	//////kdiy//////////
 	bool forced_attack;
 	card* forced_attacker;
 	card* forced_attack_target;

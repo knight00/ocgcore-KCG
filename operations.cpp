@@ -703,13 +703,13 @@ bool field::process(Processors::Recover& arg) {
 			pduel->lua->add_param<LuaParam::INT>(val);
 			pduel->lua->add_param<LuaParam::INT>(reason);
 			pduel->lua->add_param<LuaParam::INT>(reason_player);
-			val = peff->get_value(4);
+			val = static_cast<uint32_t>(peff->get_value(4));
 			returns.set<uint32_t>(0, val);
 			if (val == 0)
 				return TRUE;
 		}
+		arg.amount = val;
 		//////kdiy/////////
-		core.units.begin()->arg2 = (core.units.begin()->arg2 & 0xff000000) | (val & 0xffffff);
 		if(is_step) {
 			arg.step = 1;
 			core.recover_damage_reserve.push_back(std::move(arg));
@@ -1986,7 +1986,7 @@ bool field::process(Processors::Equip& arg) {
 		//if(equip_card->current.location == LOCATION_SZONE) {
 		if(((equip_card->current.location == LOCATION_SZONE && !equip_card->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (equip_card->current.location == LOCATION_MZONE && equip_card->is_affected_by_effect(EFFECT_SANCT_MZONE)))) {
 		///////////kdiy//////////
-			if(up && equip_card->is_position(POS_FACEDOWN))
+			if(faceup && equip_card->is_position(POS_FACEDOWN))
 				change_position(equip_card, 0, equip_player, POS_FACEUP, 0);
 			return FALSE;
 		}

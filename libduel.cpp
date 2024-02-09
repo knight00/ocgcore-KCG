@@ -1782,7 +1782,7 @@ LUA_STATIC_FUNCTION(ChangeAttackTarget) {
 			/////////kdiy/////
 			// if(pcard)
 			if(pcard && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-			/////////kdiy/////			
+			/////////kdiy/////
 				pduel->game_field->core.opp_mzone.insert(pcard->fieldid_r);
 		}
 		/////////kdiy/////
@@ -1790,7 +1790,7 @@ LUA_STATIC_FUNCTION(ChangeAttackTarget) {
 			if(pcard && (pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) || pcard->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))
 				pduel->game_field->core.opp_mzone.insert(pcard->fieldid_r);
 		}
-		/////////kdiy/////		
+		/////////kdiy/////
 		auto message = pduel->new_message(MSG_ATTACK);
 		message->write(attacker->get_info_location());
 		if(target) {
@@ -1824,13 +1824,12 @@ LUA_STATIC_FUNCTION(ForceAttack) {
 	auto attacker = lua_get<card*, true>(L, 1);
 	//////kdiy//////////
 	//auto attack_target = lua_get<card*, true>(L, 2);
-	auto attack_target = check_param(L, LuaParam::CARD, 2, true)? lua_get<card*, true>(L, 2): 0;
+	card* attack_target = lua_get<card*, false>(L, 2);
+	if(pduel->game_field->infos.phase == PHASE_MAIN1 || pduel->game_field->infos.phase == PHASE_MAIN2)
+	    pduel->game_field->core.mainphase_attack = true;
 	//////kdiy//////////
 	pduel->game_field->core.set_forced_attack = true;
 	pduel->game_field->core.forced_attacker = attacker;
-	//////kdiy//////////
-	if(attack_target != 0)
-	//////kdiy//////////
 	pduel->game_field->core.forced_attack_target = attack_target;
 	return yield();
 }

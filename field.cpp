@@ -3084,7 +3084,7 @@ int32_t field::get_attack_target(card* pcard, card_vector* v, bool chain_attack,
 			///////kdiy///////
 			if(atarget->is_affected_by_effect(EFFECT_SANCT_MZONE))
 			    continue;
-			///////kdiy///////			
+			///////kdiy///////
 			if(atarget->is_affected_by_effect(EFFECT_ONLY_BE_ATTACKED))
 				auto_attack.push_back(atarget);
 			if(pcard->is_affected_by_effect(EFFECT_ONLY_ATTACK_MONSTER, atarget))
@@ -3097,7 +3097,7 @@ int32_t field::get_attack_target(card* pcard, card_vector* v, bool chain_attack,
 	for(auto& atarget : player[1 - p].list_szone) {
 		if(atarget) {
 			if(!atarget->is_affected_by_effect(EFFECT_ORICA_SZONE) &&  !atarget->is_affected_by_effect(EFFECT_EQUIP_MONSTER))
-			    continue;		
+			    continue;
 			if(atarget->is_affected_by_effect(EFFECT_ONLY_BE_ATTACKED))
 				auto_attack.push_back(atarget);
 			if(pcard->is_affected_by_effect(EFFECT_ONLY_ATTACK_MONSTER, atarget))
@@ -3129,14 +3129,14 @@ int32_t field::get_attack_target(card* pcard, card_vector* v, bool chain_attack,
 		for(auto& atarget : player[1 - p].list_mzone)
 			///////kdiy///////////
 			//if (atarget != core.attacker)
-			if (atarget && atarget != core.attacker && !atarget->is_affected_by_effect(EFFECT_SANCT_MZONE))
+			if (atarget && !atarget->is_affected_by_effect(EFFECT_SANCT_MZONE))
 			///////kdiy///////////
 				attack_tg.push_back(atarget);
-		///////kdiy///////////		
+		///////kdiy///////////
 		for(auto& atarget : player[1 - p].list_szone)
-			if (atarget && atarget != core.attacker && (atarget->is_affected_by_effect(EFFECT_ORICA_SZONE) || atarget->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))
-				attack_tg.push_back(atarget);	
-		///////kdiy///////////			
+			if (atarget && (atarget->is_affected_by_effect(EFFECT_ORICA_SZONE) || atarget->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))
+				attack_tg.push_back(atarget);
+		///////kdiy///////////
 		if(is_player_affected_by_effect(p, EFFECT_SELF_ATTACK) && (!pcard->is_affected_by_effect(EFFECT_ATTACK_ALL) || !attack_tg.size())) {
 			for(auto& atarget : player[p].list_mzone)
 			    //////kdiy//////////

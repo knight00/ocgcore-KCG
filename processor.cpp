@@ -1813,6 +1813,11 @@ bool field::process(Processors::BattleCommand& arg) {
 		if((peffect = is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)) != nullptr || core.force_turn_end) {
 			arg.step = 41;
 			arg.phase_to_change_to = 2;
+			//////kdiy//////////
+			if(core.force_turn_end && core.mainphase_attack) {
+				return FALSE;
+			}
+			//////kdiy//////////
 			arg.repeat_battle_phase = static_cast<bool>(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE));
 			if(core.force_turn_end || !peffect->value) {
 				reset_phase(PHASE_BATTLE_STEP);
@@ -1860,8 +1865,8 @@ bool field::process(Processors::BattleCommand& arg) {
 					continue;
 				//////////kdiy//////
 				if(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-					continue;				
-				//////////kdiy//////	
+					continue;
+				//////////kdiy//////
 				uint8_t chain_attack = FALSE;
 				if(core.chain_attack && core.chain_attacker_id == pcard->fieldid)
 					chain_attack = TRUE;
@@ -1882,7 +1887,7 @@ bool field::process(Processors::BattleCommand& arg) {
 				if(!pcard->is_capable_attack_announce(infos.turn_player))
 					continue;
 				if(!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && !pcard->is_affected_by_effect(EFFECT_EQUIP_MONSTER))
-					continue;				
+					continue;
 				uint8_t chain_attack = FALSE;
 				if(core.chain_attack && core.chain_attacker_id == pcard->fieldid)
 					chain_attack = TRUE;
@@ -2521,7 +2526,7 @@ bool field::process(Processors::BattleCommand& arg) {
 		///////////kdiy///////////
 		       // && core.attacker->current.location == LOCATION_MZONE && core.attacker->fieldid_r == core.pre_field[0]) {
 		        && ((core.attacker->current.location == LOCATION_MZONE && !core.attacker->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (core.attacker->current.location == LOCATION_SZONE && (core.attacker->is_affected_by_effect(EFFECT_ORICA_SZONE) || core.attacker->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))) && core.attacker->fieldid_r == core.pre_field[0]) {
-		///////////kdiy///////////					
+		///////////kdiy///////////
 			des.insert(core.attacker);
 			core.attacker->temp.reason = core.attacker->current.reason;
 			core.attacker->temp.reason_card = core.attacker->current.reason_card;
@@ -2545,7 +2550,7 @@ bool field::process(Processors::BattleCommand& arg) {
 		///////////kdiy///////////
 		        //&& core.attack_target->current.location == LOCATION_MZONE && core.attack_target->fieldid_r == core.pre_field[1]) {
 		        && ((core.attack_target->current.location == LOCATION_MZONE && !core.attack_target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (core.attack_target->current.location == LOCATION_SZONE && (core.attack_target->is_affected_by_effect(EFFECT_ORICA_SZONE) || core.attack_target->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))) && core.attack_target->fieldid_r == core.pre_field[1]) {
-		///////////kdiy///////////		
+		///////////kdiy///////////
 			des.insert(core.attack_target);
 			core.attack_target->temp.reason = core.attack_target->current.reason;
 			core.attack_target->temp.reason_card = core.attack_target->current.reason_card;
@@ -2732,6 +2737,9 @@ bool field::process(Processors::BattleCommand& arg) {
 			arg.step = 0;
 		} else
 			arg.step = -1;
+		//////kdiy//////////
+		if(!core.mainphase_attack)
+		//////kdiy//////////
 		infos.phase = PHASE_BATTLE_STEP;
 		pduel->new_message(MSG_DAMAGE_STEP_END);
 		reset_phase(PHASE_DAMAGE);
@@ -2752,6 +2760,10 @@ bool field::process(Processors::BattleCommand& arg) {
 				arg.step = -1;
 			return FALSE;
 		}
+		//////kdiy//////////
+		if(core.mainphase_attack)
+		    return FALSE;
+		//////kdiy//////////
 		reset_phase(PHASE_BATTLE_STEP);
 		adjust_all();
 		return FALSE;
@@ -2769,8 +2781,8 @@ bool field::process(Processors::BattleCommand& arg) {
 		}
 		arg.repeat_battle_phase = !eset.empty();
 		////kdiy////////
-		if(core.forced_attack)
-		    arg.repeat_battle_phase = false;
+		if(core.mainphase_attack)
+		    return FALSE;
 		////kdiy////////
 		infos.phase = PHASE_BATTLE;
 		emplace_process<Processors::PhaseEvent>(PHASE_BATTLE);
@@ -2780,6 +2792,12 @@ bool field::process(Processors::BattleCommand& arg) {
 	case 42: {
 		core.attacker = nullptr;
 		core.attack_target = nullptr;
+		//////kdiy//////////
+		if(core.mainphase_attack) {
+			core.mainphase_attack = FALSE;
+			return TRUE;
+		}
+		//////kdiy//////////
 		if(arg.repeat_battle_phase && arg.second_battle_phase_is_optional) {
 			emplace_process<Processors::SelectYesNo>(infos.turn_player, 32);
 			return FALSE;
@@ -2801,20 +2819,28 @@ bool field::process(Processors::ForcedBattle& arg) {
 	switch(arg.step) {
 	case 0: {
 		////kdiy///////////
-		// if (is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP))
-		// 	return TRUE;
-		// ++core.battle_phase_count[infos.turn_player];
-		// if (is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) || core.force_turn_end) {
-		// 	auto message = pduel->new_message(MSG_NEW_PHASE);
-		// 	message->write<uint16_t>(PHASE_BATTLE_START);
-		// 	reset_phase(PHASE_BATTLE_START);
-		// 	reset_phase(PHASE_BATTLE_STEP);
-		// 	reset_phase(PHASE_BATTLE);
-		// 	adjust_all();
-		// 	message = pduel->new_message(MSG_NEW_PHASE);
-		// 	message->write<uint16_t>(infos.phase);
-		// 	return TRUE;
-		// }
+		if(!core.mainphase_attack) {
+		////kdiy///////////
+		if (is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP))
+			return TRUE;
+		++core.battle_phase_count[infos.turn_player];
+		if (is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) || core.force_turn_end) {
+			auto message = pduel->new_message(MSG_NEW_PHASE);
+			message->write<uint16_t>(PHASE_BATTLE_START);
+			reset_phase(PHASE_BATTLE_START);
+			reset_phase(PHASE_BATTLE_STEP);
+			reset_phase(PHASE_BATTLE);
+			adjust_all();
+			message = pduel->new_message(MSG_NEW_PHASE);
+			message->write<uint16_t>(infos.phase);
+			return TRUE;
+		}
+		////kdiy///////////
+		} else {
+			if((infos.phase == PHASE_MAIN1 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M1))
+				|| (infos.phase == PHASE_MAIN2 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M2)) || core.force_turn_end)
+				return TRUE;
+		}
 		////kdiy///////////
 		arg.backup_phase = infos.phase;
 		auto tmp_attacker = core.forced_attacker;
@@ -2822,11 +2848,15 @@ bool field::process(Processors::ForcedBattle& arg) {
 		if(!tmp_attacker->is_capable_attack_announce(infos.turn_player))
 			return TRUE;
 		card_vector cv;
+		////kdiy///////////
+		if(!core.mainphase_attack) {
+		////kdiy///////////
 		get_attack_target(tmp_attacker, &cv);
-		///////kdiy//////////
-		// if((cv.size() == 0 && tmp_attacker->direct_attackable == 0) || (tmp_attack_target && std::find(cv.begin(), cv.end(), tmp_attack_target)==cv.end()))
-		// 	return TRUE;
-		///////kdiy//////////
+		if((cv.size() == 0 && tmp_attacker->direct_attackable == 0) || (tmp_attack_target && std::find(cv.begin(), cv.end(), tmp_attack_target)==cv.end()))
+			return TRUE;
+		////kdiy///////////
+		}
+		////kdiy///////////
 		core.attacker = tmp_attacker;
 		core.attack_target = tmp_attack_target;
 		for(uint8_t p = 0; p < 2; ++p) {
@@ -2865,13 +2895,25 @@ bool field::process(Processors::ForcedBattle& arg) {
 		core.chain_attacker_id = 0;
 		core.chain_attack_target = nullptr;
 		returns.set<int32_t>(0, 1);
+		////kdiy////////
+		if(!core.mainphase_attack) {
+		////kdiy////////
 		reset_phase(infos.phase);
 		reset_phase(PHASE_BATTLE_START);
 		infos.phase = PHASE_BATTLE_STEP;
+		////kdiy////////
+		}
+		////kdiy////////
 		core.new_fchain.clear();
 		core.new_ochain.clear();
 		core.quick_f_chain.clear();
 		core.delayed_quick_tmp.clear();
+		////kdiy////////
+		if(core.mainphase_attack) {
+			emplace_process<Processors::BattleCommand>(Step{ 1 });
+			return FALSE;
+		}
+		////kdiy////////
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(PHASE_BATTLE_START);
 		emplace_process<Processors::BattleCommand>(Step{ 1 });
@@ -2889,10 +2931,10 @@ bool field::process(Processors::ForcedBattle& arg) {
 			for(auto& pcard : player[p].list_mzone) {
 				if(!pcard)
 					continue;
-			///////kdiy//////////
+				///////kdiy//////////
 				if(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-					continue;			
-			///////kdiy//////////							
+					continue;
+				///////kdiy//////////
 				pcard->attack_announce_count = 0;
 				pcard->announce_count = 0;
 				pcard->attacked_count = 0;
@@ -2917,6 +2959,12 @@ bool field::process(Processors::ForcedBattle& arg) {
 		}
 		core.attacker = nullptr;
 		core.attack_target = nullptr;
+		//////kdiy//////////
+		if(core.mainphase_attack) {
+			core.mainphase_attack = FALSE;
+			return TRUE;
+		}
+		//////kdiy//////////
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
 		return TRUE;
@@ -3420,13 +3468,13 @@ bool field::process(Processors::Turn& arg) {
 			for(auto& pcard : player[p].list_mzone) {
 				if(!pcard)
 					continue;
-				////////////kdiy/////////	
+				////////////kdiy/////////
 				if(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 					pcard->set_status(STATUS_SET_TURN, FALSE);
-					pcard->indestructable_effects.clear();	
-					continue;		
+					pcard->indestructable_effects.clear();
+					continue;
 				}
-				////////////kdiy/////////	
+				////////////kdiy/////////
 				pcard->set_status(STATUS_SUMMON_TURN, FALSE);
 				pcard->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);
 				pcard->set_status(STATUS_SPSUMMON_TURN, FALSE);
@@ -3444,7 +3492,7 @@ bool field::process(Processors::Turn& arg) {
 			for(auto& pcard : player[p].list_szone) {
 				if(!pcard)
 					continue;
-				////////////kdiy/////////	
+				////////////kdiy/////////
 				if(pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 					pcard->set_status(STATUS_SUMMON_TURN, FALSE);
 					pcard->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);
@@ -3458,10 +3506,10 @@ bool field::process(Processors::Turn& arg) {
 					pcard->announced_cards.clear();
 					pcard->attacked_cards.clear();
 					pcard->battled_cards.clear();
-					pcard->attack_all_target = TRUE;	
-					continue;		
+					pcard->attack_all_target = TRUE;
+					continue;
 				}
-				////////////kdiy/////////				
+				////////////kdiy/////////
 				pcard->set_status(STATUS_SET_TURN, FALSE);
 				pcard->indestructable_effects.clear();
 			}
@@ -3637,12 +3685,19 @@ bool field::process(Processors::Turn& arg) {
 			arg.step = 15;
 			return FALSE;
 		}
+		////kdiy////////
+		if(!core.mainphase_attack)
+		////kdiy////////
 		infos.phase = PHASE_BATTLE_START;
 		core.new_fchain.clear();
 		core.new_ochain.clear();
 		core.quick_f_chain.clear();
 		core.delayed_quick_tmp.clear();
 		core.phase_action = false;
+		////kdiy////////
+		if(core.mainphase_attack)
+		    return FALSE;
+		////kdiy////////
 		++core.battle_phase_count[infos.turn_player];
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
@@ -3667,12 +3722,18 @@ bool field::process(Processors::Turn& arg) {
 	case 11: {
 		if(core.new_fchain.size() || core.new_ochain.size())
 			emplace_process<Processors::PointEvent>(false, false, false);
+		////kdiy////////
+		if(!core.mainphase_attack)
+		////kdiy////
 		emplace_process<Processors::PhaseEvent>(PHASE_BATTLE_START);
 		/*if(core.set_forced_attack)
 			emplace_process<Processors::ForcedBattle>();*/
 		return FALSE;
 	}
 	case 12: {
+		////kdiy////////
+		if(!core.mainphase_attack)
+		////kdiy////////
 		infos.phase = PHASE_BATTLE_STEP;
 		core.new_fchain.clear();
 		core.new_ochain.clear();
@@ -3693,10 +3754,10 @@ bool field::process(Processors::Turn& arg) {
 				for(auto& pcard : player[p].list_mzone) {
 					if(!pcard)
 						continue;
-					////////////kdiy/////////	
-					if(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) 	
-					    continue;		
-					////////////kdiy/////////		
+					////////////kdiy/////////
+					if(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
+					    continue;
+					////////////kdiy/////////
 					pcard->attack_announce_count = 0;
 					pcard->announce_count = 0;
 					pcard->attacked_count = 0;
@@ -3705,12 +3766,12 @@ bool field::process(Processors::Turn& arg) {
 					pcard->battled_cards.clear();
 				}
 			}
-			////////////kdiy/////////	
+			////////////kdiy/////////
 			for(uint8_t p = 0; p < 2; ++p) {
 				for(auto& pcard : player[p].list_szone) {
 					if(!pcard)
-						continue;	
-					if(!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && !pcard->is_affected_by_effect(EFFECT_EQUIP_MONSTER)) 	
+						continue;
+					if(!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && !pcard->is_affected_by_effect(EFFECT_EQUIP_MONSTER))
 					    continue;
 					pcard->attack_announce_count = 0;
 					pcard->announce_count = 0;
@@ -3720,7 +3781,7 @@ bool field::process(Processors::Turn& arg) {
 					pcard->battled_cards.clear();
 				}
 			}
-			////////////kdiy/////////	
+			////////////kdiy/////////
 			return FALSE;
 		}
 		arg.has_performed_second_battle_phase = false;
@@ -5061,8 +5122,8 @@ bool field::process(Processors::Adjust& arg) {
 						reason_cards.insert(peffect->get_handler());
 				}
 			}
-		}	
-		////////kdiy/////////			
+		}
+		////////kdiy/////////
 		if(core.control_adjust_set[0].size() || core.control_adjust_set[1].size()) {
 			core.re_adjust = true;
 			get_control(core.control_adjust_set[1 - infos.turn_player], nullptr, PLAYER_NONE, infos.turn_player, 0, 0, 0xff);
@@ -5121,7 +5182,7 @@ bool field::process(Processors::Adjust& arg) {
 								core.control_adjust_set[p].insert(pcard);
 						}
 					}
-					/////////kdiy//////					
+					/////////kdiy//////
 				}
 			}
 			if(core.control_adjust_set[0].size() || core.control_adjust_set[1].size()) {
@@ -5162,8 +5223,8 @@ bool field::process(Processors::Adjust& arg) {
 				card* pcard = player[tp].list_mzone[i];
 				if(pcard && pcard->equiping_target && !pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, pcard->equiping_target))
 					destroy_set.insert(pcard);
-			}	
-			//////kdiy//////					
+			}
+			//////kdiy//////
 			tp = 1 - tp;
 		}
 		if(destroy_set.size()) {
@@ -5183,8 +5244,8 @@ bool field::process(Processors::Adjust& arg) {
 					continue;
 				///////kdiy/////
 				if(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-					continue;				
-				///////kdiy/////					
+					continue;
+				///////kdiy/////
 				eset.clear();
 				pcard->filter_effect(EFFECT_SET_POSITION, &eset);
 				if(eset.size()) {
@@ -5223,7 +5284,7 @@ bool field::process(Processors::Adjust& arg) {
 					pcard->set_status(STATUS_JUST_POS, FALSE);
 				}
 			}
-			/////////kdiy///////////			
+			/////////kdiy///////////
 			tp = 1 - tp;
 		}
 		if(pos_adjust.size()) {
@@ -5310,7 +5371,7 @@ bool field::process(Processors::Adjust& arg) {
 				/////////kdiy//////
 				//if(pcard)
 				if(pcard && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
-				/////////kdiy//////	
+				/////////kdiy//////
 					fidset.insert(pcard->fieldid_r);
 			}
 			/////////kdiy//////
@@ -5322,14 +5383,14 @@ bool field::process(Processors::Adjust& arg) {
 			if(fidset != core.opp_mzone || !confirm_attack_target())
 				core.attack_rollback = true;
 		} else {
-			/////////kdiy//////	
+			/////////kdiy//////
 			// if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]
 			// 	|| ((core.attacker->current.position & POS_DEFENSE) && !(core.attacker->is_affected_by_effect(EFFECT_DEFENSE_ATTACK)))			
 			if(!((core.attacker->current.location == LOCATION_MZONE && !core.attacker->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (core.attacker->current.location == LOCATION_SZONE && (core.attacker->is_affected_by_effect(EFFECT_ORICA_SZONE) || core.attacker->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))) || core.attacker->fieldid_r != core.pre_field[0]
 			    || ((core.attacker->current.position & POS_DEFENSE) && !core.attacker->is_affected_by_effect(EFFECT_EQUIP_MONSTER) && !(core.attacker->is_affected_by_effect(EFFECT_DEFENSE_ATTACK)))
-			/////////kdiy//////	
+			/////////kdiy//////
 				|| core.attacker->current.controler != core.attacker->attack_controler
-				/////////kdiy//////	
+				/////////kdiy//////
 				// || (core.attack_target && (core.attack_target->current.location != LOCATION_MZONE
 				|| (core.attack_target && (!((core.attack_target->current.location == LOCATION_MZONE && !core.attack_target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (core.attack_target->current.location == LOCATION_SZONE && (core.attack_target->is_affected_by_effect(EFFECT_ORICA_SZONE) || core.attack_target->is_affected_by_effect(EFFECT_EQUIP_MONSTER))))
 				/////////kdiy//////	
@@ -5340,14 +5401,8 @@ bool field::process(Processors::Adjust& arg) {
 		return FALSE;
 	}
 	case 15: {
-		/////////kdiy//////
-		// raise_event((card*)nullptr, EVENT_ADJUST, nullptr, 0, PLAYER_NONE, PLAYER_NONE, 0);
-		// process_instant_event();
-		if(!core.forced_attack) {
-			raise_event((card*)nullptr, EVENT_ADJUST, nullptr, 0, PLAYER_NONE, PLAYER_NONE, 0);
-			process_instant_event();
-		}
-		/////////kdiy//////
+		raise_event((card*)nullptr, EVENT_ADJUST, nullptr, 0, PLAYER_NONE, PLAYER_NONE, 0);
+		process_instant_event();
 		return FALSE;
 	}
 	case 16: {
