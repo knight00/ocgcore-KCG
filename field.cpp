@@ -812,7 +812,7 @@ int32_t field::get_useable_count_other(card* pcard, uint8_t playerid, uint8_t lo
 	if(location == LOCATION_MZONE)
 		///////////kdiy////////
 		if(is_player_affected_by_effect(playerid, EFFECT_ORICA))
-		limit = get_mzone_limit(playerid, uplayer, reason) +  get_szone_limit(playerid, uplayer, reason);
+		limit = get_mzone_limit(playerid, uplayer, reason) + get_szone_limit(playerid, uplayer, reason);
 		else
 	    ///////////kdiy////////
 		limit = get_mzone_limit(playerid, uplayer, reason);
@@ -3271,6 +3271,10 @@ int32_t field::check_tribute(card* pcard, int32_t min, int32_t max, group* mg, u
 		return FALSE;
 	max -= (int32_t)ex_list.size();
 	int32_t fcount = get_mzone_limit(toplayer, sumplayer, LOCATION_REASON_TOFIELD);
+    ///////////kdiy////////
+	if(is_player_affected_by_effect(toplayer, EFFECT_ORICA))
+	fcount+= get_szone_limit(toplayer, sumplayer, LOCATION_REASON_TOFIELD);
+	///////////kdiy////////
 	if(s < -fcount + 1)
 		return FALSE;
 	if(max < 0)

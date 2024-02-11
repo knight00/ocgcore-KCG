@@ -360,13 +360,19 @@ struct MoveToField : public Process<false> {
 	bool enable;
 	uint8_t ret;
 	bool pzone;
-	uint8_t zone;
+    //////kdiy///////
+	//uint8_t zone;
+	uint32_t zone;
+    //////kdiy///////
 	bool rule;
 	uint8_t location_reason;
 	bool confirm;
 	card* target;
 	MoveToField(uint16_t step_, card* target_, bool enable_, uint8_t ret_, bool pzone_,
-						 uint8_t zone_, bool rule_, uint8_t location_reason_, bool confirm_) :
+                         //////kdiy///////
+						 //uint8_t zone_, bool rule_, uint8_t location_reason_, bool confirm_) :
+                         uint32_t zone_, bool rule_, uint8_t location_reason_, bool confirm_) :
+                         //////kdiy///////
 		Process(step_), enable(enable_), ret(ret_) , pzone(pzone_) , zone(zone_) , rule(rule_) ,
 		location_reason(location_reason_) , confirm(confirm_), target(target_) {}
 };

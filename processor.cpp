@@ -1814,9 +1814,8 @@ bool field::process(Processors::BattleCommand& arg) {
 			arg.step = 41;
 			arg.phase_to_change_to = 2;
 			//////kdiy//////////
-			if(core.force_turn_end && core.mainphase_attack) {
+			if(core.force_turn_end && core.mainphase_attack)
 				return FALSE;
-			}
 			//////kdiy//////////
 			arg.repeat_battle_phase = static_cast<bool>(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE));
 			if(core.force_turn_end || !peffect->value) {

@@ -5563,7 +5563,7 @@ bool field::process(Processors::MoveToField& arg) {
 	// uint8_t positions = (target->to_field_param) & 0xff;
 	uint8_t move_player = (target->to_field_param >> 28) & 0xf;
 	uint8_t playerid = (target->to_field_param >> 24) & 0xf;
-	uint32_t Rloc = (target->to_field_param >> 16) & 0xff;
+	uint8_t Rloc = (target->to_field_param >> 16) & 0xff;
 	uint8_t location = (target->to_field_param >> 8) & 0xff;
 	uint8_t positions = (target->to_field_param) & 0xff;
 	///////kdiy///////
@@ -5635,12 +5635,21 @@ bool field::process(Processors::MoveToField& arg) {
 			if(!confirm && (zone & (zone - 1)) == 0) {
 				for(uint8_t seq = 0; seq < 8; ++seq) {
 					if((1 << seq) & zone) {
+                        ///////////kdiy//////////
+                        if(Rloc == 0x40)
+                            returns.set<int8_t>(1, LOCATION_MZONE);
+                         if(Rloc == 0x80)
+                            returns.set<int8_t>(1, LOCATION_SZONE);
+                        ///////////kdiy//////////
 						returns.set<int8_t>(2, seq);
 						return FALSE;
 					}
 				}
 			}
 			if(!is_flag(DUEL_TRAP_MONSTERS_NOT_USE_ZONE) && (ret == 2)) {
+                ///////////kdiy//////////
+                returns.set<int8_t>(1, target->previous.location);
+                ///////////kdiy//////////
 				returns.set<int8_t>(2, target->previous.sequence);
 				return FALSE;
 			}
@@ -5649,9 +5658,9 @@ bool field::process(Processors::MoveToField& arg) {
 				    //////kdiy/////
 					//flag = ((flag & 0xff) << 8) | 0xffff00ff;
 			        {
-					   if(is_player_affected_by_effect(playerid, EFFECT_SANCT) && Rloc != 0x80) {
+					   if(is_player_affected_by_effect(playerid, EFFECT_SANCT) && Rloc != 0x80)
 						    flag = (flag & 0xff1f) | 0xffff00e0;
-					   } else
+					   else
 					        flag = (flag & 0xff00) | 0xffff00ff;
 					}
 				    //////kdiy/////
@@ -5708,8 +5717,8 @@ bool field::process(Processors::MoveToField& arg) {
 			//if(location != target->current.location) {
 			uint32_t orica = 0;
 			uint32_t sanct = 0;
-			effect* oeffect = is_player_affected_by_effect(playerid,EFFECT_ORICA);
-			effect* seffect = is_player_affected_by_effect(playerid,EFFECT_SANCT);
+			effect* oeffect = is_player_affected_by_effect(playerid, EFFECT_ORICA);
+			effect* seffect = is_player_affected_by_effect(playerid, EFFECT_SANCT);
 			if(target->temp.location == LOCATION_SZONE && location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
 				orica = 1;
 			if(target->temp.location == LOCATION_MZONE && location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
@@ -5738,7 +5747,7 @@ bool field::process(Processors::MoveToField& arg) {
 				deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 				target->add_effect(deffect);
 			}
-			if(seffect && sanct==1 && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+			if(seffect && sanct == 1 && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 				effect* deffect = pduel->new_effect();
 				deffect->owner = seffect->owner;
 				deffect->code = EFFECT_SANCT_MZONE;
