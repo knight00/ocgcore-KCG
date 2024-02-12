@@ -1811,12 +1811,8 @@ bool field::process(Processors::BattleCommand& arg) {
 		core.attacker = nullptr;
 		core.attack_target = nullptr;
 		if((peffect = is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)) != nullptr || core.force_turn_end) {
-			arg.step = 41;
+            arg.step = 41;
 			arg.phase_to_change_to = 2;
-			//////kdiy//////////
-			if(core.force_turn_end && core.mainphase_attack)
-				return FALSE;
-			//////kdiy//////////
 			arg.repeat_battle_phase = static_cast<bool>(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE));
 			if(core.force_turn_end || !peffect->value) {
 				reset_phase(PHASE_BATTLE_STEP);
@@ -1830,6 +1826,11 @@ bool field::process(Processors::BattleCommand& arg) {
 			}
 			return FALSE;
 		}
+        ////kdiy///////////
+		else if(((infos.phase == PHASE_MAIN1 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M1))
+				|| (infos.phase == PHASE_MAIN2 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M2))) && core.mainphase_attack)
+			return TRUE;
+		////kdiy///////////
 		auto pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
 		for(auto eit = pr.first; eit != pr.second; eit++) {
 			peffect = eit->second;
@@ -2183,7 +2184,12 @@ bool field::process(Processors::BattleCommand& arg) {
 		return FALSE;
 	}
 	case 9: {
-		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)
+        ///////kdiy///////
+		//if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)
+        if((is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) 
+          || (((infos.phase == PHASE_MAIN1 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M1))
+		    || (infos.phase == PHASE_MAIN2 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M2))) && core.mainphase_attack))
+        ///////kdiy///////
 			|| core.attacker->is_status(STATUS_ATTACK_CANCELED) || core.attack_rollback) {
 			arg.step = 10;
 			return FALSE;
@@ -2214,7 +2220,11 @@ bool field::process(Processors::BattleCommand& arg) {
 			pduel->new_message(MSG_ATTACK_DISABLED);
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		}
-		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)
+		///////kdiy///////
+		//if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)
+        if((is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)
+          || (((infos.phase == PHASE_MAIN1 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M1)) || (infos.phase == PHASE_MAIN2 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M2))) && core.mainphase_attack))
+        ///////kdiy///////
 			|| core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
 			arg.step = 12;
 			return FALSE;
@@ -2736,9 +2746,6 @@ bool field::process(Processors::BattleCommand& arg) {
 			arg.step = 0;
 		} else
 			arg.step = -1;
-		//////kdiy//////////
-		if(!core.mainphase_attack)
-		//////kdiy//////////
 		infos.phase = PHASE_BATTLE_STEP;
 		pduel->new_message(MSG_DAMAGE_STEP_END);
 		reset_phase(PHASE_DAMAGE);
@@ -2759,10 +2766,6 @@ bool field::process(Processors::BattleCommand& arg) {
 				arg.step = -1;
 			return FALSE;
 		}
-		//////kdiy//////////
-		if(core.mainphase_attack)
-		    return FALSE;
-		//////kdiy//////////
 		reset_phase(PHASE_BATTLE_STEP);
 		adjust_all();
 		return FALSE;
@@ -2779,10 +2782,6 @@ bool field::process(Processors::BattleCommand& arg) {
 			}
 		}
 		arg.repeat_battle_phase = !eset.empty();
-		////kdiy////////
-		if(core.mainphase_attack)
-		    return FALSE;
-		////kdiy////////
 		infos.phase = PHASE_BATTLE;
 		emplace_process<Processors::PhaseEvent>(PHASE_BATTLE);
 		adjust_all();
@@ -2817,13 +2816,15 @@ bool field::process(Processors::BattleCommand& arg) {
 bool field::process(Processors::ForcedBattle& arg) {
 	switch(arg.step) {
 	case 0: {
-		////kdiy///////////
-		if(!core.mainphase_attack) {
-		////kdiy///////////
 		if (is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP))
 			return TRUE;
 		++core.battle_phase_count[infos.turn_player];
-		if (is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) || core.force_turn_end) {
+        ////kdiy///////////
+		//if (is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) || core.force_turn_end) {
+        if (is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) 
+            || (((infos.phase == PHASE_MAIN1 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M1)) || (infos.phase == PHASE_MAIN2 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M2))) && core.mainphase_attack)
+            || core.force_turn_end) {
+        ////kdiy///////////
 			auto message = pduel->new_message(MSG_NEW_PHASE);
 			message->write<uint16_t>(PHASE_BATTLE_START);
 			reset_phase(PHASE_BATTLE_START);
@@ -2834,13 +2835,6 @@ bool field::process(Processors::ForcedBattle& arg) {
 			message->write<uint16_t>(infos.phase);
 			return TRUE;
 		}
-		////kdiy///////////
-		} else {
-			if((infos.phase == PHASE_MAIN1 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M1))
-				|| (infos.phase == PHASE_MAIN2 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M2)) || core.force_turn_end)
-				return TRUE;
-		}
-		////kdiy///////////
 		arg.backup_phase = infos.phase;
 		auto tmp_attacker = core.forced_attacker;
 		auto tmp_attack_target = core.forced_attack_target;
@@ -2894,25 +2888,13 @@ bool field::process(Processors::ForcedBattle& arg) {
 		core.chain_attacker_id = 0;
 		core.chain_attack_target = nullptr;
 		returns.set<int32_t>(0, 1);
-		////kdiy////////
-		if(!core.mainphase_attack) {
-		////kdiy////////
 		reset_phase(infos.phase);
 		reset_phase(PHASE_BATTLE_START);
 		infos.phase = PHASE_BATTLE_STEP;
-		////kdiy////////
-		}
-		////kdiy////////
 		core.new_fchain.clear();
 		core.new_ochain.clear();
 		core.quick_f_chain.clear();
 		core.delayed_quick_tmp.clear();
-		////kdiy////////
-		if(core.mainphase_attack) {
-			emplace_process<Processors::BattleCommand>(Step{ 1 });
-			return FALSE;
-		}
-		////kdiy////////
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(PHASE_BATTLE_START);
 		emplace_process<Processors::BattleCommand>(Step{ 1 });
@@ -2959,10 +2941,8 @@ bool field::process(Processors::ForcedBattle& arg) {
 		core.attacker = nullptr;
 		core.attack_target = nullptr;
 		//////kdiy//////////
-		if(core.mainphase_attack) {
+		if(core.mainphase_attack)
 			core.mainphase_attack = FALSE;
-			return TRUE;
-		}
 		//////kdiy//////////
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
@@ -3684,9 +3664,6 @@ bool field::process(Processors::Turn& arg) {
 			arg.step = 15;
 			return FALSE;
 		}
-		////kdiy////////
-		if(!core.mainphase_attack)
-		////kdiy////////
 		infos.phase = PHASE_BATTLE_START;
 		core.new_fchain.clear();
 		core.new_ochain.clear();
@@ -3694,8 +3671,7 @@ bool field::process(Processors::Turn& arg) {
 		core.delayed_quick_tmp.clear();
 		core.phase_action = false;
 		////kdiy////////
-		if(core.mainphase_attack)
-		    return FALSE;
+		if(!core.mainphase_attack)
 		////kdiy////////
 		++core.battle_phase_count[infos.turn_player];
 		auto message = pduel->new_message(MSG_NEW_PHASE);
@@ -3721,18 +3697,12 @@ bool field::process(Processors::Turn& arg) {
 	case 11: {
 		if(core.new_fchain.size() || core.new_ochain.size())
 			emplace_process<Processors::PointEvent>(false, false, false);
-		////kdiy////////
-		if(!core.mainphase_attack)
-		////kdiy////
 		emplace_process<Processors::PhaseEvent>(PHASE_BATTLE_START);
 		/*if(core.set_forced_attack)
 			emplace_process<Processors::ForcedBattle>();*/
 		return FALSE;
 	}
 	case 12: {
-		////kdiy////////
-		if(!core.mainphase_attack)
-		////kdiy////////
 		infos.phase = PHASE_BATTLE_STEP;
 		core.new_fchain.clear();
 		core.new_ochain.clear();
