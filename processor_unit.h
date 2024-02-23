@@ -7,6 +7,7 @@
 #define PROCESSOR_UNIT_H_
 
 #include <cstdint>
+#include <map> //std::multimap
 #include <memory> //std::unique_ptr
 #include <type_traits> //std::false_type, std::true_type
 #include <variant>
@@ -14,6 +15,7 @@
 #include "containers_fwd.h"
 
 namespace P {
+inline constexpr auto restart = static_cast<uint16_t>(~(uint16_t()));
 template<bool NA>
 struct Process {
 	static constexpr auto needs_answer = NA;
@@ -21,7 +23,7 @@ struct Process {
 	Process& operator=(const Process&) = delete; // non copyable
 	Process(Process&&) = default; // construction-movable
 	Process& operator=(Process&&) = default; // movable
-	int16_t step;
+	uint16_t step;
 protected:
 	explicit Process(uint16_t step_) : step(step_) {}
 };
@@ -235,6 +237,7 @@ struct BattleCommand : public Process<false> {
 	effect* damage_change_effect;
 	group* cards_destroyed_by_battle;
 	card* reason_card;
+	std::multimap<effect*, card*> must_attack_map;
 	BattleCommand(uint16_t step_, group* cards_destroyed_by_battle_ = nullptr) :
 		Process(step_), phase_to_change_to(0), is_replaying_attack(false), attack_announce_failed(false),
 		repeat_battle_phase(false), second_battle_phase_is_optional(false),
