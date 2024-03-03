@@ -67,7 +67,6 @@ LUA_FUNCTION(SetEntityCode) {
 }
 LUA_FUNCTION(SetCardData) {
 	check_param_count(L, 3);
-	check_param(L, LuaParam::CARD, 1);
 	int32_t stype = lua_tointeger(L, 2);
 	switch(stype) {
 	// case CARDDATA_CODE:
@@ -138,11 +137,7 @@ LUA_FUNCTION(SetCardData) {
 	return 0;
 }
 LUA_FUNCTION(GetOriginalLinkMarker) {
-	check_param(L, LuaParam::CARD, 1);
-	if(self->status & STATUS_NO_LEVEL)
-		lua_pushinteger(L, 0);
-	else
-		lua_pushinteger(L, self->data.link_marker);
+    lua_pushinteger(L, self->data.link_marker);
 	return 1;
 }
 LUA_FUNCTION(GetRealCode) {

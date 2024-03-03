@@ -128,7 +128,7 @@ LUA_STATIC_FUNCTION(GetMasterRule) {
 LUA_STATIC_FUNCTION(ReadCard) {
 	check_param_count(L, 2);
 	card_data dat;
-	if(check_param(L, LuaParam::CARD, 1, TRUE)) {
+	if(check_param<LuaParam::CARD, true>(L, 1)) {
 		card* pcard = *(card**) lua_touserdata(L, 1);
 		dat = pcard->data;
 	} else {
