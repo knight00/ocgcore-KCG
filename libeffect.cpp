@@ -27,7 +27,6 @@ LUA_FUNCTION(SetOwner) {
 }
 //////kdiy//////////////////
 LUA_STATIC_FUNCTION(CreateEffect) {
-	check_param_count(L, 1);
 	auto pcard = lua_get<card*, true>(L, 1);
 	effect* peffect = pduel->new_effect();
 	peffect->effect_owner = pduel->game_field->core.reason_player;
@@ -43,12 +42,10 @@ LUA_STATIC_FUNCTION(GlobalEffect) {
 	return 1;
 }
 LUA_FUNCTION(Clone) {
-	check_param_count(L, 1);
 	interpreter::pushobject(L, self->clone());
 	return 1;
 }
 LUA_FUNCTION(Reset) {
-	check_param_count(L, 1);
 	if(self->owner == nullptr)
 		return 0;
 	if(self->is_flag(EFFECT_FLAG_FIELD_ONLY))
@@ -62,7 +59,6 @@ LUA_FUNCTION(Reset) {
 	return 0;
 }
 LUA_FUNCTION(GetFieldID) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->id);
 	return 1;
 }
@@ -296,7 +292,6 @@ LUA_FUNCTION(SetOperation) {
 	return 0;
 }
 LUA_FUNCTION(SetOwnerPlayer) {
-	check_param_count(L, 1);
 	auto p = lua_get<uint8_t>(L, 2);
 	if(p != 0 && p != 1)
 		return 0;
@@ -304,28 +299,23 @@ LUA_FUNCTION(SetOwnerPlayer) {
 	return 0;
 }
 LUA_FUNCTION(GetDescription) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->description);
 	return 1;
 }
 LUA_FUNCTION(GetCode) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->code);
 	return 1;
 }
 LUA_FUNCTION(GetRange) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->range);
 	return 1;
 }
 LUA_FUNCTION(GetTargetRange) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->s_range);
 	lua_pushinteger(L, self->o_range);
 	return 2;
 }
 LUA_FUNCTION(GetCountLimit) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->count_limit);
 	lua_pushinteger(L, self->count_limit_max);
 	lua_pushinteger(L, self->count_code);
@@ -334,24 +324,20 @@ LUA_FUNCTION(GetCountLimit) {
 	return 5;
 }
 LUA_FUNCTION(GetReset) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->reset_flag);
 	lua_pushinteger(L, self->reset_count);
 	return 2;
 }
 LUA_FUNCTION(GetType) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->type);
 	return 1;
 }
 LUA_FUNCTION(GetProperty) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->flag[0]);
 	lua_pushinteger(L, self->flag[1]);
 	return 2;
 }
 LUA_FUNCTION(GetLabel) {
-	check_param_count(L, 1);
 	const auto& label = self->label;
 	if(label.empty()) {
 		lua_pushinteger(L, 0);
@@ -363,7 +349,6 @@ LUA_FUNCTION(GetLabel) {
 	return static_cast<int32_t>(label.size());
 }
 LUA_FUNCTION(GetLabelObject) {
-	check_param_count(L, 1);
 	if(!self->label_object) {
 		lua_pushnil(L);
 		return 1;
@@ -376,53 +361,43 @@ LUA_FUNCTION(GetLabelObject) {
 	return 1;
 }
 LUA_FUNCTION(GetCategory) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->category);
 	return 1;
 }
 LUA_FUNCTION(GetOwner) {
-	check_param_count(L, 1);
 	interpreter::pushobject(L, self->get_owner());
 	return 1;
 }
 LUA_FUNCTION(GetHandler) {
-	check_param_count(L, 1);
 	interpreter::pushobject(L, self->get_handler());
 	return 1;
 }
 LUA_FUNCTION(GetOwnerPlayer) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->get_owner_player());
 	return 1;
 }
 LUA_FUNCTION(GetHandlerPlayer) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->get_handler_player());
 	return 1;
 }
 LUA_FUNCTION(GetHintTiming) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->hint_timing[0]);
 	lua_pushinteger(L, self->hint_timing[1]);
 	return 2;
 }
 LUA_FUNCTION(GetCondition) {
-	check_param_count(L, 1);
 	interpreter::pushobject(L, self->condition);
 	return 1;
 }
 LUA_FUNCTION(GetTarget) {
-	check_param_count(L, 1);
 	interpreter::pushobject(L, self->target);
 	return 1;
 }
 LUA_FUNCTION(GetCost) {
-	check_param_count(L, 1);
 	interpreter::pushobject(L, self->cost);
 	return 1;
 }
 LUA_FUNCTION(GetValue) {
-	check_param_count(L, 1);
 	if(self->is_flag(EFFECT_FLAG_FUNC_VALUE))
 		interpreter::pushobject(L, self->value);
 	else
@@ -430,12 +405,10 @@ LUA_FUNCTION(GetValue) {
 	return 1;
 }
 LUA_FUNCTION(GetOperation) {
-	check_param_count(L, 1);
 	interpreter::pushobject(L, self->operation);
 	return 1;
 }
 LUA_FUNCTION(GetActiveType) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->get_active_type());
 	return 1;
 }
@@ -470,17 +443,14 @@ LUA_FUNCTION(IsActivatable) {
 	return 1;
 }
 LUA_FUNCTION(IsActivated) {
-	check_param_count(L, 1);
 	lua_pushboolean(L, (self->type & 0x7f0) != 0);
 	return 1;
 }
 LUA_FUNCTION(GetActivateLocation) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->active_location);
 	return 1;
 }
 LUA_FUNCTION(GetActivateSequence) {
-	check_param_count(L, 1);
 	lua_pushinteger(L, self->active_sequence);
 	return 1;
 }

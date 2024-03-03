@@ -11,47 +11,42 @@
 
 namespace scriptlib {
 
-bool check_param(lua_State* L, LuaParam param_type, int32_t index, bool retfalse, void* retobj) {
-	const char* type = nullptr;
-	lua_obj* obj = nullptr;
-	switch(param_type) {
-	case LuaParam::CARD:
-	case LuaParam::GROUP:
-	case LuaParam::EFFECT:
-		if((obj = lua_get<lua_obj*>(L, index)) != nullptr && obj->lua_type == param_type) {
-			if(retobj)
-				*(lua_obj**)retobj = obj;
-			return true;
+const char* get_lua_type_name(lua_State* L, int32_t index) {
+	switch(auto type = lua_type(L, index); type) {
+	case LUA_TFUNCTION:
+		return "Function";
+	case LUA_TSTRING:
+		return "String";
+	case LUA_TNUMBER:
+		return "Int";
+	case LUA_TBOOLEAN:
+		return "boolean";
+	case LUA_TTABLE:
+		return "table";
+	case LUA_TNIL:
+	case LUA_TNONE:
+		return "nil";
+	case LUA_TUSERDATA:
+		if(auto* obj = lua_get<lua_obj*>(L, index); obj != nullptr) {
+			switch(obj->lua_type) {
+			case LuaParam::CARD:
+				return "Card";
+			case LuaParam::GROUP:
+				return "Group";
+			case LuaParam::EFFECT:
+				return "Effect";
+			case LuaParam::DELETED:
+				return "Deleted";
+			default:
+				unreachable();
+			}
 		}
-		type = param_type == LuaParam::CARD ? "Card" : param_type == LuaParam::GROUP ? "Group" : "Effect";
-		break;
-	case LuaParam::FUNCTION:
-		if(lua_isfunction(L, index))
-			return true;
-		type = "Function";
-		break;
-	case LuaParam::STRING:
-		if(lua_isstring(L, index))
-			return true;
-		type = "String";
-		break;
-	case LuaParam::INT:
-		if(lua_isinteger(L, index) || lua_isnumber(L, index))
-			return true;
-		type = "Int";
-		break;
-	case LuaParam::BOOLEAN:
-		if(!lua_isnone(L, index))
-			return true;
-		type = "boolean";
-		break;
+		[[fallthrough]];
 	default:
-		unreachable();
+		return "unknown";
 	}
-	if(retfalse)
-		return false;
-	lua_error(L, R"(Parameter %d should be "%s".)", index, type);
 }
+
 void check_action_permission(lua_State* L) {
 	if(lua_get<duel*>(L)->lua->no_action)
 		lua_error(L, "Action is not allowed here.");
