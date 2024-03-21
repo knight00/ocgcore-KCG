@@ -2065,7 +2065,7 @@ bool field::process(Processors::BattleCommand& arg) {
 			if(is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS))
 				emplace_process<Processors::SelectEffectYesNo>(1 - infos.turn_player, 31, core.attacker);
 			else
-				emplace_process<Processors::SelectYesNo>(1 - infos.turn_player, 31);
+				emplace_process<Processors::SelectYesNo>(infos.turn_player, 31);
 			return FALSE;
 		}
 		// no target and not direct attackable
