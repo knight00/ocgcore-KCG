@@ -210,15 +210,12 @@ void field::raise_event(card* event_card, uint32_t event_code, effect* reason_ef
 	new_event.event_value = event_value;
 	new_event.global_id = infos.event_id;
 }
-void field::raise_event(card_set* event_cards, uint32_t event_code, effect* reason_effect, uint32_t reason, uint8_t reason_player, uint8_t event_player, uint32_t event_value) {
+void field::raise_event(card_set event_cards, uint32_t event_code, effect* reason_effect, uint32_t reason, uint8_t reason_player, uint8_t event_player, uint32_t event_value) {
 	auto& new_event = core.queue_event.emplace_back();
 	new_event.trigger_card = nullptr;
-	if (event_cards) {
-		group* pgroup = pduel->new_group(*event_cards);
-		pgroup->is_readonly = TRUE;
-		new_event.event_cards = pgroup;
-	} else
-		new_event.event_cards = nullptr;
+	group* pgroup = pduel->new_group(std::move(event_cards));
+	pgroup->is_readonly = TRUE;
+	new_event.event_cards = pgroup;
 	new_event.event_code = event_code;
 	new_event.reason_effect = reason_effect;
 	new_event.reason = reason;
@@ -617,8 +614,17 @@ bool field::process(Processors::PointEvent& arg) {
 		for (auto clit = core.new_fchain_s.begin(); clit != core.new_fchain_s.end(); ) {
 			effect* peffect = clit->triggering_effect;
 			card* phandler = peffect->get_handler();
-			if(phandler->is_has_relation(*clit)) //work around: position and control should be refreshed before raising event
+			auto update_triggering_state = [&, updated_state = false]() mutable {
+				if(std::exchange(updated_state, true))
+					return;
 				clit->set_triggering_state(phandler);
+			};
+			if(phandler->is_has_relation(*clit)) //work around: position and control should be refreshed before raising event
+				update_triggering_state();
+			if(clit->triggering_player != phandler->current.controler && !peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER)) {
+				clit->triggering_player = phandler->current.controler;
+				update_triggering_state();
+			}
 			uint8_t tp = clit->triggering_player;
 			if((!clit->was_just_sent || phandler->current.location == LOCATION_HAND)
 			   && check_trigger_effect(*clit)
@@ -681,15 +687,24 @@ bool field::process(Processors::PointEvent& arg) {
 		for (auto clit = core.new_ochain_s.begin(); clit != core.new_ochain_s.end(); ) {
 			effect* peffect = clit->triggering_effect;
 			card* phandler = peffect->get_handler();
-			if(phandler->is_has_relation(*clit)) //work around: position and control should be refreshed before raising event
+			auto update_triggering_state = [&, updated_state = false]() mutable {
+				if(std::exchange(updated_state, true))
+					return;
 				clit->set_triggering_state(phandler);
+			};
+			if(phandler->is_has_relation(*clit)) //work around: position and control should be refreshed before raising event
+				update_triggering_state();
 			if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (peffect->type & EFFECT_TYPE_FIELD)
 				&& (peffect->range & LOCATION_HAND) && phandler->current.location == LOCATION_HAND) {
 				if(!phandler->is_has_relation(*clit) && peffect->is_condition_check(phandler->current.controler, clit->evt))
 					phandler->create_relation(*clit);
 				peffect->set_activate_location();
 				clit->triggering_player = phandler->current.controler;
-				clit->set_triggering_state(phandler);
+				update_triggering_state();
+			}
+			if(clit->triggering_player != phandler->current.controler && !peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER)) {
+				clit->triggering_player = phandler->current.controler;
+				update_triggering_state();
 			}
 			uint8_t tp = clit->triggering_player;
 			if((!clit->was_just_sent || phandler->current.location == LOCATION_HAND)
@@ -1919,7 +1934,21 @@ bool field::process(Processors::BattleCommand& arg) {
 	case 1: {
 		int32_t ctype = returns.at<int32_t>(0) & 0xffff;
 		int32_t sel = returns.at<int32_t>(0) >> 16;
-		if(ctype == 0) {
+		if(arg.forced_attack_done || (ctype != 0 && ctype != 1)) {
+			arg.step = 39;
+			// ignored when arg.forced_attack_done, so can be anything
+			arg.phase_to_change_to = ctype;
+			auto message = pduel->new_message(MSG_HINT);
+			message->write<uint8_t>(HINT_EVENT);
+			message->write<uint8_t>(1 - infos.turn_player);
+			message->write<uint64_t>(29);
+			core.select_chains.clear();
+			core.hint_timing[infos.turn_player] = TIMING_BATTLE_STEP_END;
+			emplace_process<Processors::QuickEffect>(false, 1 - infos.turn_player);
+			infos.priorities[infos.turn_player] = 1;
+			infos.priorities[1 - infos.turn_player] = 0;
+			return FALSE;
+		} else if(ctype == 0) {
 			auto newchain = std::next(core.select_chains.begin(), sel);
 			effect* peffect = newchain->triggering_effect;
 			if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
@@ -1953,7 +1982,7 @@ bool field::process(Processors::BattleCommand& arg) {
 		} else if(ctype == 1) {
 			arg.step = 2;
 			arg.attack_announce_failed = false;
-			if(!core.forced_attack)
+			if(!arg.forced_attack)
 				core.attacker = core.attackable_cards[sel];
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, FALSE);
 			core.attacker->attack_controler = core.attacker->current.controler;
@@ -1982,19 +2011,6 @@ bool field::process(Processors::BattleCommand& arg) {
 				adjust_all();
 			}
 			return FALSE;
-		} else {
-			arg.step = 39;
-			arg.phase_to_change_to = ctype;
-			auto message = pduel->new_message(MSG_HINT);
-			message->write<uint8_t>(HINT_EVENT);
-			message->write<uint8_t>(1 - infos.turn_player);
-			message->write<uint64_t>(29);
-			core.select_chains.clear();
-			core.hint_timing[infos.turn_player] = TIMING_BATTLE_STEP_END;
-			emplace_process<Processors::QuickEffect>(false, 1 - infos.turn_player);
-			infos.priorities[infos.turn_player] = 1;
-			infos.priorities[1 - infos.turn_player] = 0;
-			return FALSE;
 		}
 		/*if(core.set_forced_attack) {
 			core.set_forced_attack = false;
@@ -2021,14 +2037,14 @@ bool field::process(Processors::BattleCommand& arg) {
 		}
 		//Cancel the attack cost
 		if(core.attack_cost_paid != 1 && !core.attack_cancelable) {
-			if(core.forced_attack) {
+			if(arg.forced_attack) {
 				returns.set<int32_t>(0, 2);
 				arg.step = 0;
 			} else
 				arg.step = Processors::restart;
 			return FALSE;
 		}
-		if(core.forced_attack)
+		if(arg.forced_attack)
 			arg.step = 6;
 		return FALSE;
 	}
@@ -2120,7 +2136,7 @@ bool field::process(Processors::BattleCommand& arg) {
 				arg.step = 12;
 				return FALSE;
 			}
-			if(core.forced_attack) {
+			if(arg.forced_attack) {
 				returns.set<int32_t>(0, 2);
 				arg.step = 0;
 			} else
@@ -2147,7 +2163,7 @@ bool field::process(Processors::BattleCommand& arg) {
 		if(arg.attack_announce_failed) {
 			++core.attacker->announce_count;
 			core.chain_attack = false;
-			if(core.forced_attack) {
+			if(arg.forced_attack) {
 				returns.set<int32_t>(0, 2);
 				arg.step = 0;
 			} else
@@ -2283,7 +2299,7 @@ bool field::process(Processors::BattleCommand& arg) {
 			attack_all_target_check();
 		}
 		core.chain_attack = false;
-		if(core.forced_attack) {
+		if(arg.forced_attack) {
 			returns.set<int32_t>(0, 2);
 			arg.step = 0;
 		} else
@@ -2361,7 +2377,7 @@ bool field::process(Processors::BattleCommand& arg) {
 		if(core.attack_target) {
 			raise_single_event(core.attack_target, nullptr, EVENT_BATTLE_START, nullptr, 0, 0, 0, 1);
 		}
-		raise_event((card*)nullptr, EVENT_BATTLE_START, nullptr, 0, 0, 0, 0);
+		raise_event(nullptr, EVENT_BATTLE_START, nullptr, 0, 0, 0, 0);
 		process_single_event();
 		process_instant_event();
 		arg.previous_point_event_had_any_trigger_to_resolve = false;
@@ -2402,7 +2418,7 @@ bool field::process(Processors::BattleCommand& arg) {
 				core.pre_field[1] = core.attack_target->fieldid_r;
 			raise_single_event(core.attack_target, nullptr, EVENT_BATTLE_CONFIRM, nullptr, 0, 0, 0, 1);
 		}
-		raise_event((card*)nullptr, EVENT_BATTLE_CONFIRM, nullptr, 0, 0, 0, 0);
+		raise_event(nullptr, EVENT_BATTLE_CONFIRM, nullptr, 0, 0, 0, 0);
 		process_single_event();
 		process_instant_event();
 		if(!is_flag(DUEL_6_STEP_BATLLE_STEP) || !arg.previous_point_event_had_any_trigger_to_resolve
@@ -2435,7 +2451,7 @@ bool field::process(Processors::BattleCommand& arg) {
 		raise_single_event(core.attacker, nullptr, EVENT_PRE_DAMAGE_CALCULATE, nullptr, 0, 0, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, nullptr, EVENT_PRE_DAMAGE_CALCULATE, nullptr, 0, 0, 0, 1);
-		raise_event((card*)nullptr, EVENT_PRE_DAMAGE_CALCULATE, nullptr, 0, 0, 0, 0);
+		raise_event(nullptr, EVENT_PRE_DAMAGE_CALCULATE, nullptr, 0, 0, 0, 0);
 		process_single_event();
 		process_instant_event();
 		auto message = pduel->new_message(MSG_HINT);
@@ -2677,7 +2693,7 @@ bool field::process(Processors::BattleCommand& arg) {
 		raise_single_event(core.attacker, nullptr, EVENT_BATTLED, nullptr, 0, PLAYER_NONE, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, nullptr, EVENT_BATTLED, nullptr, 0, PLAYER_NONE, 0, 1);
-		raise_event((card*)nullptr, EVENT_BATTLED, nullptr, 0, PLAYER_NONE, 0, 0);
+		raise_event(nullptr, EVENT_BATTLED, nullptr, 0, PLAYER_NONE, 0, 0);
 		process_single_event();
 		process_instant_event();
 		if(core.effect_damage_step) {
@@ -2746,15 +2762,15 @@ bool field::process(Processors::BattleCommand& arg) {
 			ed.insert(core.attack_target);
 		}
 		if(ing.size())
-			raise_event(&ing, EVENT_BATTLE_DESTROYING, nullptr, 0, 0, 0, 0);
+			raise_event(std::move(ing), EVENT_BATTLE_DESTROYING, nullptr, 0, 0, 0, 0);
 		if(ed.size()) {
-			raise_event(&ed, EVENT_BATTLE_DESTROYED, nullptr, 0, 0, 0, 0);
-			raise_event(&ed, EVENT_DESTROYED, nullptr, 0, 0, 0, 0);
+			raise_event(ed, EVENT_BATTLE_DESTROYED, nullptr, 0, 0, 0, 0);
+			raise_event(std::move(ed), EVENT_DESTROYED, nullptr, 0, 0, 0, 0);
 		}
 		raise_single_event(core.attacker, nullptr, EVENT_DAMAGE_STEP_END, nullptr, 0, 0, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, nullptr, EVENT_DAMAGE_STEP_END, nullptr, 0, 0, 0, 1);
-		raise_event((card*)nullptr, EVENT_DAMAGE_STEP_END, nullptr, 0, 0, 0, 0);
+		raise_event(nullptr, EVENT_DAMAGE_STEP_END, nullptr, 0, 0, 0, 0);
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		if(core.attack_target)
 			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
@@ -2780,8 +2796,8 @@ bool field::process(Processors::BattleCommand& arg) {
 		core.attacker->set_status(STATUS_OPPO_BATTLE, FALSE);
 		if(core.attack_target)
 			core.attack_target->set_status(STATUS_OPPO_BATTLE, FALSE);
-		if(core.forced_attack) {
-			returns.set<int32_t>(0, 2);
+		if(arg.forced_attack) {
+			arg.forced_attack_done = true;
 			arg.step = 0;
 		} else
 			arg.step = Processors::restart;
@@ -2801,7 +2817,7 @@ bool field::process(Processors::BattleCommand& arg) {
 			for(auto& ch : core.current_chain)
 				ch.triggering_effect->get_handler()->set_status(STATUS_CHAINING, FALSE);
 			emplace_process<Processors::SolveChain>(false, false, false);
-			if(!core.forced_attack)
+			if(!arg.forced_attack)
 				arg.step = Processors::restart;
 			return FALSE;
 		}
@@ -2921,7 +2937,6 @@ bool field::process(Processors::ForcedBattle& arg) {
 			}
 			///////kdiy//////////
 		}
-		core.forced_attack = true;
 		core.attack_cancelable = true;
 		core.attack_cost_paid = FALSE;
 		core.chain_attacker_id = 0;
@@ -2936,12 +2951,11 @@ bool field::process(Processors::ForcedBattle& arg) {
 		core.delayed_quick_tmp.clear();
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(PHASE_BATTLE_START);
-		emplace_process<Processors::BattleCommand>(Step{ 1 });
+		emplace_process<Processors::BattleCommand>(Step{ 1 }, nullptr, true);
 		return FALSE;
 	}
 	case 1: {
 		reset_phase(infos.phase);
-		core.forced_attack = false;
 		infos.phase = arg.backup_phase;
 		core.new_fchain.clear();
 		core.new_ochain.clear();
@@ -3590,7 +3604,7 @@ bool field::process(Processors::Turn& arg) {
 		infos.phase = PHASE_DRAW;
 		core.phase_action = false;
 		core.hand_adjusted = false;
-		raise_event((card*)nullptr, EVENT_PHASE_START + PHASE_DRAW, nullptr, 0, 0, turn_player, 0);
+		raise_event(nullptr, EVENT_PHASE_START + PHASE_DRAW, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();
 		return FALSE;
@@ -3608,7 +3622,7 @@ bool field::process(Processors::Turn& arg) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
-		raise_event((card*)nullptr, EVENT_PREDRAW, nullptr, 0, 0, turn_player, 0);
+		raise_event(nullptr, EVENT_PREDRAW, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		message = pduel->new_message(MSG_HINT);
 		message->write<uint8_t>(HINT_EVENT);
@@ -3657,7 +3671,7 @@ bool field::process(Processors::Turn& arg) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
-		raise_event((card*)nullptr, EVENT_PHASE_START + PHASE_STANDBY, nullptr, 0, 0, turn_player, 0);
+		raise_event(nullptr, EVENT_PHASE_START + PHASE_STANDBY, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		/*if(core.set_forced_attack)
 			emplace_process<Processors::ForcedBattle>();*/
@@ -3676,7 +3690,7 @@ bool field::process(Processors::Turn& arg) {
 		//Main1
 		infos.phase = PHASE_MAIN1;
 		core.phase_action = false;
-		raise_event((card*)nullptr, EVENT_PHASE_START + PHASE_MAIN1, nullptr, 0, 0, turn_player, 0);
+		raise_event(nullptr, EVENT_PHASE_START + PHASE_MAIN1, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();
 		/*if(core.set_forced_attack)
@@ -3726,7 +3740,7 @@ bool field::process(Processors::Turn& arg) {
 				emplace_process<Processors::ForcedBattle>();*/
 			return FALSE;
 		}
-		raise_event((card*)nullptr, EVENT_PHASE_START + PHASE_BATTLE_START, nullptr, 0, 0, turn_player, 0);
+		raise_event(nullptr, EVENT_PHASE_START + PHASE_BATTLE_START, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();
 		/*if(core.set_forced_attack)
@@ -3807,7 +3821,7 @@ bool field::process(Processors::Turn& arg) {
 		//Main2
 		infos.phase = PHASE_MAIN2;
 		core.phase_action = false;
-		raise_event((card*)nullptr, EVENT_PHASE_START + PHASE_MAIN2, nullptr, 0, 0, turn_player, 0);
+		raise_event(nullptr, EVENT_PHASE_START + PHASE_MAIN2, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();
 		/*if(core.set_forced_attack)
@@ -3846,7 +3860,7 @@ bool field::process(Processors::Turn& arg) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
-		raise_event((card*)nullptr, EVENT_PHASE_START + PHASE_END, nullptr, 0, 0, turn_player, 0);
+		raise_event(nullptr, EVENT_PHASE_START + PHASE_END, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();
 		/*if(core.set_forced_attack)
@@ -3871,7 +3885,7 @@ bool field::process(Processors::Turn& arg) {
 		return FALSE;
 	}
 	case 19: {
-		raise_event((card*)nullptr, EVENT_TURN_END, nullptr, 0, 0, turn_player, 0);
+		raise_event(nullptr, EVENT_TURN_END, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();
 		/*if(core.set_forced_attack)
@@ -4138,7 +4152,7 @@ bool field::process(Processors::AddChain& arg) {
 					raise_single_event(pcard, nullptr, EVENT_BECOME_TARGET, peffect, 0, clit.triggering_player, 0, clit.chain_count);
 				process_single_event();
 				if(clit.target_cards->container.size())
-					raise_event(&clit.target_cards->container, EVENT_BECOME_TARGET, peffect, 0, clit.triggering_player, clit.triggering_player, clit.chain_count);
+					raise_event(clit.target_cards->container, EVENT_BECOME_TARGET, peffect, 0, clit.triggering_player, clit.triggering_player, clit.chain_count);
 			}
 		}
 		if(peffect->type & EFFECT_TYPE_ACTIVATE) {
@@ -4429,7 +4443,7 @@ bool field::process(Processors::SolveChain& arg) {
 		message->write<uint8_t>(cait->chain_count);
 		add_to_disable_check_list(cait->triggering_effect->get_handler());
 		adjust_instant();
-		raise_event((card*)nullptr, EVENT_CHAIN_ACTIVATING, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
+		raise_event(nullptr, EVENT_CHAIN_ACTIVATING, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
 		process_instant_event();
 		return FALSE;
 	}
@@ -4447,7 +4461,7 @@ bool field::process(Processors::SolveChain& arg) {
 			}
 			core.new_fchain.remove_if([chaincount = cait->chain_count](const chain& ch) { return ch.evt.event_code == EVENT_CHAINING && ch.evt.event_value == chaincount; });
 			core.new_ochain.remove_if([chaincount = cait->chain_count](const chain& ch) { return ch.evt.event_code == EVENT_CHAINING && ch.evt.event_value == chaincount; });
-			raise_event((card*)nullptr, EVENT_CHAIN_NEGATED, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
+			raise_event(nullptr, EVENT_CHAIN_NEGATED, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
 			process_instant_event();
 			arg.step = 9;
 			return FALSE;
@@ -4459,7 +4473,7 @@ bool field::process(Processors::SolveChain& arg) {
 		release_oath_relation(peffect);
 		break_effect();
 		core.chain_solving = true;
-		raise_event((card*)nullptr, EVENT_CHAIN_SOLVING, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
+		raise_event(nullptr, EVENT_CHAIN_SOLVING, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
 		process_instant_event();
 		return FALSE;
 	}
@@ -4491,7 +4505,7 @@ bool field::process(Processors::SolveChain& arg) {
 					auto message = pduel->new_message(MSG_CHAIN_DISABLED);
 					message->write<uint8_t>(cait->chain_count);
 				}
-				raise_event((card*)nullptr, EVENT_CHAIN_DISABLED, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
+				raise_event(nullptr, EVENT_CHAIN_DISABLED, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
 				process_instant_event();
 				arg.step = 3;
 				return FALSE;
@@ -4584,7 +4598,7 @@ bool field::process(Processors::SolveChain& arg) {
 			emplace_process<Processors::SolveContinuous>();
 		} else
 			core.conti_player = PLAYER_NONE;
-		raise_event((card*)nullptr, EVENT_CHAIN_SOLVED, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
+		raise_event(nullptr, EVENT_CHAIN_SOLVED, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
 		adjust_disable_check_list();
 		process_instant_event();
 		arg.step = 9;
@@ -4667,7 +4681,7 @@ bool field::process(Processors::SolveChain& arg) {
 	}
 	case 13: {
 		core.just_sent_cards.clear();
-		raise_event((card*)nullptr, EVENT_CHAIN_END, nullptr, 0, 0, 0, 0);
+		raise_event(nullptr, EVENT_CHAIN_END, nullptr, 0, 0, 0, 0);
 		process_instant_event();
 		adjust_all();
 		if(!arg.skip_trigger || !(arg.skip_freechain || arg.skip_new) || !arg.skip_new) {
@@ -5409,7 +5423,7 @@ bool field::process(Processors::Adjust& arg) {
 		return FALSE;
 	}
 	case 15: {
-		raise_event((card*)nullptr, EVENT_ADJUST, nullptr, 0, PLAYER_NONE, PLAYER_NONE, 0);
+		raise_event(nullptr, EVENT_ADJUST, nullptr, 0, PLAYER_NONE, PLAYER_NONE, 0);
 		process_instant_event();
 		return FALSE;
 	}
@@ -5439,7 +5453,7 @@ bool field::process(Processors::Startup& arg) {
 		core.shuffle_hand_check[1] = false;
 		core.shuffle_deck_check[0] = false;
 		core.shuffle_deck_check[1] = false;
-		raise_event((card*)nullptr, EVENT_STARTUP, nullptr, 0, 0, 0, 0);
+		raise_event(nullptr, EVENT_STARTUP, nullptr, 0, 0, 0, 0);
 		process_instant_event();
 		return FALSE;
 	}
