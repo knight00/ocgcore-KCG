@@ -117,11 +117,8 @@ struct field_effect {
 	using effect_collection = std::unordered_set<effect*>;
 	using gain_effects = std::unordered_map<card*, effect*>;
 	struct grant_effect_container {
-		struct effect_sort_by_ref {
-			bool operator()(effect* e1, effect* e2) const;
-		};
 		std::unordered_map<effect*, gain_effects> unsorted;
-		std::map<effect*, gain_effects*, effect_sort_by_ref> sorted;
+		std::map<effect*, gain_effects*, effect_sort_by_initial_id> sorted;
 		using key_iterator = std::unordered_map<effect*, gain_effects>::iterator;
 		template<typename... Args>
 		void emplace(Args&&... args) {
@@ -157,7 +154,7 @@ struct field_effect {
 	effect_collection rechargeable;
 	effect_collection spsummon_count_eff;
 
-	std::unordered_set<card*> disable_check_set;
+	card_set disable_check_set;
 
 	grant_effect_container grant_effect;
 };
@@ -641,8 +638,8 @@ public:
 	void send_to(card_set targets, effect* reason_effect, uint32_t reason, uint8_t reason_player, uint8_t playerid, uint16_t destination, uint32_t sequence, uint8_t position, bool ignore = false);
 	void send_to(card* target, effect* reason_effect, uint32_t reason, uint8_t reason_player, uint8_t playerid, uint16_t destination, uint32_t sequence, uint8_t position, bool ignore = false);
 	///////kdiy///////
-	//void move_to_field(card* target, uint8_t move_player, uint8_t playerid, uint16_t destination, uint8_t positions, bool enable = false, uint8_t ret = 0, uint8_t zone = 0xff, bool rule = false, uint8_t reason = 0, bool confirm = false);
-	void move_to_field(card* target, uint8_t move_player, uint8_t playerid, uint16_t destination, uint8_t positions, bool enable = false, uint8_t ret = 0, uint32_t zone = 0xff, bool rule = false, uint8_t reason = 0, bool confirm = false);
+	//void move_to_field(card* target, uint8_t move_player, uint8_t playerid, uint16_t destination, uint8_t positions, bool enable = false, uint8_t ret = 0, uint8_t zone = 0xff, bool rule = false, uint8_t reason = 0, bool confirm = true);
+	void move_to_field(card* target, uint8_t move_player, uint8_t playerid, uint16_t destination, uint8_t positions, bool enable = false, uint8_t ret = 0, uint32_t zone = 0xff, bool rule = false, uint8_t reason = 0, bool confirm = true);
 	///////kdiy///////
 	void change_position(card_set targets, effect* reason_effect, uint8_t reason_player, uint8_t au, uint8_t ad, uint8_t du, uint8_t dd, uint32_t flag, bool enable = false);
 	void change_position(card* target, effect* reason_effect, uint8_t reason_player, uint8_t npos, uint32_t flag, bool enable = false);

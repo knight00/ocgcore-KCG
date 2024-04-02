@@ -4402,7 +4402,7 @@ bool field::process(Processors::Destroy& arg) {
 		card_set extra;
 		effect_set eset;
 		card_set indestructable_set;
-		std::set<effect*> indestructable_effect_set;
+		std::set<effect*, effect_sort_by_id> indestructable_effect_set;
 		for(auto cit = targets->container.begin(); cit != targets->container.end();) {
 			auto rm = cit++;
 			card* pcard = *rm;
@@ -6591,14 +6591,15 @@ bool field::process(Processors::SelectRelease& arg) {
 			if(arg.extra_release_nonsum_effect == nullptr)
 				diff.insert(diff.begin(), core.release_cards_ex_oneof.begin(), core.release_cards_ex_oneof.end());
 		}
+		std::sort(diff.begin(), diff.end(), card_sort());
 		std::set_difference(diff.begin(), diff.end(), core.unselect_cards.begin(), core.unselect_cards.end(),
-							std::inserter(core.select_cards, core.select_cards.begin()));
+							std::inserter(core.select_cards, core.select_cards.begin()), card_sort());
 
 		auto message = pduel->new_message(MSG_HINT);
 		message->write<uint8_t>(HINT_SELECTMSG);
 		message->write<uint8_t>(playerid);
 		message->write<uint64_t>(500);
-		emplace_process<Processors::SelectUnselectCard>(playerid, cancelable, min, max, finishable);
+		emplace_process<Processors::SelectUnselectCard>(playerid, finishable || core.operated_set.empty(), min, max, finishable);
 		return FALSE;
 	}
 	case 3: {
@@ -6734,10 +6735,15 @@ bool field::process(Processors::SelectTribute& arg) {
 			rmax += pcard->release_param;
 		auto oldmin = min;
 		auto oldmax = max;
-		min -= rmax;
-		max -= rmin;
-		min = min > 0 ? min : 0;
-		max = max > 0 ? max : 0;
+		if(rmax > min)
+			min = 0;
+		else
+			min -= rmax;
+
+		if(rmin > max)
+			max = 0;
+		else
+			max -= rmin;
 		auto& must_choose_one = arg.must_choose_one;
 		bool force = !must_choose_one.empty();
 		for(auto& pcard : must_choose_one) {
@@ -6776,8 +6782,8 @@ bool field::process(Processors::SelectTribute& arg) {
 					if(core.operated_set.find(pcard) == core.operated_set.end())
 						core.select_cards.push_back(pcard);
 		}
-		uint8_t canc = (rmin == 0 && cancelable);
-		uint8_t finishable = (min <= 0 && !force && !exsize) ? TRUE : FALSE;
+		auto canc = (rmin == 0 && cancelable);
+		auto finishable = min == 0 && !force && !exsize;
 		for(auto& pcard : core.operated_set)
 			core.unselect_cards.push_back(pcard);
 		auto message = pduel->new_message(MSG_HINT);
@@ -6806,10 +6812,15 @@ bool field::process(Processors::SelectTribute& arg) {
 		uint32_t rmax = 0;
 		for(auto& pcard : core.operated_set)
 			rmax += pcard->release_param;
-		min -= rmax;
-		max -= rmin;
-		min = min > 0 ? min : 0;
-		max = max > 0 ? max : 0;
+		if(rmax > min)
+			min = 0;
+		else
+			min -= rmax;
+
+		if(rmin > max)
+			max = 0;
+		else
+			max -= rmin;
 		if((return_cards.canceled && min <= 0) || !max) {
 			return_cards.clear();
 			std::copy(core.operated_set.begin(), core.operated_set.end(), std::back_inserter(return_cards.list));

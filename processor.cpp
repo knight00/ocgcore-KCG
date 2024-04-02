@@ -4684,10 +4684,10 @@ bool field::process(Processors::SolveChain& arg) {
 		raise_event(nullptr, EVENT_CHAIN_END, nullptr, 0, 0, 0, 0);
 		process_instant_event();
 		adjust_all();
-		if(!arg.skip_trigger || !(arg.skip_freechain || arg.skip_new) || !arg.skip_new) {
+		if(!arg.skip_trigger || !arg.skip_new) {
 			core.hint_timing[0] |= TIMING_CHAIN_END;
 			core.hint_timing[1] |= TIMING_CHAIN_END;
-			emplace_process<Processors::PointEvent>(arg.skip_trigger, arg.skip_freechain, arg.skip_new);
+			emplace_process<Processors::PointEvent>(arg.skip_trigger, arg.skip_freechain || arg.skip_new, arg.skip_new);
 		}
 		returns.set<int32_t>(0, TRUE);
 		return TRUE;
@@ -5166,7 +5166,7 @@ bool field::process(Processors::Adjust& arg) {
 			core.control_adjust_set[1].clear();
 			effect_set eset;
 			filter_field_effect(EFFECT_REMOVE_BRAINWASHING, &eset, false);
-			if(std::exchange(core.remove_brainwashing, !eset.empty())) {
+			if(core.remove_brainwashing = !eset.empty(); core.remove_brainwashing) {
 				for(uint8_t p = 0; p < 2; ++p) {
 					for(auto& pcard : player[p].list_mzone) {
 						///////kdiy/////////
