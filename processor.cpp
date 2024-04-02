@@ -1815,7 +1815,6 @@ bool field::process(Processors::IdleCommand& arg) {
 bool field::process(Processors::BattleCommand& arg) {
 	switch(arg.step) {
 	case 0: {
-		effect* peffect = nullptr;
 		core.select_chains.clear();
 		nil_event.event_code = EVENT_FREE_CHAIN;
 		if(!core.chain_attack) {
@@ -1825,8 +1824,8 @@ bool field::process(Processors::BattleCommand& arg) {
 		core.attack_player = FALSE;
 		core.attacker = nullptr;
 		core.attack_target = nullptr;
-		if((peffect = is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)) != nullptr || core.force_turn_end) {
-            arg.step = 41;
+		if(auto peffect = is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP); peffect != nullptr || core.force_turn_end) {
+			arg.step = 41;
 			arg.phase_to_change_to = 2;
 			arg.repeat_battle_phase = static_cast<bool>(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE));
 			if(core.force_turn_end || !peffect->value) {
@@ -1848,7 +1847,7 @@ bool field::process(Processors::BattleCommand& arg) {
 		////kdiy///////////
 		auto pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
 		for(auto eit = pr.first; eit != pr.second; eit++) {
-			peffect = eit->second;
+			auto peffect = eit->second;
 			peffect->set_activate_location();
 			if(peffect->is_activateable(infos.turn_player, nil_event) && peffect->get_speed() > 1) {
 				core.select_chains.emplace_back().triggering_effect = peffect;
@@ -1856,7 +1855,7 @@ bool field::process(Processors::BattleCommand& arg) {
 		}
 		pr = effects.quick_o_effect.equal_range(EVENT_FREE_CHAIN);
 		for(auto eit = pr.first; eit != pr.second; eit++) {
-			peffect = eit->second;
+			auto peffect = eit->second;
 			peffect->set_activate_location();
 			if(peffect->is_activateable(infos.turn_player, nil_event)) {
 				core.select_chains.emplace_back().triggering_effect = peffect;
@@ -1864,7 +1863,7 @@ bool field::process(Processors::BattleCommand& arg) {
 		}
 		pr = effects.continuous_effect.equal_range(EVENT_FREE_CHAIN);
 		for(auto eit = pr.first; eit != pr.second; eit++) {
-			peffect = eit->second;
+			auto peffect = eit->second;
 			if(peffect->get_handler_player() == infos.turn_player && peffect->is_activateable(infos.turn_player, nil_event)) {
 				core.select_chains.emplace_back().triggering_effect = peffect;
 			}
