@@ -3197,6 +3197,7 @@ bool field::process(Processors::MonsterSet& arg) {
 		message->write(target->get_info_location());
         ///kdiy///////
         message->write<uint8_t>(setplayer);
+        message->write<bool>(true);
         ///kdiy///////
 		adjust_instant();
 		raise_event(target, EVENT_MSET, summon_procedure_effect, 0, setplayer, setplayer, 0);
