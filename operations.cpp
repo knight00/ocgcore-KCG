@@ -3197,6 +3197,7 @@ bool field::process(Processors::MonsterSet& arg) {
 		message->write(target->get_info_location());
         ///kdiy///////
         message->write<uint8_t>(setplayer);
+        message->write<uint8_t>(1);
         ///kdiy///////
 		adjust_instant();
 		raise_event(target, EVENT_MSET, summon_procedure_effect, 0, setplayer, setplayer, 0);
@@ -3285,6 +3286,7 @@ bool field::process(Processors::SpellSet& arg) {
 		message->write(target->get_info_location());
         ///kdiy///////
         message->write<uint8_t>(setplayer);
+        message->write<uint8_t>(2);
         ///kdiy///////
 		adjust_instant();
 		raise_event(target, EVENT_SSET, reason_effect, 0, setplayer, setplayer, 0);
@@ -3437,6 +3439,7 @@ bool field::process(Processors::SpellSetGroup& arg) {
 		message->write(target->get_info_location());
         ///kdiy///////
         message->write<uint8_t>(setplayer);
+        message->write<uint8_t>(2);
         ///kdiy///////
 		core.set_group_set.insert(target);
 		set_cards->erase(target);
