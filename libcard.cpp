@@ -1290,36 +1290,38 @@ LUA_FUNCTION(GetActivateEffect) {
 }
 /////kdiy///////////////
 LUA_FUNCTION(GetTriggerEffect) {
-	int32_t count = 0;
+    effect_set eset;
 	for(auto& eit : self->field_effect) {
 		if(eit.second->type & (EFFECT_TYPE_IGNITION | EFFECT_TYPE_QUICK_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_ACTIVATE)) {
-			interpreter::pushobject(L, eit.second);
-			count++;
+			eset.push_back(eit.second);
 		}
 	}
 	for(auto& eit : self->single_effect) {
 		if(eit.second->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O)) {
-			interpreter::pushobject(L, eit.second);
-			count++;
+			eset.push_back(eit.second);
 		}
 	}
-	return count;
+    luaL_checkstack(L, static_cast<int>(eset.size()), nullptr);
+	for(const auto& peffect : eset)
+		interpreter::pushobject(L, peffect);
+	return static_cast<int32_t>(eset.size());
 }
 LUA_FUNCTION(GetFieldEffect) {
-	int32_t count = 0;
+    effect_set eset;
 	for(auto& eit : self->field_effect) {
 		if(!(eit.second->type & (EFFECT_TYPE_IGNITION | EFFECT_TYPE_QUICK_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_ACTIVATE))) {
-			interpreter::pushobject(L, eit.second);
-			count++;
+			eset.push_back(eit.second);
 		}
 	}
 	for(auto& eit : self->single_effect) {
 		if(!(eit.second->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O))) {
-			interpreter::pushobject(L, eit.second);
-			count++;
+			eset.push_back(eit.second);
 		}
 	}
-	return count;
+    luaL_checkstack(L, static_cast<int>(eset.size()), nullptr);
+	for(const auto& peffect : eset)
+		interpreter::pushobject(L, peffect);
+	return static_cast<int32_t>(eset.size());
 }
 /////kdiy///////////////
 LUA_FUNCTION(CheckActivateEffect) {
