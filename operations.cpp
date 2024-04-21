@@ -5176,10 +5176,10 @@ bool field::process(Processors::SendTo& arg) {
 		get_useable_count(pcard, pcard->current.controler, LOCATION_SZONE, pcard->current.controler, LOCATION_REASON_TOFIELD, 0xff, &flag);
 		/////kdiy////
 		//flag = ((flag << 8) & 0xff00) | 0xffffe0ff;
-		if(is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT))
-		flag = (flag & 0xff1f) | 0xffffe0e0;
-		else
-		flag = ((flag << 8) & 0xff00) | 0xffffe0ff;
+        if(is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT))
+			flag = ((flag & 0xff1f)) | 0xffffe0e0;
+        else
+			flag = ((flag & 0xff00)) | 0xffffe0ff;
 		/////kdiy////
 		auto message = pduel->new_message(MSG_HINT);
 		message->write<uint8_t>(HINT_SELECTMSG);
