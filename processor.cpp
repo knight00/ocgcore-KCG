@@ -5532,6 +5532,7 @@ bool field::process(Processors::SortDeck& arg) {
             message->write<uint8_t>(pcard->current.reason_player);
             message->write<bool>(false);
             message->write<bool>(i == 0);
+            message->write<bool>(false);
             ///kdiy///////////
 		}
 		if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {

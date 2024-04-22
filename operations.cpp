@@ -1102,6 +1102,7 @@ bool field::process(Processors::XyzOverlay& arg) {
 			message->write<uint8_t>(pcard->current.reason_player);
             message->write<bool>(false);
             message->write<bool>(pcard == *cv.begin());
+            message->write<bool>(false);
             ///kdiy///////////
 		}
 		auto writetopcard = [rev = core.deck_reversed, &decktop, &player=player, &s](int playerid) {
@@ -5084,6 +5085,7 @@ bool field::process(Processors::SendTo& arg) {
 			message->write<uint8_t>(pcard->current.reason_player);
             message->write<bool>(false);
             message->write<bool>(param->cvit == param->cv.begin());
+            message->write<bool>(false);
             ///kdiy///////////
 			if(core.current_chain.size() > 0)
 				core.just_sent_cards.insert(pcard);
@@ -5148,6 +5150,7 @@ bool field::process(Processors::SendTo& arg) {
 			message->write<uint8_t>(pcard->current.reason_player);
             message->write<bool>(false);
             message->write<bool>(param->cvit == param->cv.begin());
+            message->write<bool>(false);
             ///kdiy///////////
 		}
 		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
@@ -5227,6 +5230,7 @@ bool field::process(Processors::SendTo& arg) {
 		message->write<uint8_t>(pcard->current.reason_player);
         message->write<bool>(false);
         message->write<bool>(param->cvit == param->cv.begin());
+        message->write<bool>(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
 		pcard->temp.location = 0;
         ///kdiy///////////
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
@@ -5496,6 +5500,7 @@ bool field::process(Processors::DiscardDeck& arg) {
 			message->write<uint8_t>(pcard->current.reason_player);
             message->write<bool>(false);
             message->write<bool>(i == 0);
+            message->write<bool>(false);
             ///kdiy///////////
 			if(dest == LOCATION_HAND) {
 				if(pcard->owner != pcard->current.controler) {
@@ -5831,6 +5836,7 @@ bool field::process(Processors::MoveToField& arg) {
 		message->write<uint8_t>(target->current.reason_player);
         message->write<bool>(pzone && !temp_pzone);
         message->write<bool>(true);
+        message->write<bool>(location2 == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE));
 		target->temp.location = 0;
 		target->prev_temp.location = 0;
 		//if((target->current.location != LOCATION_MZONE)) {

@@ -997,6 +997,7 @@ LUA_STATIC_FUNCTION(MoveSequence) {
 				message->write<uint8_t>(pcard->current.reason_player);
                 message->write<bool>(pzone && !cur_pzone);
                 message->write<bool>(true);
+                message->write<bool>(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
                 ///kdiy///////////
 			}
 			field.raise_single_event(pcard, nullptr, EVENT_MOVE, core.reason_effect, 0, core.reason_player, playerid, 0);
