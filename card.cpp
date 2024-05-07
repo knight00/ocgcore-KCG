@@ -1379,7 +1379,7 @@ int32_t card::get_defense() {
 //uint32_t card::get_level() {
 int32_t card::get_level() {
 	bool is_xyz = ( ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK)) || ((data.type & TYPE_LINK) && (is_affected_by_effect(EFFECT_LINK_RANK) || is_affected_by_effect(EFFECT_LINK_RANK_S))) ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
-	bool is_link = ( ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ)) || ((data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S))) ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
+	bool is_link = ( ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ)) || ((data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S))) && !is_xyz) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
 	bool is_xyzlink = (data.type & TYPE_LINK) && (data.type & TYPE_XYZ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
 	//if(((data.type & TYPE_XYZ) && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
 		//|| (data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL)
@@ -1492,7 +1492,7 @@ int32_t card::get_level() {
 //uint32_t card::get_rank() {
 int32_t card::get_rank() {
 	bool is_lv = !(data.type & (TYPE_XYZ | TYPE_LINK)) || ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S)));
-	bool is_link = ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL))) || (!(data.type & (TYPE_XYZ | TYPE_LINK)) && (is_affected_by_effect(EFFECT_LEVEL_LINK) || is_affected_by_effect(EFFECT_LEVEL_LINK_S)));
+	bool is_link = ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL))) || (!(data.type & (TYPE_XYZ | TYPE_LINK)) && (is_affected_by_effect(EFFECT_LEVEL_LINK) || is_affected_by_effect(EFFECT_LEVEL_LINK_S)) && !is_lv);
 	bool is_lvlink = (data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL)) && (data.type & TYPE_LINK) && !(data.type & TYPE_XYZ);
 	//if(((!(data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL)) && !(is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S)))
 	//|| (data.type s& TYPE_LINK))
@@ -1606,12 +1606,12 @@ int32_t card::get_rank() {
 //uint32_t card::get_link() {
 int32_t card::get_link() {
     bool is_lv = !(data.type & (TYPE_XYZ | TYPE_LINK)) || ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK) && (is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)));
-	bool is_xyz = ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL))) || (!(data.type & (TYPE_XYZ | TYPE_LINK)) && (is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S)));
+	bool is_xyz = ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL))) || (!(data.type & (TYPE_XYZ | TYPE_LINK)) && (is_affected_by_effect(EFFECT_LEVEL_RANK) || is_affected_by_effect(EFFECT_LEVEL_RANK_S)) && !is_lv);
 	bool is_lvxyz = (data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL)) && (data.type & TYPE_XYZ) && !(data.type & TYPE_LINK);
 	//if(!(data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL))
-	if( (((is_lv && !(is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S)))
+	if( (((is_lv && !(is_affected_by_effect(EFFECT_LEVEL_LINK) || is_affected_by_effect(EFFECT_LEVEL_LINK_S)))
 	    || (is_xyz && !(is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S)))
-		|| (is_lvxyz && !(is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S) || is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S))))
+		|| (is_lvxyz && !(is_affected_by_effect(EFFECT_LEVEL_LINK) || is_affected_by_effect(EFFECT_LEVEL_LINK_S) || is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S))))
 		&& !(is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 		|| is_affected_by_effect(EFFECT_SANCT_MZONE)
 		|| (status & STATUS_NO_LEVEL))
