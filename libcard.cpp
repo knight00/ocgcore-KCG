@@ -1643,14 +1643,14 @@ inline int32_t spsummonable_rule(lua_State* L, uint32_t cardtype, uint32_t sumty
 		return 0;
 	group* must = nullptr;
 	group* materials = nullptr;
-	if(auto _pcard = lua_get<card*>(L, 2 + offset))
-		must = pduel->new_group(_pcard);
-	else
-		must = lua_get<group*>(L, 2 + offset);
-	if(auto _pcard = lua_get<card*>(L, 3 + offset))
-		materials = pduel->new_group(_pcard);
-	else
-		materials = lua_get<group*>(L, 3 + offset);
+	if(auto [pcard_, pgroup_] = lua_get_card_or_group<true>(L, 2 + offset); pcard_)
+		must = pduel->new_group(pcard_);
+	else if(pgroup_)
+		must = pgroup_;
+	if(auto [pcard_, pgroup_] = lua_get_card_or_group<true>(L, 3 + offset); pcard_)
+		materials = pduel->new_group(pcard_);
+	else if(pgroup_)
+		materials = pgroup_;
 	auto minc = lua_get<uint16_t, 0>(L, 4 + offset);
 	auto maxc = lua_get<uint16_t, 0>(L, 5 + offset);
 	auto& core = pduel->game_field->core;
@@ -2148,7 +2148,7 @@ LUA_FUNCTION(GetCounter) {
 	return 1;
 }
 LUA_FUNCTION(GetAllCounters) {
-	lua_createtable(L, self->counters.size(), 0);
+	lua_createtable(L, static_cast<int>(self->counters.size()), 0);
 	for(const auto& counter : self->counters) {
 		lua_pushinteger(L, counter.first);
 		lua_pushinteger(L, counter.second[0] + counter.second[1]);
@@ -2564,7 +2564,7 @@ void scriptlib::push_card_lib(lua_State* L) {
 	static constexpr auto cardlib = GET_LUA_FUNCTIONS_ARRAY();
 	static_assert(cardlib.back().name == nullptr);
 	lua_createtable(L, 0, static_cast<int>(cardlib.size() - 1));
-	luaL_setfuncs(L, cardlib.data(), 0);
+	ensure_luaL_stack(luaL_setfuncs, L, cardlib.data(), 0);
 	lua_pushstring(L, "__index");
 	lua_pushvalue(L, -2);
 	lua_rawset(L, -3);

@@ -9,6 +9,9 @@ tmp/
 .vs/
 .DS_Store
 lua*
-
 .travis.yml
 premake5
+!lua*/
+lua*/*
+!lua*/Android.mk
+!lua*/premake5.lua

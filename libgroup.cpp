@@ -575,7 +575,7 @@ LUA_FUNCTION(GetClass) {
 	for(auto& pcard : self->container) {
 		er.insert(pduel->lua->get_operation_value(pcard, findex, extraargs));
 	}
-	lua_createtable(L, er.size(), 0);
+	lua_createtable(L, static_cast<int>(er.size()), 0);
 	int i = 1;
 	for(auto& val : er) {
 		lua_pushinteger(L, i++);
@@ -796,7 +796,7 @@ void scriptlib::push_group_lib(lua_State* L) {
 	static constexpr auto grouplib = GET_LUA_FUNCTIONS_ARRAY();
 	static_assert(grouplib.back().name == nullptr);
 	lua_createtable(L, 0, static_cast<int>(grouplib.size() - 1));
-	luaL_setfuncs(L, grouplib.data(), 0);
+	ensure_luaL_stack(luaL_setfuncs, L, grouplib.data(), 0);
 	lua_pushstring(L, "__index");
 	lua_pushvalue(L, -2);
 	lua_rawset(L, -3);

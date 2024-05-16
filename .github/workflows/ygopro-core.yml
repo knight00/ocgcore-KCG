@@ -12,13 +12,7 @@ jobs:
     env:
       DEPLOY_BRANCH: travis-core-windows
       TRAVIS_OS_NAME: windows
-      VCPKG_ROOT: /c/vcpkg2
-      VCPKG_DEFAULT_TRIPLET: x86-windows-static
     steps:
-    - name: Set custom env vars
-      shell: bash
-      run: |
-        echo "VCPKG_CACHE_ZIP_URL=$DEPENDENCIES_BASE_URL/installed_x86-windows-static.zip" >> $GITHUB_ENV
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
     - uses: actions/checkout@v1
@@ -80,8 +74,7 @@ jobs:
         sudo docker run -dt --rm --name alpine -v $PWD:/core -w="/core" alpine-cmake
     - name: Install lua
       shell: bash
-      run: |
-        sudo docker exec -t -w="/core" -e TRAVIS_OS_NAME=linux -e MAKE=make alpine ./travis/install-lua.sh
+      run: ./travis/install-lua.sh
     - name: Install premake
       shell: bash
       run: ./travis/install-premake5.sh
@@ -197,9 +190,7 @@ jobs:
         fetch-depth: 1
     - name: Install lua
       shell: bash
-      run: |
-        cd ..
-        curl https://codeload.github.com/edo9300/edopro-android/tar.gz/master | tar -xz --strip=2 edopro-android-master/deps/lua
+      run: ./travis/install-lua.sh
     - name: Build
       shell: bash
       run: ./travis/build-android.sh
@@ -337,7 +328,7 @@ jobs:
       CXXFLAGS: -target arm64-apple-macos11
       CFLAGS: -target arm64-apple-macos11
       LDFLAGS: -target arm64-apple-macos11
-      SDKROOT: /Applications/Xcode_14.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk
+      SDKROOT: /Applications/Xcode_14.3.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk
     steps:
     - uses: actions/checkout@v1
       with:

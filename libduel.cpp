@@ -2376,7 +2376,7 @@ LUA_STATIC_FUNCTION(GetChainInfo) {
 			break;
 		case CHAININFO::TRIGGERING_SETCODES: {
 			const auto& setcodes = ch->triggering_state.setcodes;
-			lua_createtable(L, setcodes.size(), 0);
+			lua_createtable(L, static_cast<int>(setcodes.size()), 0);
 			int i = 1;
 			for(const auto& setcode : setcodes) {
 				lua_pushinteger(L, i++);
@@ -4647,6 +4647,6 @@ void scriptlib::push_duel_lib(lua_State* L) {
 	static constexpr auto duellib = GET_LUA_FUNCTIONS_ARRAY();
 	static_assert(duellib.back().name == nullptr);
 	lua_createtable(L, 0, static_cast<int>(duellib.size() - 1));
-	luaL_setfuncs(L, duellib.data(), 0);
+	ensure_luaL_stack(luaL_setfuncs, L, duellib.data(), 0);
 	lua_setglobal(L, "Duel");
 }
