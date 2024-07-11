@@ -4,11 +4,12 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-#include <algorithm> //std::sort, std::min
+#include <algorithm> //std::sort, std::min, std::transform
 #include <cstring> //std::memcpy
-#include <utility> //std::pair, std::make_pair, std::swap
+#include <iterator> //std::back_inserter
 #include <set>
 #include <vector>
+#include <utility> //std::pair, std::make_pair, std::swap
 #include "card.h"
 #include "duel.h"
 #include "effect.h"
@@ -3001,10 +3002,10 @@ int32_t card::add_counter(uint8_t playerid, uint16_t countertype, uint16_t count
 	uint16_t pcount = count;
 	if(singly) {
 		effect_set eset;
-		auto limit = UINT16_MAX + 1;
+		uint32_t limit = UINT16_MAX + 1;
 		filter_effect(EFFECT_COUNTER_LIMIT + cttype, &eset);
 		for(const auto& peffect : eset)
-			limit = std::min<int>(static_cast<uint16_t>(peffect->get_value()), limit);
+			limit = std::min<uint32_t>(static_cast<uint16_t>(peffect->get_value()), limit);
 		if(limit != (UINT16_MAX + 1)) {
 			uint16_t mcount = static_cast<uint16_t>(limit) - get_counter(cttype);
 			if(pcount > mcount)
@@ -3082,14 +3083,14 @@ int32_t card::is_can_add_counter(uint8_t playerid, uint16_t countertype, uint16_
 	if(!check)
 		return FALSE;
 	uint16_t cttype = countertype & ~COUNTER_NEED_ENABLE;
-	auto limit = UINT16_MAX + 1;
-	int32_t cur = 0;
+	uint32_t limit = UINT16_MAX + 1;
+	uint32_t cur = 0;
 	auto cmit = counters.find(cttype);
 	if(cmit != counters.end())
 		cur = cmit->second[0] + cmit->second[1];
 	filter_effect(EFFECT_COUNTER_LIMIT + cttype, &eset);
 	for(const auto& peffect : eset)
-		limit = std::min<int>(static_cast<uint16_t>(peffect->get_value()), limit);
+		limit = std::min<uint32_t>(static_cast<uint16_t>(peffect->get_value()), limit);
 	if(singly)
 		count = 1;
 	if((limit != (UINT16_MAX + 1)) && (cur + count > limit))
@@ -3784,6 +3785,12 @@ void card::get_card_effect(uint32_t code, effect_set* eset) {
 			&& peffect->is_available() && is_affect_by_effect(peffect))
 			eset->push_back(peffect);
 	}
+}
+void card::get_own_effects(effect_set* eset) {
+	std::transform(indexer.begin(), indexer.end(), std::back_inserter(*eset), [](const auto& indexed) {
+		return indexed.first;
+	});
+	std::sort(eset->begin(), eset->end(), effect_sort_id);
 }
 int32_t card::fusion_check(group* fusion_m, group* cg, uint32_t chkf) {
 	effect* peffect = nullptr;
