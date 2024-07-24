@@ -1,10 +1,13 @@
 local ocgcore_config=function()
 	files { "*.h", "*.hpp", "*.cpp", "RNG/*.hpp", "RNG/*.cpp" }
 	warnings "Extra"
-	optimize "Speed"
 	cppdialect "C++17"
 	rtti "Off"
-
+	
+	filter "configurations:Release"
+		optimize "Speed"	
+	filter "configurations:Debug"
+		optimize "Off"
 	filter "action:not vs*"
 		buildoptions { "-Wno-unused-parameter", "-pedantic" }
 	filter "system:linux"
@@ -12,7 +15,7 @@ local ocgcore_config=function()
 	filter { "system:macosx", "files:processor_visit.cpp" }
 		buildoptions { "-fno-exceptions" }
 	filter {}
-		include "lua"
+		include "./lua/"
 		links { "lua" }
 		includedirs { "lua/src" }
 end
@@ -62,9 +65,8 @@ if not subproject then
 		runtime "Debug"
 
 	filter "configurations:Release"
-		optimize "Size"
-		targetdir "bin/release"
 		defines "NDEBUG"
+		targetdir "bin/release"
 
 	local function set_target_dir(target,arch)
 		filter { "system:windows", "configurations:" .. target, "architecture:" .. arch }
@@ -114,9 +116,9 @@ project "ocgcore"
 project "ocgcoreshared"
 	kind "SharedLib"
 	flags "NoImportLib"
-	filter "configurations:Release"
-		flags "LinkTimeOptimization"
-	filter {}
+-- 	filter "configurations:Release"
+-- 		flags "LinkTimeOptimization"
+-- 	filter {}
 	targetname "ocgcore"
 	defines "OCGCORE_EXPORT_FUNCTIONS"
 	staticruntime "on"
