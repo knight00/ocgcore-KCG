@@ -5756,9 +5756,9 @@ bool field::process(Processors::MoveToField& arg) {
 				target->add_effect(deffect);
 			}
 			///kdiy////////
-			if(!(target->current.location & LOCATION_ONFIELD))
-				target->clear_relate_effect();
 		}
+		if(!(target->current.location & LOCATION_ONFIELD))
+			target->clear_relate_effect();
 		if(ret == 1)
 			target->current.reason &= ~REASON_TEMPORARY;
 		////kdiy/////
