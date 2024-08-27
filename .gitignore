@@ -15,3 +15,9 @@ premake5
 lua*/*
 !lua*/Android.mk
 !lua*/premake5.lua
+*.exe
+*.pdb
+*.lib
+*.dll
+*.exp
+*.zip
