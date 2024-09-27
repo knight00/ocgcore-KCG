@@ -481,7 +481,7 @@ int32_t effect::is_target(card* pcard) {
 		if(is_flag(EFFECT_FLAG_SPSUM_PARAM))
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_ABSOLUTE_TARGET)) {
-			////////kdiy//////			
+			////////kdiy//////
 			// if(pcard->current.controler == 0) {
 			// 	if(!pcard->current.is_location(s_range))
 			// 		return FALSE;
@@ -493,16 +493,16 @@ int32_t effect::is_target(card* pcard) {
 				if(!((pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (s_range & LOCATION_MZONE) && (pcard->current.is_location(s_range | LOCATION_SZONE))) 
 				|| (pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && (s_range & LOCATION_SZONE) && (pcard->current.is_location(s_range | LOCATION_MZONE)))
 				|| (!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && pcard->current.is_location(s_range))))
-				   return FALSE;				   			   				
+				   return FALSE;
 			} else {
 				if(!((pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (o_range & LOCATION_MZONE) && (pcard->current.is_location(o_range | LOCATION_SZONE))) 
 				|| (pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && (o_range & LOCATION_SZONE) && (pcard->current.is_location(o_range | LOCATION_MZONE)))
 				|| (!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && pcard->current.is_location(o_range))))
 				   return FALSE;
 			}
-			////////kdiy//////				
+			////////kdiy//////
 		} else {
-			////////kdiy//////				
+			////////kdiy//////
 			// if(pcard->current.controler == get_handler_player()) {
 			// 	if(!pcard->current.is_location(s_range))
 			// 		return FALSE;
@@ -510,7 +510,7 @@ int32_t effect::is_target(card* pcard) {
 			// 	if(!pcard->current.is_location(o_range))
 			// 		return FALSE;
 			// }
-			if(pcard->current.controler == get_handler_player()) {			
+			if(pcard->current.controler == get_handler_player()) {
 				if(!((pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (s_range & LOCATION_MZONE) && (pcard->current.is_location(s_range | LOCATION_SZONE))) 
 				|| (pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && (s_range & LOCATION_SZONE) && (pcard->current.is_location(s_range | LOCATION_MZONE)))
 				|| (!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && pcard->current.is_location(s_range))))
@@ -521,7 +521,7 @@ int32_t effect::is_target(card* pcard) {
 				|| (!pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && pcard->current.is_location(o_range))))
 				   return FALSE;
 			}
-			////////kdiy//////					
+			////////kdiy//////
 		}
 	}
 	return is_fit_target_function(pcard);

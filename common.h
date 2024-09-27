@@ -245,6 +245,10 @@
 #define STATUS_OPPO_BATTLE        0x10000000
 #define STATUS_FLIP_SUMMON_TURN   0x20000000
 #define STATUS_SPSUMMON_TURN      0x40000000
+////kdiy/////////
+#define STATUS_MSZONE             0x800000
+#define STATUS_SMZONE             0x80000000
+////kdiy/////////
 
 //Query list
 #define QUERY_CODE         0x1
