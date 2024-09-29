@@ -172,10 +172,7 @@ void card::get_infos(uint32_t query_flag) {
 		if(current.reason_card) {
 			loc_info info = current.reason_card->get_info_location();
 			insert_value<uint8_t>(pduel->query_buffer, info.controler);
-			//////kdiy//////////
-			//insert_value<uint8_t>(pduel->query_buffer, info.location);
-			insert_value<uint8_t>(pduel->query_buffer, (is_affected_by_effect(EFFECT_ORICA_SZONE) && (info.location & LOCATION_SZONE)) ? LOCATION_MZONE : (is_affected_by_effect(EFFECT_SANCT_MZONE) && (info.location & LOCATION_MZONE)) ? LOCATION_SZONE : info.location );
-			//////kdiy//////////
+			insert_value<uint8_t>(pduel->query_buffer, info.location);
 			insert_value<uint32_t>(pduel->query_buffer, info.sequence);
 			insert_value<uint32_t>(pduel->query_buffer, info.position);
 		} else {
@@ -189,10 +186,7 @@ void card::get_infos(uint32_t query_flag) {
 		if(equiping_target) {
 			loc_info info = equiping_target->get_info_location();
 			insert_value<uint8_t>(pduel->query_buffer, info.controler);
-			//////kdiy//////////
-			//insert_value<uint8_t>(pduel->query_buffer, info.location);
-			insert_value<uint8_t>(pduel->query_buffer, (is_affected_by_effect(EFFECT_ORICA_SZONE) && (info.location & LOCATION_SZONE)) ? LOCATION_MZONE : (is_affected_by_effect(EFFECT_SANCT_MZONE) && (info.location & LOCATION_MZONE)) ? LOCATION_SZONE : info.location );
-			//////kdiy//////////
+			insert_value<uint8_t>(pduel->query_buffer, info.location);
 			insert_value<uint32_t>(pduel->query_buffer, info.sequence);
 			insert_value<uint32_t>(pduel->query_buffer, info.position);
 		} else {
@@ -207,10 +201,7 @@ void card::get_infos(uint32_t query_flag) {
 		for(auto& pcard : effect_target_cards) {
 			loc_info info = pcard->get_info_location();
 			insert_value<uint8_t>(pduel->query_buffer, info.controler);
-			//////kdiy//////////
-			//insert_value<uint8_t>(pduel->query_buffer, info.location);
-			insert_value<uint8_t>(pduel->query_buffer, (is_affected_by_effect(EFFECT_ORICA_SZONE) && (info.location & LOCATION_SZONE)) ? LOCATION_MZONE : (is_affected_by_effect(EFFECT_SANCT_MZONE) && (info.location & LOCATION_MZONE)) ? LOCATION_SZONE : info.location );
-			//////kdiy//////////
+			insert_value<uint8_t>(pduel->query_buffer, info.location);
 			insert_value<uint32_t>(pduel->query_buffer, info.sequence);
 			insert_value<uint32_t>(pduel->query_buffer, info.position);
 		}
@@ -2846,7 +2837,7 @@ void card::reset(uint32_t id, uint32_t reset_type) {
 		if (peffect->reset(id, reset_type)) {
 		    if (peffect->code == EFFECT_ORICA_SZONE && is_status(STATUS_MSZONE))
 				set_status(STATUS_MSZONE, FALSE);
-		    if (peffect->code == EFFECT_ORICA_SZONE && is_status(STATUS_SMZONE))
+		    if (peffect->code == EFFECT_SANCT_MZONE && is_status(STATUS_SMZONE))
 				set_status(STATUS_SMZONE, FALSE);
 			remove_effect(peffect, it);
 		}

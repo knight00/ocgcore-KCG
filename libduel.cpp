@@ -908,7 +908,7 @@ LUA_STATIC_FUNCTION(ReturnToField) {
 		pcard->prev_temp.location = LOCATION_SZONE;
 	effect* oeffect = pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA);
 	effect* seffect = pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_SANCT);
-	if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER)) {
+	if(oeffect && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && (pcard->get_type() & TYPE_MONSTER)) {
 		effect* deffect = pduel->new_effect();
 		deffect->owner = oeffect->owner;
 		deffect->code = EFFECT_ORICA_SZONE;
@@ -917,8 +917,7 @@ LUA_STATIC_FUNCTION(ReturnToField) {
 		deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 		pcard->add_effect(deffect);
 		if(pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard->set_status(STATUS_MSZONE, TRUE);
-	}
-	else if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(pcard->get_type() & TYPE_TRAPMONSTER)) {
+	} else if(seffect && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(pcard->get_type() & TYPE_TRAPMONSTER)) {
 		effect* deffect = pduel->new_effect();
 		deffect->owner = seffect->owner;
 		deffect->code = EFFECT_SANCT_MZONE;

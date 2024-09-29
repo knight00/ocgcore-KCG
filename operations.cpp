@@ -1217,7 +1217,7 @@ bool field::process(Processors::GetControl& arg) {
 	    ///////kdiy///////
 		pcard->prev_temp.location = LOCATION_MZONE;	
 		effect* oeffect = is_player_affected_by_effect(playerid,EFFECT_ORICA);
-	    if(is_player_affected_by_effect(playerid,EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+	    if(oeffect && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 			effect* deffect = pduel->new_effect();
 			deffect->owner = oeffect->owner;
 			deffect->code = EFFECT_ORICA_SZONE;
@@ -1238,7 +1238,7 @@ bool field::process(Processors::GetControl& arg) {
 		pcard->reset(RESET_CONTROL, RESET_EVENT);
 	    ///////kdiy///////
 		effect* oeffect = is_player_affected_by_effect(playerid,EFFECT_ORICA);
-	    if(is_player_affected_by_effect(playerid,EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+	    if(oeffect && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 			effect* deffect = pduel->new_effect();
 			deffect->owner = oeffect->owner;
 			deffect->code = EFFECT_ORICA_SZONE;
@@ -1384,7 +1384,7 @@ bool field::process(Processors::SwapControl& arg) {
 		card* pcard2 = *targets2->it;
 		uint8_t p2 = pcard2->current.controler;
 		effect* oeffect = is_player_affected_by_effect(p1,EFFECT_ORICA);
-	    if(!pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE) && is_player_affected_by_effect(p1,EFFECT_ORICA)) {
+	    if(oeffect && !pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 			effect* deffect = pduel->new_effect();
 		    deffect->owner = oeffect->owner;
 		    deffect->code = EFFECT_ORICA_SZONE;
@@ -1395,7 +1395,7 @@ bool field::process(Processors::SwapControl& arg) {
 			if(pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard2->set_status(STATUS_MSZONE, TRUE);
 	    }
 		effect* oeffect2 = is_player_affected_by_effect(p2,EFFECT_ORICA);
-	    if(!pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE) && is_player_affected_by_effect(p2,EFFECT_ORICA)) {
+	    if(oeffect2 && !pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 			effect* deffect = pduel->new_effect();
 		    deffect->owner = oeffect2->owner;
 			deffect->code = EFFECT_ORICA_SZONE;
@@ -1466,7 +1466,7 @@ bool field::process(Processors::SwapControl& arg) {
 		set_control(pcard2, p1, reset_phase, reset_count);
 	    ///////kdiy///////
 		effect* oeffect = is_player_affected_by_effect(p1,EFFECT_ORICA);
-	    if(!pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE) && is_player_affected_by_effect(p1,EFFECT_ORICA) && pcard2->current.location == LOCATION_SZONE) {
+	    if(oeffect && !pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 			effect* deffect = pduel->new_effect();
 		    deffect->owner = oeffect->owner;
 		    deffect->code = EFFECT_ORICA_SZONE;
@@ -1477,7 +1477,7 @@ bool field::process(Processors::SwapControl& arg) {
 			if(pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard2->set_status(STATUS_MSZONE, TRUE);
 	    }
 		effect* oeffect2 = is_player_affected_by_effect(p2,EFFECT_ORICA);
-	    if(!pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE) && is_player_affected_by_effect(p2,EFFECT_ORICA) && pcard1->current.location == LOCATION_SZONE) {
+	    if(oeffect2 && !pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 			effect* deffect = pduel->new_effect();
 		    deffect->owner = oeffect2->owner;
 			deffect->code = EFFECT_ORICA_SZONE;
@@ -1606,59 +1606,55 @@ bool field::process(Processors::ControlAdjust& arg) {
 			///////kdiy///////
 			uint8_t p1 = pcard1->current.controler;
 			uint8_t p2 = pcard2->current.controler;
-			effect* oeffect = is_player_affected_by_effect(p1,EFFECT_ORICA);
-			if(is_player_affected_by_effect(p1,EFFECT_ORICA) && pcard1->current.location == LOCATION_SZONE) {
-				pcard2->temp.location = LOCATION_SZONE;
-				if(!pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
-					effect* deffect = pduel->new_effect();
-					deffect->owner = oeffect->owner;
-					deffect->code = EFFECT_ORICA_SZONE;
-					deffect->type = EFFECT_TYPE_SINGLE;
-					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-					deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-					pcard2->add_effect(deffect);
-					if(pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard2->set_status(STATUS_MSZONE, TRUE);
-				}
-	        }
-			effect* oeffect2 = is_player_affected_by_effect(p2,EFFECT_ORICA);
-	        if(is_player_affected_by_effect(p2,EFFECT_ORICA) && pcard2->current.location == LOCATION_SZONE) {
-				pcard1->temp.location = LOCATION_SZONE;
-				if(!pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
-					effect* deffect = pduel->new_effect();
-					deffect->owner = oeffect2->owner;
-					deffect->code = EFFECT_ORICA_SZONE;
-					deffect->type = EFFECT_TYPE_SINGLE;
-					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-					deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-					pcard1->add_effect(deffect);
-					if(pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard1->set_status(STATUS_MSZONE, TRUE);
-				}
+            effect* oeffect = is_player_affected_by_effect(p1,EFFECT_ORICA);
+            if(oeffect && !pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+                effect* deffect = pduel->new_effect();
+                deffect->owner = oeffect->owner;
+                deffect->code = EFFECT_ORICA_SZONE;
+                deffect->type = EFFECT_TYPE_SINGLE;
+                deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
+                deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
+                pcard2->add_effect(deffect);
+                if(pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard2->set_status(STATUS_MSZONE, TRUE);
             }
+            if(pcard1->current.location == LOCATION_SZONE) pcard2->temp.location = LOCATION_SZONE;
+            effect* oeffect2 = is_player_affected_by_effect(p2,EFFECT_ORICA);
+            if(oeffect2 && !pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+                effect* deffect = pduel->new_effect();
+                deffect->owner = oeffect2->owner;
+                deffect->code = EFFECT_ORICA_SZONE;
+                deffect->type = EFFECT_TYPE_SINGLE;
+                deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
+                deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
+                pcard1->add_effect(deffect);
+                if(pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard1->set_status(STATUS_MSZONE, TRUE);
+            }
+            if(pcard2->current.location == LOCATION_SZONE) pcard1->temp.location = LOCATION_SZONE;
 	        ///////kdiy///////
 			swap_card(pcard1, pcard2);
 			pcard1->reset(RESET_CONTROL, RESET_EVENT);
 			pcard2->reset(RESET_CONTROL, RESET_EVENT);
 		    //kdiy///////
-			if(!pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE) && is_player_affected_by_effect(p1,EFFECT_ORICA) && pcard2->current.location == LOCATION_SZONE) {
-				effect* deffect = pduel->new_effect();
-				deffect->owner = oeffect->owner;
-				deffect->code = EFFECT_ORICA_SZONE;
-				deffect->type = EFFECT_TYPE_SINGLE;
-				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-				deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-				pcard2->add_effect(deffect);
-				if(pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard2->set_status(STATUS_MSZONE, TRUE);
-			}
-			if(!pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE) && is_player_affected_by_effect(p2,EFFECT_ORICA) && pcard1->current.location == LOCATION_SZONE) {
-				effect* deffect = pduel->new_effect();
-				deffect->owner = oeffect2->owner;
-				deffect->code = EFFECT_ORICA_SZONE;
-				deffect->type = EFFECT_TYPE_SINGLE;
-				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-				deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-				pcard1->add_effect(deffect);
-				if(pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard1->set_status(STATUS_MSZONE, TRUE);
-			}
+            if(oeffect && !pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+                effect* deffect = pduel->new_effect();
+                deffect->owner = oeffect->owner;
+                deffect->code = EFFECT_ORICA_SZONE;
+                deffect->type = EFFECT_TYPE_SINGLE;
+                deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
+                deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
+                pcard2->add_effect(deffect);
+                if(pcard2->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard2->set_status(STATUS_MSZONE, TRUE);
+            }
+            if(oeffect2 && !pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+                effect* deffect = pduel->new_effect();
+                deffect->owner = oeffect2->owner;
+                deffect->code = EFFECT_ORICA_SZONE;
+                deffect->type = EFFECT_TYPE_SINGLE;
+                deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
+                deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
+                pcard1->add_effect(deffect);
+                if(pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard1->set_status(STATUS_MSZONE, TRUE);
+            }
 			pcard1->temp.location = 0;
 			pcard2->temp.location = 0;
 			///////kdiy///////
@@ -1680,7 +1676,7 @@ bool field::process(Processors::ControlAdjust& arg) {
 	    ///////kdiy///////
 		pcard->prev_temp.location = LOCATION_MZONE;
 		effect* oeffect = is_player_affected_by_effect(1 - pcard->current.controler,EFFECT_ORICA);
-	    if(is_player_affected_by_effect(1 - pcard->current.controler,EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE) && pcard->current.location == LOCATION_SZONE) {
+	    if(oeffect && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
 			deffect->owner = oeffect->owner;
 			deffect->code = EFFECT_ORICA_SZONE;
@@ -1929,7 +1925,7 @@ bool field::process(Processors::TrapMonsterAdjust& arg) {
 				///////kdiy///////
 				pcard->prev_temp.location = LOCATION_MZONE;
 				effect* seffect = is_player_affected_by_effect(tp,EFFECT_SANCT);	
-				if(is_player_affected_by_effect(tp,EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+				if(seffect && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 					effect* deffect = pduel->new_effect();
 					deffect->owner = seffect->owner;
 					deffect->code = EFFECT_SANCT_MZONE;
@@ -2012,7 +2008,7 @@ bool field::process(Processors::Equip& arg) {
 		if(equip_card->current.location == LOCATION_MZONE && equip_card->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		    equip_card->prev_temp.location = LOCATION_SZONE;
 		effect* seffect = is_player_affected_by_effect(equip_player,EFFECT_SANCT);
-	    if(is_player_affected_by_effect(equip_player,EFFECT_SANCT) && !equip_card->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+	    if(seffect && !equip_card->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 		    effect* deffect = pduel->new_effect();
 			deffect->owner = seffect->owner;
 			deffect->code = EFFECT_SANCT_MZONE;
@@ -2564,7 +2560,7 @@ bool field::process(Processors::SummonRule& arg) {
 		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		    target->prev_temp.location = LOCATION_SZONE;
 		effect* oeffect = is_player_affected_by_effect(targetplayer,EFFECT_ORICA);
-	    if(is_player_affected_by_effect(targetplayer,EFFECT_ORICA) && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+	    if(oeffect && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
 			deffect->owner = oeffect->owner;
 			deffect->code = EFFECT_ORICA_SZONE;
@@ -3188,7 +3184,7 @@ bool field::process(Processors::MonsterSet& arg) {
 		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		    target->prev_temp.location = LOCATION_SZONE;
 		effect* oeffect = is_player_affected_by_effect(targetplayer,EFFECT_ORICA);
-	    if(is_player_affected_by_effect(targetplayer,EFFECT_ORICA) && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+	    if(oeffect && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
 			deffect->owner = oeffect->owner;
 			deffect->code = EFFECT_ORICA_SZONE;
@@ -3270,7 +3266,7 @@ bool field::process(Processors::SpellSet& arg) {
 		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		    target->prev_temp.location = LOCATION_SZONE;
 		effect* seffect = is_player_affected_by_effect(toplayer,EFFECT_SANCT);
-	    if(is_player_affected_by_effect(toplayer,EFFECT_SANCT) && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+	    if(seffect && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 		    effect* deffect = pduel->new_effect();
 			deffect->owner = seffect->owner;
 			deffect->code = EFFECT_SANCT_MZONE;
@@ -3656,7 +3652,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		    target->prev_temp.location = LOCATION_SZONE;
 		effect* oeffect = is_player_affected_by_effect(targetplayer,EFFECT_ORICA);
-	    if(is_player_affected_by_effect(targetplayer,EFFECT_ORICA) && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+	    if(oeffect && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
 			deffect->owner = oeffect->owner;
 			deffect->code = EFFECT_ORICA_SZONE;
@@ -3922,7 +3918,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 		if(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		    pcard->prev_temp.location = LOCATION_SZONE;
 		effect* oeffect = is_player_affected_by_effect(sumplayer,EFFECT_ORICA);
-	    if(is_player_affected_by_effect(sumplayer,EFFECT_ORICA) && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+	    if(oeffect && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
 			deffect->owner = oeffect->owner;
 			deffect->code = EFFECT_ORICA_SZONE;
@@ -4221,7 +4217,7 @@ bool field::process(Processors::SpSummonStep& arg) {
 		if(target->current.location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		    target->prev_temp.location = LOCATION_SZONE;
 		effect* oeffect = is_player_affected_by_effect(playerid,EFFECT_ORICA);	
-	    if(is_player_affected_by_effect(playerid, EFFECT_ORICA) && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+	    if(oeffect && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
 		    effect* deffect = pduel->new_effect();
 			deffect->owner = oeffect->owner;
 			deffect->code = EFFECT_ORICA_SZONE;
@@ -5219,7 +5215,7 @@ bool field::process(Processors::SendTo& arg) {
 		}
 		//kdiy///////
 		effect* seffect = is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT);	
-		if(pcard->temp.location == LOCATION_MZONE && is_player_affected_by_effect(pcard->current.controler, EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+		if(seffect && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 			effect* deffect = pduel->new_effect();
 			deffect->owner = seffect->owner;
 			deffect->code = EFFECT_SANCT_MZONE;
@@ -5254,6 +5250,18 @@ bool field::process(Processors::SendTo& arg) {
 			pcard->clear_card_target();
 			param->leave_field.insert(pcard);
 		}
+        //kdiy///////
+		if(seffect && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+			effect* deffect = pduel->new_effect();
+			deffect->owner = seffect->owner;
+			deffect->code = EFFECT_SANCT_MZONE;
+			deffect->type = EFFECT_TYPE_SINGLE;
+			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
+			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
+			pcard->add_effect(deffect);
+			if(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) pcard->set_status(STATUS_SMZONE, TRUE);
+		}
+        //kdiy///////
 		if(param->predirect->operation) {
 			tevent e;
 			e.event_cards = targets;
@@ -5728,20 +5736,20 @@ bool field::process(Processors::MoveToField& arg) {
 		uint32_t seq = returns.at<int8_t>(2);
 		//kdiy///////
 		target->temp.location = returns.at<int8_t>(1);
+		uint32_t orica = 0;
+		uint32_t sanct = 0;
+		effect* oeffect = is_player_affected_by_effect(playerid, EFFECT_ORICA);
+		effect* seffect = is_player_affected_by_effect(playerid, EFFECT_SANCT);
+		if(target->temp.location == LOCATION_SZONE && location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
+			orica = 1;
+		if(target->temp.location == LOCATION_MZONE && location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
+			sanct = 1;
 		//kdiy///////
 		if(location == LOCATION_SZONE && zone == 0x1 << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & (TYPE_SPELL | TYPE_TRAP)))
 			seq = 5;
 		if(ret != 1) {
 			//kdiy//////
 			//if(location != target->current.location) {
-			uint32_t orica = 0;
-			uint32_t sanct = 0;
-			effect* oeffect = is_player_affected_by_effect(playerid, EFFECT_ORICA);
-			effect* seffect = is_player_affected_by_effect(playerid, EFFECT_SANCT);
-			if(target->temp.location == LOCATION_SZONE && location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
-				orica = 1;
-			if(target->temp.location == LOCATION_MZONE && location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
-				sanct = 1;
 			if(location != target->prev_temp.location && (Rloc != 0x40 && Rloc != 0x80)) {
 			//kdiy//////
 				uint32_t resetflag = 0;
@@ -5756,38 +5764,36 @@ bool field::process(Processors::MoveToField& arg) {
 				target->reset(resetflag, RESET_EVENT);
 				target->clear_card_target();
 			}
-			///kdiy////////
-			if(oeffect && orica == 1 && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
-				effect* deffect = pduel->new_effect();
-				deffect->owner = oeffect->owner;
-				deffect->code = EFFECT_ORICA_SZONE;
-				deffect->type = EFFECT_TYPE_SINGLE;
-				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-				deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-				target->add_effect(deffect);
-				if(target->is_affected_by_effect(EFFECT_ORICA_SZONE)) target->set_status(STATUS_MSZONE, TRUE);
-			}
-			if(seffect && sanct == 1 && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
-				effect* deffect = pduel->new_effect();
-				deffect->owner = seffect->owner;
-				deffect->code = EFFECT_SANCT_MZONE;
-				deffect->type = EFFECT_TYPE_SINGLE;
-				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
-				deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
-				target->add_effect(deffect);
-				if(target->is_affected_by_effect(EFFECT_SANCT_MZONE)) target->set_status(STATUS_SMZONE, TRUE);
-			}
-			///kdiy////////
 		}
 		if(!(target->current.location & LOCATION_ONFIELD))
 			target->clear_relate_effect();
 		if(ret == 1)
 			target->current.reason &= ~REASON_TEMPORARY;
 		////kdiy/////
-		if(target->temp.location != LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
-		    target->reset(EFFECT_ORICA_SZONE, RESET_CODE);
-		if(target->temp.location != LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
-		    target->reset(EFFECT_SANCT_MZONE, RESET_CODE);
+		if(oeffect && orica == 1 && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
+			effect* deffect = pduel->new_effect();
+			deffect->owner = oeffect->owner;
+			deffect->code = EFFECT_ORICA_SZONE;
+			deffect->type = EFFECT_TYPE_SINGLE;
+			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
+			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
+			target->add_effect(deffect);
+			if(target->is_affected_by_effect(EFFECT_ORICA_SZONE)) target->set_status(STATUS_MSZONE, TRUE);
+		}
+		if(seffect && sanct == 1 && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+			effect* deffect = pduel->new_effect();
+			deffect->owner = seffect->owner;
+			deffect->code = EFFECT_SANCT_MZONE;
+			deffect->type = EFFECT_TYPE_SINGLE;
+			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
+			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
+			target->add_effect(deffect);
+			if(target->is_affected_by_effect(EFFECT_SANCT_MZONE)) target->set_status(STATUS_SMZONE, TRUE);
+		}
+		// if(target->temp.location != LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		//     target->reset(EFFECT_ORICA_SZONE, RESET_CODE);
+		// if(target->temp.location != LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
+		//     target->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 		//if((ret == 0 && location != target->current.location)
 		if((ret == 0 && location != target->prev_temp.location && (Rloc != 0x40 && Rloc != 0x80))
 		////kdiy/////
@@ -6160,7 +6166,7 @@ bool field::process(Processors::ChangePos& arg) {
 				///////kdiy///////
 				pcard->prev_temp.location = LOCATION_MZONE;
 				effect* seffect = is_player_affected_by_effect(pcard->current.controler,EFFECT_SANCT);	
-				if(is_player_affected_by_effect(pcard->current.controler,EFFECT_SANCT) && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+				if(seffect && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 					effect* deffect = pduel->new_effect();
 					deffect->owner = seffect->owner;
 					deffect->code = EFFECT_SANCT_MZONE;

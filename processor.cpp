@@ -3980,7 +3980,7 @@ bool field::process(Processors::AddChain& arg) {
 		    if(phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))
 		        phandler->prev_temp.location = LOCATION_SZONE;
 			effect* seffect = is_player_affected_by_effect(phandler->current.controler,EFFECT_SANCT);
-			if(is_player_affected_by_effect(phandler->current.controler,EFFECT_SANCT) && !phandler->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+			if(seffect && !phandler->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 				effect* deffect = pduel->new_effect();
 				deffect->owner = seffect->owner;
 				deffect->code = EFFECT_SANCT_MZONE;
