@@ -47,7 +47,10 @@ int32_t effect::is_available() {
 	if ((type & (EFFECT_TYPE_SINGLE | EFFECT_TYPE_XMATERIAL)) && !(type & EFFECT_TYPE_FIELD)) {
 		card* phandler = get_handler();
 		card* powner = get_owner();
-		if (phandler->current.controler == PLAYER_NONE && code != EFFECT_ADD_SETCODE && code != EFFECT_ADD_CODE && code != EFFECT_REVIVE_LIMIT)
+		////kdiy/////////
+		//if (phandler->current.controler == PLAYER_NONE && code != EFFECT_ADD_SETCODE && code != EFFECT_ADD_CODE && code != EFFECT_REVIVE_LIMIT)
+		if (phandler->current.controler == PLAYER_NONE && code != EFFECT_ADD_SETCODE && code != EFFECT_ADD_CODE && code != EFFECT_REVIVE_LIMIT && code != EFFECT_ORICA_SZONE && code != EFFECT_SANCT_MZONE)
+		////kdiy/////////
 			return FALSE;
 		if(!is_in_range_of_symbolic_mzone(phandler))
 			return FALSE;
