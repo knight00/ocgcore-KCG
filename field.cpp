@@ -3086,7 +3086,7 @@ int32_t field::get_attack_target(card* pcard, card_vector* v, bool chain_attack,
 	for(auto& atarget : player[1 - p].list_mzone) {
 		if(atarget) {
 			///////kdiy///////
-			if(atarget->is_affected_by_effect(EFFECT_SANCT_MZONE))
+			if(atarget->is_affected_by_effect(EFFECT_SANCT_MZONE) && !atarget->is_affected_by_effect(EFFECT_EQUIP_MONSTER))
 			    continue;
 			///////kdiy///////
 			if(atarget->is_affected_by_effect(EFFECT_ONLY_BE_ATTACKED))
@@ -3103,7 +3103,7 @@ int32_t field::get_attack_target(card* pcard, card_vector* v, bool chain_attack,
 	///////kdiy///////
 	for(auto& atarget : player[1 - p].list_szone) {
 		if(atarget) {
-			if(!atarget->is_affected_by_effect(EFFECT_ORICA_SZONE) &&  !atarget->is_affected_by_effect(EFFECT_EQUIP_MONSTER))
+			if(!atarget->is_affected_by_effect(EFFECT_ORICA_SZONE) && !atarget->is_affected_by_effect(EFFECT_EQUIP_MONSTER))
 			    continue;
 			if(atarget->is_affected_by_effect(EFFECT_ONLY_BE_ATTACKED))
 				auto_attack.push_back(atarget);
@@ -3136,7 +3136,7 @@ int32_t field::get_attack_target(card* pcard, card_vector* v, bool chain_attack,
 		for(auto& atarget : player[1 - p].list_mzone)
 			///////kdiy///////////
 			//if (atarget != core.attacker)
-			if (atarget && !atarget->is_affected_by_effect(EFFECT_SANCT_MZONE))
+			if (atarget && !(atarget->is_affected_by_effect(EFFECT_SANCT_MZONE) && !atarget->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))
 			///////kdiy///////////
 				attack_tg.push_back(atarget);
 		///////kdiy///////////
@@ -3148,7 +3148,7 @@ int32_t field::get_attack_target(card* pcard, card_vector* v, bool chain_attack,
 			for(auto& atarget : player[p].list_mzone)
 			    //////kdiy//////////
 				// if (atarget != core.attacker)
-				if (atarget && !atarget->is_affected_by_effect(EFFECT_SANCT_MZONE))
+				if (atarget && !(atarget->is_affected_by_effect(EFFECT_SANCT_MZONE) && !atarget->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))
 				//////kdiy//////////
 					attack_tg.push_back(atarget);
 			//////kdiy//////////

@@ -701,14 +701,11 @@ uint32_t card::get_type(card* scard, uint64_t sumtype, uint8_t playerid) {
 // Atk and def are sepcial cases since text atk/def ? are involved.
 // Asuumption: we can only change the atk/def of cards in LOCATION_MZONE.
 int32_t card::get_base_attack() {
-	////////kdiy////////		
-	//if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
-	if((!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)) || is_affected_by_effect(EFFECT_SANCT_MZONE))	
-	////////kdiy////////
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	////////kdiy////////	
+	////////kdiy////////
 	//if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
-	if (!(((current.location == LOCATION_MZONE) && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || ((current.location == LOCATION_SZONE) && (is_affected_by_effect(EFFECT_ORICA_SZONE) || is_affected_by_effect(EFFECT_EQUIP_MONSTER)))) || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))	
+	if (!((current.location == LOCATION_MZONE && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || (current.location == LOCATION_SZONE && is_affected_by_effect(EFFECT_ORICA_SZONE))) || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 	////////kdiy////////
 		return data.attack;
 	if (has_valid_property_val(temp.base_attack))
@@ -814,14 +811,11 @@ int32_t card::get_attack() {
 	auto search = assume.find(ASSUME_ATTACK);
 	if(search != assume.end())
 		return search->second;
-	////////kdiy////////		
-	//if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
-	if((!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)) || is_affected_by_effect(EFFECT_SANCT_MZONE))	
-	////////kdiy////////	
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	////////kdiy////////	
 	//if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
-	if (!(((current.location == LOCATION_MZONE) && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || ((current.location == LOCATION_SZONE) && (is_affected_by_effect(EFFECT_ORICA_SZONE) || is_affected_by_effect(EFFECT_EQUIP_MONSTER)))) || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))	
+	if (!((current.location == LOCATION_MZONE && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || (current.location == LOCATION_SZONE && is_affected_by_effect(EFFECT_ORICA_SZONE))) || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 	////////kdiy////////
 		return data.attack;
 	if (has_valid_property_val(temp.attack))
@@ -1039,14 +1033,11 @@ int32_t card::get_attack() {
 int32_t card::get_base_defense() {
 	if(data.type & TYPE_LINK)
 		return 0;
-	////////kdiy////////		
-	//if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
-	if((!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)) || is_affected_by_effect(EFFECT_SANCT_MZONE))	
-	////////kdiy////////		
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	////////kdiy////////	
 	//if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
-	if (!(((current.location == LOCATION_MZONE) && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || ((current.location == LOCATION_SZONE) && (is_affected_by_effect(EFFECT_ORICA_SZONE) || is_affected_by_effect(EFFECT_EQUIP_MONSTER)))) || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
+	if (!((current.location == LOCATION_MZONE && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || (current.location == LOCATION_SZONE && is_affected_by_effect(EFFECT_ORICA_SZONE))) || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 	////////kdiy////////	
 		return data.defense;
 	if (has_valid_property_val(temp.base_defense))
@@ -1152,14 +1143,11 @@ int32_t card::get_defense() {
 	auto search = assume.find(ASSUME_DEFENSE);
 	if(search != assume.end())
 		return search->second;
-	////////kdiy////////
-	//if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
-	if((!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)) || is_affected_by_effect(EFFECT_SANCT_MZONE))
-	////////kdiy////////
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	////////kdiy////////	
 	//if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
-	if (!(((current.location == LOCATION_MZONE) && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || ((current.location == LOCATION_SZONE) && (is_affected_by_effect(EFFECT_ORICA_SZONE) || is_affected_by_effect(EFFECT_EQUIP_MONSTER)))) || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
+	if (!((current.location == LOCATION_MZONE && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || (current.location == LOCATION_SZONE && is_affected_by_effect(EFFECT_ORICA_SZONE))) || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 	////////kdiy////////	
 		return data.defense;
 	if (has_valid_property_val(temp.defense))
@@ -4600,7 +4588,7 @@ int32_t card::is_capable_cost_to_extra(uint8_t playerid) {
 int32_t card::is_capable_attack() {
 	///////kdiy//////
 	//if(!is_position(POS_FACEUP_ATTACK) && !(is_position(POS_FACEUP_DEFENSE) && is_affected_by_effect(EFFECT_DEFENSE_ATTACK)))
-	if((((!is_position(POS_FACEUP_ATTACK) && !(is_position(POS_FACEUP_DEFENSE) && is_affected_by_effect(EFFECT_DEFENSE_ATTACK))) || (current.position == POS_FACEUP || current.position == POS_FACEDOWN)) && !is_affected_by_effect(EFFECT_EQUIP_MONSTER)) || (is_affected_by_effect(EFFECT_EQUIP_MONSTER) && is_position(POS_FACEDOWN)))
+	if(current.position != POS_FACEUP_ATTACK && !(current.position == POS_FACEUP_DEFENSE && is_affected_by_effect(EFFECT_DEFENSE_ATTACK)) && !(is_position(POS_FACEUP) && is_affected_by_effect(EFFECT_EQUIP_MONSTER)))
 	///////kdiy//////	
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_FORBIDDEN))

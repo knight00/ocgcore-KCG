@@ -1782,7 +1782,7 @@ LUA_STATIC_FUNCTION(ChangeAttackTarget) {
 		for(auto& pcard : pduel->game_field->player[1 - turnp].list_mzone) {
 			/////////kdiy/////
 			// if(pcard)
-			if(pcard && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE))
+			if(pcard && !(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && !pcard->is_affected_by_effect(EFFECT_EQUIP_MONSTER)))
 			/////////kdiy/////
 				pduel->game_field->core.opp_mzone.insert(pcard->fieldid_r);
 		}
