@@ -2819,17 +2819,8 @@ void card::reset(uint32_t id, uint32_t reset_type) {
 		auto rm = i++;
 		effect* peffect = rm->first;
 		auto it = rm->second;
-		//kdiy/////////
-		// if (peffect->reset(id, reset_type))
-		// 	remove_effect(peffect, it);
-		if (peffect->reset(id, reset_type)) {
-		    if (peffect->code == EFFECT_ORICA_SZONE && is_status(STATUS_MSZONE))
-				set_status(STATUS_MSZONE, FALSE);
-		    if (peffect->code == EFFECT_SANCT_MZONE && is_status(STATUS_SMZONE))
-				set_status(STATUS_SMZONE, FALSE);
+		if (peffect->reset(id, reset_type))
 			remove_effect(peffect, it);
-		}
-		//kdiy/////////
 	}
 }
 void card::reset_effect_count() {

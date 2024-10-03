@@ -916,7 +916,6 @@ LUA_STATIC_FUNCTION(ReturnToField) {
 		deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 		deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 		pcard->add_effect(deffect);
-		if(pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) pcard->set_status(STATUS_MSZONE, TRUE);
 	} else if(seffect && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(pcard->get_type() & TYPE_TRAPMONSTER)) {
 		effect* deffect = pduel->new_effect();
 		deffect->owner = seffect->owner;
@@ -925,7 +924,6 @@ LUA_STATIC_FUNCTION(ReturnToField) {
 		deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 		deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 		pcard->add_effect(deffect);
-		if(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) pcard->set_status(STATUS_SMZONE, TRUE);
 	}
 	//kdiy///////
 	if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA) && (pcard->get_type() & TYPE_MONSTER)) {
