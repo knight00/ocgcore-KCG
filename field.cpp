@@ -1673,7 +1673,8 @@ void field::dec_effect_code(uint32_t code, uint8_t flag, uint8_t hopt_index, uin
 	auto iter = count_map.find(key);
 	if(iter == count_map.end())
 		return;
-	--iter->second;
+	if(iter->second != 0)
+		--iter->second;
 }
 void field::filter_field_effect(uint32_t code, effect_set* eset, bool sort) {
 	auto rg = effects.aura_effect.equal_range(code);
@@ -3265,7 +3266,7 @@ int32_t field::check_tribute(card* pcard, int32_t min, int32_t max, group* mg, u
 	if(ct <= 0 && max <= 0)
 		return FALSE;
 	const auto& to_check_release_list = [&] {
-		if(ex_list.size() > 0 && ex_list.size() >= min)
+		if(ex_list.size() > 0 && static_cast<int32_t>(ex_list.size()) >= min)
 			return ex_list;
 		return release_list;
 	}();
