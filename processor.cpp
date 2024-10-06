@@ -3989,6 +3989,7 @@ bool field::process(Processors::AddChain& arg) {
 				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE | EFFECT_FLAG_OWNER_RELATE;
 				deffect->reset_flag = RESET_EVENT+0x1fe0000-RESET_TURN_SET+RESET_CONTROL;
 				phandler->add_effect(deffect);
+                phandler->reset(EFFECT_ORICA_SZONE, RESET_CODE);
 			}
 			///////kdiy///////
 			move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, (loc == LOCATION_MZONE) ? POS_FACEUP_ATTACK : POS_FACEUP, FALSE, 0, zone);

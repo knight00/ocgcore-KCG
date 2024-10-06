@@ -916,6 +916,7 @@ LUA_STATIC_FUNCTION(ReturnToField) {
 		deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 		deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 		pcard->add_effect(deffect);
+        pcard->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 	} else if(seffect && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && (pcard->get_type() & (TYPE_SPELL | TYPE_TRAP)) && !(pcard->get_type() & TYPE_TRAPMONSTER)) {
 		effect* deffect = pduel->new_effect();
 		deffect->owner = seffect->owner;
@@ -924,6 +925,7 @@ LUA_STATIC_FUNCTION(ReturnToField) {
 		deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 		deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 		pcard->add_effect(deffect);
+        pcard->reset(EFFECT_ORICA_SZONE, RESET_CODE);
 	}
 	//kdiy///////
 	if(pduel->game_field->is_player_affected_by_effect(pcard->previous.controler,EFFECT_ORICA) && (pcard->get_type() & TYPE_MONSTER)) {
@@ -996,7 +998,7 @@ LUA_STATIC_FUNCTION(MoveSequence) {
 				message->write<uint8_t>(pcard->current.reason_player);
                 message->write<bool>(pzone && !cur_pzone);
                 message->write<bool>(true);
-                message->write<bool>(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
+                message->write<bool>(pcard->current.location == LOCATION_SZONE || pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
                 ///kdiy///////////
 			}
 			field.raise_single_event(pcard, nullptr, EVENT_MOVE, core.reason_effect, 0, core.reason_player, playerid, 0);

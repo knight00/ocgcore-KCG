@@ -1225,6 +1225,7 @@ bool field::process(Processors::GetControl& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			pcard->add_effect(deffect);
+            pcard->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 		}
 		///////kdiy///////
 		move_to_field(pcard, (chose_player == PLAYER_NONE) ? playerid : chose_player, playerid, LOCATION_MZONE, pcard->current.position, FALSE, 0, zone);					
@@ -1245,6 +1246,7 @@ bool field::process(Processors::GetControl& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			pcard->add_effect(deffect);
+            pcard->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 		}
 		///////kdiy///////
 		pcard->filter_disable_related_cards();
@@ -1390,6 +1392,7 @@ bool field::process(Processors::SwapControl& arg) {
 		    deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 		    pcard2->add_effect(deffect);
+            pcard2->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 	    }
 		effect* oeffect2 = is_player_affected_by_effect(p2,EFFECT_ORICA);
 	    if(oeffect2 && !pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
@@ -1400,6 +1403,7 @@ bool field::process(Processors::SwapControl& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			pcard1->add_effect(deffect);
+            pcard1->reset(EFFECT_SANCT_MZONE, RESET_CODE);
         }
 	    ///////kdiy///////
 		get_useable_count(nullptr, p1, LOCATION_MZONE, reason_player, LOCATION_REASON_CONTROL, 0xff, &flag);
@@ -1470,6 +1474,7 @@ bool field::process(Processors::SwapControl& arg) {
 		    deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 		    pcard2->add_effect(deffect);
+            pcard2->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 	    }
 		effect* oeffect2 = is_player_affected_by_effect(p2,EFFECT_ORICA);
 	    if(oeffect2 && !pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
@@ -1480,6 +1485,7 @@ bool field::process(Processors::SwapControl& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			pcard1->add_effect(deffect);
+            pcard1->reset(EFFECT_SANCT_MZONE, RESET_CODE);
         }
 		pcard1->temp.location = 0;
 		pcard2->temp.location = 0;
@@ -1609,6 +1615,7 @@ bool field::process(Processors::ControlAdjust& arg) {
                 deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
                 deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
                 pcard2->add_effect(deffect);
+                pcard2->reset(EFFECT_SANCT_MZONE, RESET_CODE);
             }
             if(pcard1->current.location == LOCATION_SZONE) pcard2->temp.location = LOCATION_SZONE;
             effect* oeffect2 = is_player_affected_by_effect(p2,EFFECT_ORICA);
@@ -1620,6 +1627,7 @@ bool field::process(Processors::ControlAdjust& arg) {
                 deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
                 deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
                 pcard1->add_effect(deffect);
+                pcard1->reset(EFFECT_SANCT_MZONE, RESET_CODE);
             }
             if(pcard2->current.location == LOCATION_SZONE) pcard1->temp.location = LOCATION_SZONE;
 	        ///////kdiy///////
@@ -1635,6 +1643,7 @@ bool field::process(Processors::ControlAdjust& arg) {
                 deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
                 deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
                 pcard2->add_effect(deffect);
+                pcard2->reset(EFFECT_SANCT_MZONE, RESET_CODE);
             }
             if(oeffect2 && !pcard1->is_affected_by_effect(EFFECT_ORICA_SZONE)) {
                 effect* deffect = pduel->new_effect();
@@ -1644,6 +1653,7 @@ bool field::process(Processors::ControlAdjust& arg) {
                 deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
                 deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
                 pcard1->add_effect(deffect);
+                pcard1->reset(EFFECT_SANCT_MZONE, RESET_CODE);
             }
 			pcard1->temp.location = 0;
 			pcard2->temp.location = 0;
@@ -1674,6 +1684,7 @@ bool field::process(Processors::ControlAdjust& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			pcard->add_effect(deffect);
+            pcard->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 		}
 		///////kdiy///////
 		move_to_field(pcard, 1 - pcard->current.controler, 1 - pcard->current.controler, LOCATION_MZONE, pcard->current.position);
@@ -1922,6 +1933,7 @@ bool field::process(Processors::TrapMonsterAdjust& arg) {
 					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 					deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 					pcard->add_effect(deffect);
+                    pcard->reset(EFFECT_ORICA_SZONE, RESET_CODE);
 				}
 				///////kdiy///////
 				move_to_field(pcard, tp, tp, LOCATION_SZONE, pcard->current.position, FALSE, 2);		
@@ -2004,6 +2016,7 @@ bool field::process(Processors::Equip& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE | EFFECT_FLAG_OWNER_RELATE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000-RESET_TURN_SET+RESET_CONTROL;
 			equip_card->add_effect(deffect);
+            equip_card->reset(EFFECT_ORICA_SZONE, RESET_CODE);
 		}
 		///////kdiy///////
 		move_to_field(equip_card, equip_player, equip_player, LOCATION_SZONE, (faceup || equip_card->is_position(POS_FACEUP)) ? POS_FACEUP : POS_FACEDOWN);
@@ -2555,6 +2568,7 @@ bool field::process(Processors::SummonRule& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			target->add_effect(deffect);
+            target->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 		}
 		///////kdiy///////
 		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, zone);
@@ -3178,6 +3192,7 @@ bool field::process(Processors::MonsterSet& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE | EFFECT_FLAG_OWNER_RELATE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			target->add_effect(deffect);
+            target->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 		}
 		///////kdiy///////
 		move_to_field(target, setplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, zone);		
@@ -3259,6 +3274,7 @@ bool field::process(Processors::SpellSet& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			target->add_effect(deffect);
+            target->reset(EFFECT_ORICA_SZONE, RESET_CODE);
 		}
 		///////kdiy///////
 		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE, 0, (target->data.type & TYPE_FIELD) ? 0x1 << 5 : 0xff);		
@@ -3644,6 +3660,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE | EFFECT_FLAG_OWNER_RELATE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			target->add_effect(deffect);
+            target->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 		}
 		///////kdiy///////
 		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, zone, TRUE);			
@@ -3909,6 +3926,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE | EFFECT_FLAG_OWNER_RELATE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			pcard->add_effect(deffect);
+            pcard->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 		}
 		///////kdiy///////
 		move_to_field(pcard, sumplayer, sumplayer, LOCATION_MZONE, positions, FALSE, 0, zone, TRUE);							
@@ -4207,6 +4225,7 @@ bool field::process(Processors::SpSummonStep& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE | EFFECT_FLAG_OWNER_RELATE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			target->add_effect(deffect);
+            target->reset(EFFECT_SANCT_MZONE, RESET_CODE);
 		}
 		///////kdiy///////
 		move_to_field(target, target->summon.player, playerid, LOCATION_MZONE, positions, FALSE, 0, zone);
@@ -5138,7 +5157,7 @@ bool field::process(Processors::SendTo& arg) {
 			message->write<uint8_t>(pcard->current.reason_player);
             message->write<bool>(false);
             message->write<bool>(param->cvit == param->cv.begin());
-            message->write<bool>(false);
+            message->write<bool>(dest == LOCATION_SZONE || pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
             ///kdiy///////////
 		}
 		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
@@ -5204,6 +5223,7 @@ bool field::process(Processors::SendTo& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			pcard->add_effect(deffect);
+            pcard->reset(EFFECT_ORICA_SZONE, RESET_CODE);
 		}
         int8_t location2 = pcard->temp.location;
 		if(pcard->temp.location == LOCATION_MZONE || pcard->temp.location == LOCATION_SZONE)
@@ -5218,7 +5238,7 @@ bool field::process(Processors::SendTo& arg) {
 		message->write<uint8_t>(pcard->current.reason_player);
         message->write<bool>(false);
         message->write<bool>(param->cvit == param->cv.begin());
-        message->write<bool>(pcard->current.location == LOCATION_MZONE && pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
+        message->write<bool>(true);
 		pcard->temp.location = 0;
         ///kdiy///////////
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
@@ -5239,6 +5259,7 @@ bool field::process(Processors::SendTo& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			pcard->add_effect(deffect);
+            pcard->reset(EFFECT_ORICA_SZONE, RESET_CODE);
 		}
         //kdiy///////
 		if(param->predirect->operation) {
@@ -5719,9 +5740,9 @@ bool field::process(Processors::MoveToField& arg) {
 		uint32_t sanct = 0;
 		effect* oeffect = is_player_affected_by_effect(playerid, EFFECT_ORICA);
 		effect* seffect = is_player_affected_by_effect(playerid, EFFECT_SANCT);
-		if(target->temp.location == LOCATION_SZONE && location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
 			orica = 1;
-		if(target->temp.location == LOCATION_MZONE && location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
+		if(location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
 			sanct = 1;
 		//kdiy///////
 		if(location == LOCATION_SZONE && zone == 0x1 << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & (TYPE_SPELL | TYPE_TRAP)))
@@ -5757,8 +5778,8 @@ bool field::process(Processors::MoveToField& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			target->add_effect(deffect);
-		}
-		if(seffect && sanct == 1 && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
+            target->reset(EFFECT_SANCT_MZONE, RESET_CODE);
+		} else if(seffect && sanct == 1 && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) {
 			effect* deffect = pduel->new_effect();
 			deffect->owner = seffect->owner;
 			deffect->code = EFFECT_SANCT_MZONE;
@@ -5766,6 +5787,7 @@ bool field::process(Processors::MoveToField& arg) {
 			deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 			deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 			target->add_effect(deffect);
+            target->reset(EFFECT_ORICA_SZONE, RESET_CODE);
 		}
 		// if(target->temp.location != LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
 		//     target->reset(EFFECT_ORICA_SZONE, RESET_CODE);
@@ -5833,7 +5855,7 @@ bool field::process(Processors::MoveToField& arg) {
 		message->write<uint8_t>(target->current.reason_player);
         message->write<bool>(pzone && !temp_pzone);
         message->write<bool>(true);
-        message->write<bool>(location2 == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE));
+        message->write<bool>(location == LOCATION_SZONE || target->is_affected_by_effect(EFFECT_SANCT_MZONE));
 		target->temp.location = 0;
 		target->prev_temp.location = 0;
 		//if((target->current.location != LOCATION_MZONE)) {
@@ -6151,6 +6173,7 @@ bool field::process(Processors::ChangePos& arg) {
 					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 					deffect->reset_flag = RESET_EVENT+0x1fe0000+RESET_CONTROL-RESET_TURN_SET;
 					pcard->add_effect(deffect);
+                    pcard->reset(EFFECT_ORICA_SZONE, RESET_CODE);
 				}
 				///////kdiy///////
 				move_to_field(pcard, pcard->current.controler, pcard->current.controler, LOCATION_SZONE, POS_FACEDOWN, FALSE, 2);
