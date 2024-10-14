@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-#include <algorithm> //std::any_of
+#include <algorithm> //std::any_of, std::max
 #include <iterator> //std::distance
 #include <set>
 #include "card.h"
@@ -498,17 +498,11 @@ LUA_FUNCTION(GetOriginalRace) {
 	return 1;
 }
 LUA_FUNCTION(GetAttack) {
-	int32_t atk = self->get_attack();
-	if(atk < 0)
-		atk = 0;
-	lua_pushinteger(L, atk);
+	lua_pushinteger(L, std::max(0, self->get_attack()));
 	return 1;
 }
 LUA_FUNCTION(GetBaseAttack) {
-	int32_t atk = self->get_base_attack();
-	if(atk < 0)
-		atk = 0;
-	lua_pushinteger(L, atk);
+	lua_pushinteger(L, std::max(0, self->get_base_attack()));
 	return 1;
 }
 LUA_FUNCTION(GetTextAttack) {
@@ -519,17 +513,11 @@ LUA_FUNCTION(GetTextAttack) {
 	return 1;
 }
 LUA_FUNCTION(GetDefense) {
-	int32_t def = self->get_defense();
-	if(def < 0)
-		def = 0;
-	lua_pushinteger(L, def);
+	lua_pushinteger(L, std::max(0, self->get_defense()));
 	return 1;
 }
 LUA_FUNCTION(GetBaseDefense) {
-	int32_t def = self->get_base_defense();
-	if(def < 0)
-		def = 0;
-	lua_pushinteger(L, def);
+	lua_pushinteger(L, std::max(0, self->get_base_defense()));
 	return 1;
 }
 LUA_FUNCTION(GetTextDefense) {
@@ -2483,7 +2471,7 @@ LUA_FUNCTION(AssumeProperty) {
 	check_param_count(L, 3);
 	auto assume = lua_get<uint32_t>(L, 2);
 	if ((assume < ASSUME_CODE) || (assume > ASSUME_LINKMARKER))
-		return 0;
+		lua_error(L, "Invalid ASSUME value");
 	self->assume[assume] = lua_get<uint64_t>(L, 3);
 	pduel->assumes.insert(self);
 	return 0;
