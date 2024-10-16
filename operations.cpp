@@ -5157,7 +5157,7 @@ bool field::process(Processors::SendTo& arg) {
 			message->write<uint8_t>(pcard->current.reason_player);
             message->write<bool>(false);
             message->write<bool>(param->cvit == param->cv.begin());
-            message->write<bool>(dest == LOCATION_SZONE || pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
+            message->write<bool>((dest == LOCATION_SZONE && !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)) || pcard->is_affected_by_effect(EFFECT_SANCT_MZONE));
             ///kdiy///////////
 		}
 		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
@@ -5855,7 +5855,7 @@ bool field::process(Processors::MoveToField& arg) {
 		message->write<uint8_t>(target->current.reason_player);
         message->write<bool>(pzone && !temp_pzone);
         message->write<bool>(true);
-        message->write<bool>(location == LOCATION_SZONE || target->is_affected_by_effect(EFFECT_SANCT_MZONE));
+        message->write<bool>((location == LOCATION_SZONE && !target->is_affected_by_effect(EFFECT_ORICA_SZONE)) || target->is_affected_by_effect(EFFECT_SANCT_MZONE));
 		target->temp.location = 0;
 		target->prev_temp.location = 0;
 		//if((target->current.location != LOCATION_MZONE)) {
