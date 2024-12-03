@@ -212,7 +212,7 @@ LUA_STATIC_FUNCTION(GetCardsInZone) {
 ///kdiy/////////////////////
 LUA_STATIC_FUNCTION(EnableGlobalFlag) {
 	check_param_count(L, 1);
-	pduel->game_field->core.global_flag |= lua_get<uint32_t>(L, 1);
+	// noop
 	return 0;
 }
 
@@ -1086,7 +1086,7 @@ LUA_STATIC_FUNCTION(ConfirmDecktop) {
 	if(count >= list_main.size())
 		count = static_cast<uint32_t>(list_main.size());
 	else if(list_main.size() > count) {
-		if(pduel->game_field->core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK && pduel->game_field->core.deck_reversed) {
+		if(pduel->game_field->core.deck_reversed) {
 			card* pcard = *(list_main.rbegin() + count);
 			auto message = pduel->new_message(MSG_DECK_TOP);
 			message->write<uint8_t>(playerid);
