@@ -68,10 +68,14 @@ LUA_FUNCTION(SetEntityCode) {
 LUA_FUNCTION(SetCardData) {
 	check_param_count(L, 3);
 	int32_t stype = lua_tointeger(L, 2);
+	uint32_t piccode = 0;
 	switch(stype) {
 	// case CARDDATA_CODE:
 	// 	self->data.code = lua_tointeger(L, 3);
 	// 	break;
+	case CARDDATA_PICCODE:
+		piccode = lua_get<uint32_t>(L, 3);
+		break;
 	case CARDDATA_ALIAS:
 		self->data.alias = lua_get<uint32_t>(L, 3, self->data.alias);
 		break;
@@ -115,6 +119,7 @@ LUA_FUNCTION(SetCardData) {
 		break;
 	}
 	auto message = pduel->new_message(MSG_CHANGE);
+	message->write<uint32_t>(piccode);
 	message->write<uint32_t>(self->data.code);
 	message->write(self->get_info_location());
 	uint64_t setnames = 0;

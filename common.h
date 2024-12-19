@@ -34,7 +34,7 @@
 
 //Locations
 //////kdiy//////
-// #define CARDDATA_CODE			1
+#define CARDDATA_PICCODE		1
 #define CARDDATA_ALIAS			2
 #define CARDDATA_SETCODE		3
 #define CARDDATA_TYPE			4
