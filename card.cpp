@@ -23,7 +23,6 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
 	if (!code)
 		return 0;
 	auto message = pduel->new_message(MSG_CHANGE);
-	message->write<uint32_t>(0);
 	message->write<uint32_t>(code);
 	message->write(get_info_location());
 	uint64_t setnames = 0;
