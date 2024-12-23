@@ -75,9 +75,6 @@ LUA_FUNCTION(SetCardData) {
 	// 	break;
 	case CARDDATA_PICCODE:
 		piccode = lua_get<uint32_t>(L, 3);
-		auto message = pduel->new_message(MSG_PICCHANGE);
-		message->write<uint32_t>(piccode);
-		return 0;
 		break;
 	case CARDDATA_ALIAS:
 		self->data.alias = lua_get<uint32_t>(L, 3, self->data.alias);
@@ -121,8 +118,8 @@ LUA_FUNCTION(SetCardData) {
 		self->data.link_marker = lua_get<uint32_t>(L, 3, self->data.link_marker);
 		break;
 	}
-	auto message = pduel->new_message(MSG_CHANGE);
-	message->write<uint32_t>(self->data.code);
+	auto message = pduel->new_message(piccode > 0 ? MSG_PICCHANGE : MSG_CHANGE);
+	message->write<uint32_t>(piccode > 0 ? piccode : self->data.code);
 	message->write(self->get_info_location());
 	uint64_t setnames = 0;
 	int i = 0;
