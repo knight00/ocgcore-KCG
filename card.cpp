@@ -3795,11 +3795,12 @@ int32_t card::fusion_check(group* fusion_m, group* cg, uint32_t chkf) {
 		pduel->lua->add_param<LuaParam::GROUP>(fusion_m);
 		pduel->lua->add_param<LuaParam::GROUP>(cg);
 		pduel->lua->add_param<LuaParam::INT>(chkf);
+		pduel->lua->add_param<LuaParam::EFFECT>(pduel->game_field->core.reason_effect);
 		effect* oreason = pduel->game_field->core.reason_effect;
 		uint8_t op = pduel->game_field->core.reason_player;
 		pduel->game_field->core.reason_effect = peffect;
 		pduel->game_field->core.reason_player = peffect->get_handler_player();
-		int32_t res = pduel->lua->check_condition(peffect->condition, 4);
+		int32_t res = pduel->lua->check_condition(peffect->condition, 5);
 		pduel->game_field->core.reason_effect = oreason;
 		pduel->game_field->core.reason_player = op;
 		if(res)
@@ -3818,11 +3819,12 @@ void card::fusion_filter_valid(group* fusion_m, group* cg, uint32_t chkf, effect
 		pduel->lua->add_param<LuaParam::GROUP>(fusion_m);
 		pduel->lua->add_param<LuaParam::GROUP>(cg);
 		pduel->lua->add_param<LuaParam::INT>(chkf);
+		pduel->lua->add_param<LuaParam::EFFECT>(pduel->game_field->core.reason_effect);
 		effect* oreason = pduel->game_field->core.reason_effect;
 		uint8_t op = pduel->game_field->core.reason_player;
 		pduel->game_field->core.reason_effect = peffect;
 		pduel->game_field->core.reason_player = peffect->get_handler_player();
-		int32_t res = pduel->lua->check_condition(peffect->condition, 4);
+		int32_t res = pduel->lua->check_condition(peffect->condition, 5);
 		pduel->game_field->core.reason_effect = oreason;
 		pduel->game_field->core.reason_player = op;
 		if (res)
@@ -4255,7 +4257,7 @@ int32_t card::is_setable_mzone(uint8_t playerid, uint8_t ignore_count, effect* p
 	return TRUE;
 }
 int32_t card::is_setable_szone(uint8_t playerid, uint8_t ignore_fd) {
-	if(!(data.type & TYPE_FIELD) && !ignore_fd && pduel->game_field->get_useable_count(this, current.controler, LOCATION_SZONE, current.controler, LOCATION_REASON_TOFIELD) <= 0)
+	if(!(data.type & TYPE_FIELD) && !ignore_fd && pduel->game_field->get_useable_count(this, playerid, LOCATION_SZONE, current.controler, LOCATION_REASON_TOFIELD) <= 0)
 		return FALSE;
 	if(data.type & TYPE_MONSTER && !is_affected_by_effect(EFFECT_MONSTER_SSET))
 		return FALSE;
