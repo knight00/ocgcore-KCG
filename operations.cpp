@@ -3695,6 +3695,7 @@ bool field::process(Processors::SpSummonRule& arg) {
         /////kdiy///////
         message->write<uint32_t>(target->summon.type);
         message->write<uint8_t>(sumplayer);
+		message->write<bool>(target->single_effect.count((1295111 & 0xfffffff) | 0x10000000) > 0);
         /////kdiy///////
 		return FALSE;
 	}
@@ -3941,6 +3942,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 		//kdiy///////
         message->write<uint32_t>(pcard->summon.type);
         message->write<uint8_t>(sumplayer);
+		message->write<bool>(false);
 		//kdiy///////
 		set_control(pcard, pcard->current.controler, 0, 0);
 		pcard->set_status(STATUS_SPSUMMON_STEP, TRUE);
@@ -4238,6 +4240,7 @@ bool field::process(Processors::SpSummonStep& arg) {
         /////kdiy///////
         message->write<uint32_t>(target->summon.type);
         message->write<uint8_t>(target->summon.player);
+		message->write<bool>(target->single_effect.count((1295111 & 0xfffffff) | 0x10000000) > 0);
         /////kdiy///////
 		return FALSE;
 	}
