@@ -1720,7 +1720,7 @@ int32_t card::get_link() {
 ///////////kdiy///////////////
 //uint32_t card::get_synchro_level(card* pcard) {
 int32_t card::get_synchro_level(card* pcard) {
-	//if(data.type & TYPE_LINK)
+	//if((data.type & TYPE_LINK) && !(is_affected_by_effect(EFFECT_SYNCHRO_LEVEL)))
 		//return 0;
 	//if(((data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL))
 		//&& !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
@@ -1728,13 +1728,13 @@ int32_t card::get_synchro_level(card* pcard) {
 	bool is_link = ( ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ)) || ((data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S))) ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
 	bool is_xyzlink = (data.type & TYPE_LINK) && (data.type & TYPE_XYZ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
     if ( (((is_xyz && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
-        || (is_link && !(is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S)))
-		|| (is_xyzlink && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S) || is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S))))
+        || (is_link && !(is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S)) && !(is_affected_by_effect(EFFECT_SYNCHRO_LEVEL)))
+		|| (is_xyzlink && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S) || is_affected_by_effect(EFFECT_LINK_LEVEL) || is_affected_by_effect(EFFECT_LINK_LEVEL_S)) && !(is_affected_by_effect(EFFECT_SYNCHRO_LEVEL))))
 		&& !(is_affected_by_effect(EFFECT_LEVEL_RANK_LINK) || is_affected_by_effect(EFFECT_LEVEL_RANK_LINK_S)))
 		|| (status & STATUS_NO_LEVEL))
 ////kdiy//////////
 		return 0;
-	////kdiy//////////	
+	////kdiy//////////
 	//uint32_t lev;
 	int32_t lev;
 	////kdiy//////////
@@ -4733,7 +4733,9 @@ int32_t card::is_can_be_fusion_material(card* fcard, uint64_t summon_type, uint8
 	return TRUE;
 }
 int32_t card::is_can_be_synchro_material(card* scard, uint8_t playerid, card* /*tuner*/) {
-	if(data.type & (TYPE_XYZ | TYPE_LINK) && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
+	if(data.type & (TYPE_XYZ) && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
+		return FALSE;
+	if (data.type & (TYPE_LINK) && !(is_affected_by_effect(EFFECT_SYNCHRO_LEVEL)))
 		return FALSE;
 	if(!(get_type(scard, SUMMON_TYPE_SYNCHRO, playerid) & TYPE_MONSTER))
 		return FALSE;
