@@ -3848,6 +3848,9 @@ LUA_STATIC_FUNCTION(AnnounceCard) {
 		case OPCODE_BNOT:
 		/////kdiy///////
 		case OPCODE_ISOTYPE:
+		case OPCODE_ISLEVEL:
+		case OPCODE_ISLEVELLARGER:
+		case OPCODE_ISLEVELSMALLER:
 		/////kdiy///////
 		case OPCODE_ISCODE:
 		case OPCODE_ISSETCARD:
