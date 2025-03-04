@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2010-2015, Argon Sun (Fluorohydride)
- * Copyright (c) 2016-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
+ * Copyright (c) 2016-2025, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -2588,7 +2588,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			|| (current.controler != PLAYER_NONE && ((peffect->range & LOCATION_HAND) && (peffect->type & EFFECT_TYPE_TRIGGER_O) && !(peffect->code & EVENT_PHASE))))
 			pduel->game_field->remove_effect(peffect);
 	}
-	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && !check_target.empty()) {
+	if ((current.controler != PLAYER_NONE) && !check_target.empty()) {
 		if (peffect->is_disable_related())
 			for(auto& target : check_target)
 				pduel->game_field->add_to_disable_check_list(target);
