@@ -2602,16 +2602,13 @@ void field::get_ritual_material(uint8_t playerid, effect* peffect, card_set* mat
 	for(auto& pcard : player[playerid].list_szone) {
 		if(!pcard || !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
 		  continue;
-		if(pcard && pcard->get_level() && pcard->is_affect_by_effect(peffect)
-		        && pcard->is_releasable_by_nonsummon(playerid, REASON_EFFECT) && pcard->is_releasable_by_effect(playerid, peffect))
+		if(pcard && mzonecheck(pcard) && pcard->is_releasable_by_nonsummon(playerid, REASON_EFFECT))
 			material->insert(pcard);
 	}
 	for(auto& pcard : player[1 - playerid].list_szone) {
 		if(!pcard || !pcard->is_affected_by_effect(EFFECT_ORICA_SZONE))
 		  continue;
-		if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_level() && pcard->is_affect_by_effect(peffect)
-		        && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
-		        && pcard->is_releasable_by_nonsummon(playerid, REASON_EFFECT) && pcard->is_releasable_by_effect(playerid, peffect))
+		if(pcard && pcard->is_position(POS_FACEUP) && mzonecheck(pcard) && pcard->is_releasable_by_nonsummon(playerid, REASON_EFFECT) && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE))
 			material->insert(pcard);
 	}
 	/////kdiy//////
