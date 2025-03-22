@@ -2715,12 +2715,12 @@ int32_t card::replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool
 	set_status(STATUS_EFFECT_REPLACED, TRUE);
 	///////kdiy////////
 	if(!uncopy) {
-	///////kdiy////////		
+	///////kdiy////////
 	for(auto& peffect : pduel->uncopy)
 		pduel->delete_effect(peffect);
-	///////kdiy////////		
+	///////kdiy////////
 	}
-	///////kdiy////////		
+	///////kdiy////////
 	pduel->uncopy.clear();
 	if((data.type & TYPE_MONSTER) && !(data.type & TYPE_EFFECT)) {
 		effect* peffect = pduel->new_effect();
@@ -2842,7 +2842,10 @@ void card::refresh_disable_status() {
 	else
 		set_status(STATUS_FORBIDDEN, FALSE);
 	// disabled
-	if (!is_affected_by_effect(EFFECT_CANNOT_DISABLE) && is_affected_by_effect(EFFECT_DISABLE))
+	///////kdiy////////
+	// if (!is_affected_by_effect(EFFECT_CANNOT_DISABLE) && is_affected_by_effect(EFFECT_DISABLE))
+	if ((!is_affected_by_effect(EFFECT_CANNOT_DISABLE) || is_affected_by_ultimate_disableeffect()) && is_affected_by_effect(EFFECT_DISABLE))
+	///////kdiy////////
 		set_status(STATUS_DISABLED, TRUE);
 	else
 		set_status(STATUS_DISABLED, FALSE);
@@ -3728,6 +3731,20 @@ effect* card::is_affected_by_effect(int32_t code, card* target) {
 	}
 	return nullptr;
 }
+/////kdiy//////////
+bool card::is_affected_by_ultimate_disableeffect() {
+	effect_set eset;
+	get_card_effect(EFFECT_DISABLE, &eset);
+	if(eset.empty()) {
+		return FALSE;
+	}
+	for(const auto& peff : eset) {
+		if (peff->owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
+			return TRUE;
+	}
+	return FALSE;
+}
+/////kdiy//////////
 void card::get_card_effect(uint32_t code, effect_set* eset) {
 	effect* peffect;
 	for (auto rg = single_effect.begin(); rg != single_effect.end();) {

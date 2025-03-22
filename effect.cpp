@@ -571,8 +571,8 @@ int32_t effect::is_immuned(card* pcard) {
 	if(code == EFFECT_ULTIMATE_IMMUNE)
 		return FALSE;
 	if(owner->is_affected_by_effect(EFFECT_ULTIMATE_IMMUNE))
-		return FALSE;	
-	////kdiy///////	
+		return FALSE;
+	////kdiy///////
 	for (const auto& peffect : pcard->immune_effect) {
 		if(peffect->is_available() && peffect->value) {
 			pduel->lua->add_param<LuaParam::EFFECT>(this);

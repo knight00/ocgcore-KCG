@@ -298,7 +298,7 @@ public:
 	/////kdiy//////////
 	//int32_t replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating = false);
 	int32_t replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating = false, bool uncopy = false);
-	/////kdiy//////////	
+	/////kdiy//////////
 	void reset(uint32_t id, uint32_t reset_type);
 	void reset_effect_count();
 	void refresh_disable_status();
@@ -339,6 +339,9 @@ public:
 	void filter_spsummon_procedure_g(uint8_t playerid, effect_set* eset);
 	effect* is_affected_by_effect(int32_t code);
 	effect* is_affected_by_effect(int32_t code, card* target);
+	/////kdiy//////////
+	bool is_affected_by_ultimate_disableeffect();
+	/////kdiy//////////
 	void get_card_effect(uint32_t code, effect_set* eset);
 	void get_own_effects(effect_set* eset);
 	int32_t fusion_check(group* fusion_m, group* cg, uint32_t chkf);
