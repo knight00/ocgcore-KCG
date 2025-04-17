@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2010-2015, Argon Sun (Fluorohydride)
- * Copyright (c) 2016-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
+ * Copyright (c) 2016-2025, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -1877,9 +1877,9 @@ bool field::process(Processors::TrapMonsterAdjust& arg) {
 		if(fcount <= 0) {
 			for(auto& pcard : core.trap_monster_adjust_set[check_player]) {
 				to_grave_set.insert(pcard);
-				arg.step = 2;
 			}
 			core.trap_monster_adjust_set[check_player].clear();
+			arg.step = 2;
 		} else if((int32_t)core.trap_monster_adjust_set[check_player].size() > fcount) {
 			uint32_t ct = (uint32_t)core.trap_monster_adjust_set[check_player].size() - fcount;
 			core.select_cards.clear();
@@ -1902,11 +1902,7 @@ bool field::process(Processors::TrapMonsterAdjust& arg) {
 			to_grave_set.insert(pcard);
 			core.trap_monster_adjust_set[check_player].erase(pcard);
 		}
-		if(!oppo_selection) {
-			oppo_selection = true;
-			arg.step = 0;
-		}
-		return FALSE;
+		[[fallthrough]];
 	}
 	case 3: {
 		if(!oppo_selection) {
@@ -5372,6 +5368,19 @@ bool field::process(Processors::SendTo& arg) {
 					deffect->reset_flag = RESET_EVENT + 0x1fe0000;
 					pcard->add_effect(deffect);
 				}
+				if(core.current_chain.size()) {
+					// Added to the hand by a currently resolving effect
+					effect* deffect = pduel->new_effect();
+					deffect->owner = pcard;
+					deffect->code = 0;
+					deffect->type = EFFECT_TYPE_SINGLE;
+					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_CLIENT_HINT;
+					deffect->description = 225;
+					deffect->reset_flag = (RESET_EVENT | RESET_TOFIELD | RESET_LEAVE | RESET_TODECK |
+										   RESET_TOHAND | RESET_TEMP_REMOVE | RESET_REMOVE |
+										   RESET_TOGRAVE | RESET_TURN_SET | RESET_CHAIN);
+					pcard->add_effect(deffect);
+				}
 				tohand.insert(pcard);
 				raise_single_event(pcard, nullptr, EVENT_TO_HAND, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
@@ -5534,6 +5543,19 @@ bool field::process(Processors::DiscardDeck& arg) {
 					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_CLIENT_HINT;
 					deffect->description = 67;
 					deffect->reset_flag = RESET_EVENT + 0x1fe0000;
+					pcard->add_effect(deffect);
+				}
+				if(core.current_chain.size()) {
+					// Added to the hand by a currently resolving effect
+					effect* deffect = pduel->new_effect();
+					deffect->owner = pcard;
+					deffect->code = 0;
+					deffect->type = EFFECT_TYPE_SINGLE;
+					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_CLIENT_HINT;
+					deffect->description = 225;
+					deffect->reset_flag = (RESET_EVENT | RESET_TOFIELD | RESET_LEAVE | RESET_TODECK |
+										   RESET_TOHAND | RESET_TEMP_REMOVE | RESET_REMOVE |
+										   RESET_TOGRAVE | RESET_TURN_SET | RESET_CHAIN);
 					pcard->add_effect(deffect);
 				}
 				tohand.insert(pcard);
@@ -5799,7 +5821,7 @@ bool field::process(Processors::MoveToField& arg) {
 		//if((ret == 0 && location != target->current.location)
 		if((ret == 0 && location != target->prev_temp.location && (Rloc != 0x40 && Rloc != 0x80))
 		////kdiy/////
-			|| (ret == 1 && target->turnid != infos.turn_id)) {
+			|| ret == 1) {
 			target->set_status(STATUS_SUMMON_TURN, FALSE);
 			target->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);
 			target->set_status(STATUS_SPSUMMON_TURN, FALSE);
