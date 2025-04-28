@@ -114,7 +114,8 @@ void field::add_card(uint8_t playerid, card* pcard, uint8_t location, uint8_t se
 		return;
 	if (!is_location_useable(playerid, location, sequence))
 		return;
-	if(pcard->is_extra_deck_monster()) {
+	// explicitly allow fusion spell cards to start in the extra
+	if(pcard->is_extra_deck_monster() || (pcard->data.type & TYPE_FUSION) != 0) {
 		if(location & (LOCATION_HAND | LOCATION_DECK)) {
 			location = LOCATION_EXTRA;
 			pcard->sendto_param.position = POS_FACEDOWN_DEFENSE;
@@ -3454,7 +3455,7 @@ int32_t field::is_player_can_summon(uint32_t sumtype, uint8_t playerid, card* pc
 	eset.clear();
 	filter_player_effect(playerid, EFFECT_FORCE_NORMAL_SUMMON_POSITION, &eset);
 	uint8_t sumpos = POS_FACEUP_ATTACK;
-	if(is_player_affected_by_effect(playerid, EFFECT_DEVINE_LIGHT))
+	if(is_flag(DUEL_NORMAL_SUMMON_FACEUP_DEF) || is_player_affected_by_effect(playerid, EFFECT_DEVINE_LIGHT))
 		sumpos = POS_FACEUP;
 	for(auto& eff : eset) {
 		if(eff->target) {

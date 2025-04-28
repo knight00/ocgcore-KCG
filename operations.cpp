@@ -2526,7 +2526,7 @@ bool field::process(Processors::SummonRule& arg) {
 	case 9: {
 		uint8_t targetplayer = sumplayer;
 		uint8_t positions = POS_FACEUP_ATTACK;
-		if(is_player_affected_by_effect(sumplayer, EFFECT_DEVINE_LIGHT))
+		if(is_flag(DUEL_NORMAL_SUMMON_FACEUP_DEF) || is_player_affected_by_effect(sumplayer, EFFECT_DEVINE_LIGHT))
 			positions = POS_FACEUP;
 		if(summon_procedure_effect && summon_procedure_effect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			positions = (uint8_t)summon_procedure_effect->s_range & POS_FACEUP;
@@ -6909,6 +6909,7 @@ bool field::process(Processors::TossCoin& arg) {
 			++eit;
 			auto handler_player = peffect->get_handler_player();
 			if(peffect->is_activateable(handler_player, e)) {
+				core.coin_results.resize(count);
 				solve_continuous(handler_player, peffect, e);
 				return TRUE;
 			}
@@ -6985,6 +6986,7 @@ bool field::process(Processors::TossDice& arg) {
 			++eit;
 			auto handler_player = peffect->get_handler_player();
 			if(peffect->is_activateable(handler_player, e)) {
+				core.dice_results.resize(count1 + count2);
 				solve_continuous(handler_player, peffect, e);
 				return TRUE;
 			}
