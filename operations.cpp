@@ -81,7 +81,7 @@ void field::change_target(uint8_t chaincount, group* targets) {
 		return;
 	if(chaincount > core.current_chain.size() || chaincount < 1)
 		chaincount = static_cast<uint8_t>(core.current_chain.size());
-	group* ot = core.current_chain[chaincount - 1].target_cards;
+	auto ot = core.current_chain[chaincount - 1].target_cards;
 	if(ot) {
 		effect* te = core.current_chain[chaincount - 1].triggering_effect;
 		for(auto& pcard : ot->container)
@@ -119,26 +119,26 @@ void field::remove_overlay_card(uint32_t reason, group* pgroup, uint32_t rplayer
 	emplace_process<Processors::RemoveOverlay>(reason, pgroup, rplayer, self, oppo, min, max);
 }
 void field::xyz_overlay(card* target, card_set materials, bool send_materials_to_grave) {
-	group* ng = pduel->new_group(std::move(materials));
-	ng->is_readonly = TRUE;
+	auto ng = pduel->new_group(std::move(materials));
+	ng->is_readonly = true;
 	emplace_process<Processors::XyzOverlay>(target, ng, send_materials_to_grave);
 }
 void field::xyz_overlay(card* target, card* material, bool send_materials_to_grave) {
 	xyz_overlay(target, card_set{ material }, send_materials_to_grave);
 }
 void field::get_control(card_set targets, effect* reason_effect, uint8_t chose_player, uint8_t playerid, uint16_t reset_phase, uint8_t reset_count, uint32_t zone) {
-	group* ng = pduel->new_group(std::move(targets));
-	ng->is_readonly = TRUE;
+	auto ng = pduel->new_group(std::move(targets));
+	ng->is_readonly = true;
 	emplace_process<Processors::GetControl>(reason_effect, chose_player, ng, playerid, reset_phase, reset_count, zone);
 }
 void field::get_control(card* target, effect* reason_effect, uint8_t chose_player, uint8_t playerid, uint16_t reset_phase, uint8_t reset_count, uint32_t zone) {
 	get_control(card_set{ target }, reason_effect, chose_player, playerid, reset_phase, reset_count, zone);
 }
 void field::swap_control(effect* reason_effect, uint32_t reason_player, card_set targets1, card_set targets2, uint32_t reset_phase, uint32_t reset_count) {
-	group* ng1 = pduel->new_group(std::move(targets1));
-	ng1->is_readonly = TRUE;
-	group* ng2 = pduel->new_group(std::move(targets2));
-	ng2->is_readonly = TRUE;
+	auto ng1 = pduel->new_group(std::move(targets1));
+	ng1->is_readonly = true;
+	auto ng2 = pduel->new_group(std::move(targets2));
+	ng2->is_readonly = true;
 	emplace_process<Processors::SwapControl>(reason_effect, reason_player, ng1, ng2, reset_phase, reset_count);
 }
 void field::swap_control(effect* reason_effect, uint32_t reason_player, card* pcard1, card* pcard2, uint32_t reset_phase, uint32_t reset_count) {
@@ -206,8 +206,8 @@ void field::special_summon(card_set target, uint32_t sumtype, uint8_t sumplayer,
 		}
 		pcard->spsummon_param = (playerid << 24) + (nocheck << 16) + (nolimit << 8) + pos;
 	}
-	group* pgroup = pduel->new_group(std::move(target));
-	pgroup->is_readonly = TRUE;
+	auto pgroup = pduel->new_group(std::move(target));
+	pgroup->is_readonly = true;
 	emplace_process<Processors::SpSummon>(core.reason_effect, core.reason_player, pgroup, zone);
 }
 void field::special_summon_step(card* target, uint32_t sumtype, uint8_t sumplayer, uint8_t playerid, bool nocheck, bool nolimit, uint8_t positions, uint32_t zone) {
@@ -246,9 +246,9 @@ void field::special_summon_step(card* target, uint32_t sumtype, uint8_t sumplaye
 	emplace_process<Processors::SpSummonStep>(nullptr, target, zone);
 }
 void field::special_summon_complete(effect* reason_effect, uint8_t reason_player) {
-	group* ng = pduel->new_group();
-	ng->container.swap(core.special_summoning);
-	ng->is_readonly = TRUE;
+	auto ng = pduel->new_group(std::move(core.special_summoning));
+	core.special_summoning.clear();
+	ng->is_readonly = true;
 	emplace_process<Processors::SpSummon>(Step{ 1 }, reason_effect, reason_player, ng, 0);
 }
 void field::destroy(card_set targets, effect* reason_effect, uint32_t reason, uint8_t reason_player, uint8_t playerid, uint16_t destination, uint32_t sequence) {
@@ -279,8 +279,8 @@ void field::destroy(card_set targets, effect* reason_effect, uint32_t reason, ui
 		pcard->sendto_param.set(p, POS_FACEUP, destination, sequence);
 		++cit;
 	}
-	group* ng = pduel->new_group(std::move(targets));
-	ng->is_readonly = TRUE;
+	auto ng = pduel->new_group(std::move(targets));
+	ng->is_readonly = true;
 	emplace_process<Processors::Destroy>(ng, reason_effect, reason, reason_player);
 }
 void field::destroy(card* target, effect* reason_effect, uint32_t reason, uint8_t reason_player, uint8_t playerid, uint16_t destination, uint32_t sequence) {
@@ -296,8 +296,8 @@ void field::release(card_set targets, effect* reason_effect, uint32_t reason, ui
 		pcard->current.reason_player = reason_player;
 		pcard->sendto_param.set(pcard->owner, POS_FACEUP, LOCATION_GRAVE);
 	}
-	group* ng = pduel->new_group(std::move(targets));
-	ng->is_readonly = TRUE;
+	auto ng = pduel->new_group(std::move(targets));
+	ng->is_readonly = true;
 	emplace_process<Processors::Release>(ng, reason_effect, reason, reason_player);
 }
 void field::release(card* target, effect* reason_effect, uint32_t reason, uint8_t reason_player) {
@@ -330,8 +330,8 @@ void field::send_to(card_set targets, effect* reason_effect, uint32_t reason, ui
 			pos = pcard->current.position;
 		pcard->sendto_param.set(p, pos, destination, sequence);
 	}
-	group* ng = pduel->new_group(std::move(targets));
-	ng->is_readonly = TRUE;
+	auto ng = pduel->new_group(std::move(targets));
+	ng->is_readonly = true;
 	emplace_process<Processors::SendTo>(ng, reason_effect, reason, reason_player);
 }
 void field::send_to(card* target, effect* reason_effect, uint32_t reason, uint8_t reason_player, uint8_t playerid, uint16_t destination, uint32_t sequence, uint8_t position, bool ignore) {
@@ -390,8 +390,8 @@ void field::move_to_field(card* target, uint8_t move_player, uint8_t playerid, u
 	emplace_process<Processors::MoveToField>(target, enable, ret, pzone, zone, rule, reason, confirm);
 }
 void field::change_position(card_set targets, effect* reason_effect, uint8_t reason_player, uint8_t au, uint8_t ad, uint8_t du, uint8_t dd, uint32_t flag, bool enable) {
-	group* ng = pduel->new_group(std::move(targets));
-	ng->is_readonly = TRUE;
+	auto ng = pduel->new_group(std::move(targets));
+	ng->is_readonly = true;
 	for(auto& pcard : ng->container) {
 		if(pcard->current.position == POS_FACEUP_ATTACK)
 			pcard->position_param = au;
@@ -406,8 +406,8 @@ void field::change_position(card_set targets, effect* reason_effect, uint8_t rea
 	emplace_process<Processors::ChangePos>(ng, reason_effect, reason_player, enable);
 }
 void field::change_position(card* target, effect* reason_effect, uint8_t reason_player, uint8_t npos, uint32_t flag, bool enable) {
-	group* ng = pduel->new_group(target);
-	ng->is_readonly = TRUE;
+	auto ng = pduel->new_group(target);
+	ng->is_readonly = true;
 	target->position_param = npos;
 	target->position_param |= flag;
 	emplace_process<Processors::ChangePos>(ng, reason_effect, reason_player, enable);
@@ -442,6 +442,10 @@ bool field::process(Processors::Draw& arg) {
 		uint32_t drawn = 0;
 		uint32_t public_count = 0;
 		if(!(reason & REASON_RULE) && !is_player_can_draw(playerid)) {
+			returns.set<int32_t>(0, 0);
+			return TRUE;
+		}
+		if(count == 0) {
 			returns.set<int32_t>(0, 0);
 			return TRUE;
 		}
@@ -1283,7 +1287,6 @@ bool field::process(Processors::GetControl& arg) {
 	case 7: {
 		core.operated_set = targets->container;
 		returns.set<int32_t>(0, static_cast<int32_t>(targets->container.size()));
-		pduel->delete_group(targets);
 		return TRUE;
 	}
 	}
@@ -1515,15 +1518,11 @@ bool field::process(Processors::SwapControl& arg) {
 	case 5: {
 		core.operated_set = targets1->container;
 		returns.set<int32_t>(0, 1);
-		pduel->delete_group(targets1);
-		pduel->delete_group(targets2);
 		return TRUE;
 	}
 	case 10: {
 		core.operated_set.clear();
 		returns.set<int32_t>(0, 0);
-		pduel->delete_group(targets1);
-		pduel->delete_group(targets2);
 		return TRUE;
 	}
 	}
@@ -3514,8 +3513,8 @@ bool field::process(Processors::SpSummonRule& arg) {
 	switch(arg.step) {
 	case 0: {
 		effect_set eset;
-		group* must_mats = core.must_use_mats;
-		group* materials = core.only_use_mats;
+		auto must_mats = core.must_use_mats;
+		auto materials = core.only_use_mats;
 		int32_t minc = core.forced_summon_minc;
 		int32_t maxc = core.forced_summon_maxc;
 		target->filter_spsummon_procedure(sumplayer, &eset, summon_type);
@@ -3592,14 +3591,8 @@ bool field::process(Processors::SpSummonRule& arg) {
 		return FALSE;
 	}
 	case 4: {
-		if(core.must_use_mats) {
-			pduel->delete_group(core.must_use_mats);
-			core.must_use_mats = nullptr;
-		}
-		if(core.only_use_mats) {
-			pduel->delete_group(core.only_use_mats);
-			core.only_use_mats = nullptr;
-		}
+		core.must_use_mats = nullptr;
+		core.only_use_mats = nullptr;
 		auto proc = arg.summon_proc_effect;
 		uint8_t targetplayer = sumplayer;
 		uint8_t positions = POS_FACEUP;
@@ -3824,7 +3817,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 		return FALSE;
 	}
 	case 21: {
-		group* pgroup = arg.cards_to_summon_g;
+		auto pgroup = arg.cards_to_summon_g;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ) {
 			card* pcard = *cit++;
 			if(!(pcard->data.type & TYPE_MONSTER)
@@ -3850,7 +3843,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 		return FALSE;
 	}
 	case 22: {
-		group* pgroup = arg.cards_to_summon_g;
+		auto pgroup = arg.cards_to_summon_g;
 		if(pgroup->container.size() == 0)
 			return TRUE;
 		core.phase_action = true;
@@ -3859,7 +3852,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 	}
 	case 23: {
 		auto proc = arg.summon_proc_effect;
-		group* pgroup = arg.cards_to_summon_g;
+		auto pgroup = arg.cards_to_summon_g;
 		card* pcard = *pgroup->it;
 		pcard->enable_field_effect(false);
 		pcard->current.reason = REASON_SPSUMMON;
@@ -3930,7 +3923,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 		return FALSE;
 	}
 	case 24: {
-		group* pgroup = arg.cards_to_summon_g;
+		auto pgroup = arg.cards_to_summon_g;
 		card* pcard = *pgroup->it++;
 		auto message = pduel->new_message(MSG_SPSUMMONING);
 		message->write<uint32_t>(pcard->data.code);
@@ -3947,7 +3940,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 		return FALSE;
 	}
 	case 25: {
-		group* pgroup = arg.cards_to_summon_g; 
+		auto pgroup = arg.cards_to_summon_g;
 		if(is_flag(DUEL_CANNOT_SUMMON_OATH_OLD)) {
 			set_spsummon_counter(sumplayer);
 		}
@@ -3982,7 +3975,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 		return FALSE;
 	}
 	case 26: {
-		group* pgroup = arg.cards_to_summon_g;
+		auto pgroup = arg.cards_to_summon_g;
 		card_set cset;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ) {
 			card* pcard = *cit++;
@@ -4015,7 +4008,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 		return FALSE;
 	}
 	case 27: {
-		group* pgroup = arg.cards_to_summon_g;
+		auto pgroup = arg.cards_to_summon_g;
 		release_oath_relation(arg.summon_proc_effect);
 		for(const auto& peffect : arg.spsummon_cost_effects)
 			release_oath_relation(peffect);
@@ -4029,7 +4022,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 		return FALSE;
 	}
 	case 28: {
-		group* pgroup = arg.cards_to_summon_g;
+		auto pgroup = arg.cards_to_summon_g;
 		pduel->new_message(MSG_SPSUMMONED);
 		if(!is_flag(DUEL_CANNOT_SUMMON_OATH_OLD)) {
 			set_spsummon_counter(sumplayer);
@@ -4298,7 +4291,6 @@ bool field::process(Processors::SpSummon& arg) {
 		if(targets->container.size() == 0) {
 			returns.set<int32_t>(0, 0);
 			core.operated_set.clear();
-			pduel->delete_group(targets);
 			return TRUE;
 		}
 		bool tp = false, ntp = false;
@@ -4370,7 +4362,6 @@ bool field::process(Processors::SpSummon& arg) {
 		core.operated_set.clear();
 		core.operated_set = targets->container;
 		returns.set<int32_t>(0, static_cast<int32_t>(targets->container.size()));
-		pduel->delete_group(targets);
 		return TRUE;
 	}
 	}
@@ -4561,7 +4552,6 @@ bool field::process(Processors::Destroy& arg) {
 		if(!targets->container.size()) {
 			returns.set<int32_t>(0, 0);
 			core.operated_set.clear();
-			pduel->delete_group(targets);
 			return TRUE;
 		}
 		card_vector cv(targets->container.begin(), targets->container.end());
@@ -4586,8 +4576,8 @@ bool field::process(Processors::Destroy& arg) {
 		return FALSE;
 	}
 	case 4: {
-		group* sendtargets = pduel->new_group(targets->container);
-		sendtargets->is_readonly = TRUE;
+		auto sendtargets = pduel->new_group(targets->container);
+		sendtargets->is_readonly = true;
 		for(auto& pcard : sendtargets->container) {
 			pcard->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
 			uint32_t dest = pcard->sendto_param.location;
@@ -4613,7 +4603,6 @@ bool field::process(Processors::Destroy& arg) {
 				++cit;
 		}
 		returns.set<int32_t>(0, static_cast<int32_t>(core.operated_set.size()));
-		pduel->delete_group(targets);
 		return TRUE;
 	}
 	case 10: {
@@ -4806,7 +4795,6 @@ bool field::process(Processors::Release& arg) {
 		if(!targets->container.size()) {
 			returns.set<int32_t>(0, 0);
 			core.operated_set.clear();
-			pduel->delete_group(targets);
 			return TRUE;
 		}
 		card_vector cv(targets->container.begin(), targets->container.end());
@@ -4832,8 +4820,8 @@ bool field::process(Processors::Release& arg) {
 			message->write<uint8_t>(0);
 			message->write<uint64_t>(peffect->get_handler()->data.code);
 		}
-		group* sendtargets = pduel->new_group(targets->container);
-		sendtargets->is_readonly = TRUE;
+		auto sendtargets = pduel->new_group(targets->container);
+		sendtargets->is_readonly = true;
 		operation_replace(EFFECT_SEND_REPLACE, 5, sendtargets);
 		emplace_process<Processors::SendTo>(Step{ 1 }, sendtargets, reason_effect, reason | REASON_RELEASE, reason_player);
 		return FALSE;
@@ -4845,7 +4833,6 @@ bool field::process(Processors::Release& arg) {
 		core.operated_set.clear();
 		core.operated_set = targets->container;
 		returns.set<int32_t>(0, static_cast<int32_t>(targets->container.size()));
-		pduel->delete_group(targets);
 		return TRUE;
 	}
 	}
@@ -4921,7 +4908,6 @@ bool field::process(Processors::SendTo& arg) {
 		if(!targets->container.size()) {
 			returns.set<int32_t>(0, 0);
 			core.operated_set.clear();
-			pduel->delete_group(targets);
 			return TRUE;
 		}
 		card_set leave_p, destroying;
@@ -5262,7 +5248,7 @@ bool field::process(Processors::SendTo& arg) {
 		}
         //kdiy///////
 		if(param->predirect->operation) {
-			tevent e;
+			tevent e{};
 			e.event_cards = targets;
 			e.event_player = pcard->current.controler;
 			e.event_value = 0;
@@ -5443,7 +5429,6 @@ bool field::process(Processors::SendTo& arg) {
 		core.operated_set.clear();
 		core.operated_set = targets->container;
 		returns.set<int32_t>(0, static_cast<int32_t>(targets->container.size()));
-		pduel->delete_group(targets);
 		return TRUE;
 	}
 	}
@@ -6227,7 +6212,6 @@ bool field::process(Processors::ChangePos& arg) {
 		core.operated_set.clear();
 		core.operated_set = targets->container;
 		returns.set<int32_t>(0, static_cast<int32_t>(targets->container.size()));
-		pduel->delete_group(targets);
 		return TRUE;
 	}
 	}
@@ -6293,12 +6277,6 @@ bool field::process(Processors::OperationReplace& arg) {
 		return FALSE;
 	}
 	case 3: {
-		if(core.continuous_chain.back().target_cards)
-			pduel->delete_group(core.continuous_chain.back().target_cards);
-		for(auto& oit : core.continuous_chain.back().opinfos) {
-			if(oit.second.op_cards)
-				pduel->delete_group(oit.second.op_cards);
-		}
 		core.continuous_chain.pop_back();
 		core.solving_event.pop_front();
 		return TRUE;
@@ -6359,12 +6337,6 @@ bool field::process(Processors::OperationReplace& arg) {
 		return FALSE;
 	}
 	case 8: {
-		if(core.continuous_chain.back().target_cards)
-			pduel->delete_group(core.continuous_chain.back().target_cards);
-		for(auto& oit : core.continuous_chain.back().opinfos) {
-			if(oit.second.op_cards)
-				pduel->delete_group(oit.second.op_cards);
-		}
 		core.continuous_chain.pop_back();
 		core.solving_event.pop_front();
 		return TRUE;
@@ -6473,12 +6445,6 @@ bool field::process(Processors::OperationReplace& arg) {
 		return FALSE;
 	}
 	case 16: {
-		if(core.continuous_chain.back().target_cards)
-			pduel->delete_group(core.continuous_chain.back().target_cards);
-		for(auto& oit : core.continuous_chain.back().opinfos) {
-			if(oit.second.op_cards)
-				pduel->delete_group(oit.second.op_cards);
-		}
 		core.continuous_chain.pop_back();
 		arg.step = 14;
 		return FALSE;
