@@ -146,11 +146,13 @@ void insert_value(std::vector<uint8_t>& vec, const T& _val) {
 	std::memcpy(&vec[vec_size], &val, val_size);
 }
 
-#define CHECK_AND_INSERT_T(query, value, type)if(query_flag & query) {\
-insert_value<uint16_t>(pduel->query_buffer, sizeof(uint32_t) + sizeof(type));\
-insert_value<uint32_t>(pduel->query_buffer, query);\
-insert_value<type>(pduel->query_buffer, value);\
-}
+#define CHECK_AND_INSERT_T(query, value, type) do { \
+	if(query_flag & query) {\
+		insert_value<uint16_t>(pduel->query_buffer, sizeof(uint32_t) + sizeof(type)); \
+		insert_value<uint32_t>(pduel->query_buffer, query); \
+		insert_value<type>(pduel->query_buffer, value); \
+	} \
+} while(0)
 #define CHECK_AND_INSERT(query, value)CHECK_AND_INSERT_T(query, value, uint32_t)
 
 void card::get_infos(uint32_t query_flag) {
@@ -1939,7 +1941,7 @@ uint32_t card::get_lscale() {
 		temp.lscale = lscale;
 	}
 	lscale += up + upc;
-	set_max_property_val(temp.lscale);;
+	set_max_property_val(temp.lscale);
 	return lscale;
 }
 uint32_t card::get_rscale() {
