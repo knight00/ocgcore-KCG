@@ -16,6 +16,7 @@
 #include "function_array_helper.h"
 
 namespace {
+namespace LUA_NAMESPACE {
 
 using namespace scriptlib;
 
@@ -242,6 +243,7 @@ LUA_STATIC_FUNCTION(CardToStringWrapper) {
 	return 1;
 }
 
+}
 }
 
 void scriptlib::push_debug_lib(lua_State* L) {
