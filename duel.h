@@ -85,15 +85,6 @@ public:
 	/////zdiy/////
 	std::unordered_map<uint32_t, std::vector<void*>*>* cards_data;
 	/////zdiy/////
-
-	enum class SCRIPT_LOAD_STATUS : uint8_t {
-		NOT_LOADED,
-		LOAD_SUCCEDED,
-		LOAD_FAILED,
-		LOADING,
-	};
-
-	std::unordered_map<uint32_t/* hashed string */, SCRIPT_LOAD_STATUS> loaded_scripts;
 	
 	duel() = delete;
 	explicit duel(const OCG_DuelOptions& options, bool& valid_lua_lib);
