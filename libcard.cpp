@@ -52,7 +52,7 @@ LUA_FUNCTION(SetEntityCode) {
 		self->data.realcode = lua_get<uint32_t>(L, 15, 0);
 		if (self->data.realcode > 0) {
             check_param_count(L, 16);
-			self->data.realalias = self->data.alias;
+			self->data.realalias = self->data.alias > 0 ? self->data.alias : self->data.code;
 			self->data.alias = self->data.realcode;
             self->data.effcode = lua_get<uint32_t>(L, 16, 0);
             self->data.namecode = lua_get<uint32_t>(L, 17, 0);
@@ -1295,10 +1295,15 @@ LUA_FUNCTION(GetTriggerEffect) {
 			eset.push_back(eit.second);
 		}
 	}
-    luaL_checkstack(L, static_cast<int>(eset.size()), nullptr);
+	auto size = eset.size();
+    luaL_checkstack(L, static_cast<int>(size), nullptr);
 	for(const auto& peffect : eset)
 		interpreter::pushobject(L, peffect);
-	return static_cast<int32_t>(eset.size());
+	if(!size) {
+		lua_pushnil(L);
+		return 1;
+	}
+	return static_cast<int32_t>(size);
 }
 LUA_FUNCTION(GetFieldEffect) {
     effect_set eset;
@@ -1312,10 +1317,15 @@ LUA_FUNCTION(GetFieldEffect) {
 			eset.push_back(eit.second);
 		}
 	}
-    luaL_checkstack(L, static_cast<int>(eset.size()), nullptr);
+	auto size = eset.size();
+    luaL_checkstack(L, static_cast<int>(size), nullptr);
 	for(const auto& peffect : eset)
 		interpreter::pushobject(L, peffect);
-	return static_cast<int32_t>(eset.size());
+	if(!size) {
+		lua_pushnil(L);
+		return 1;
+	}
+	return static_cast<int32_t>(size);
 }
 /////kdiy///////////////
 LUA_FUNCTION(CheckActivateEffect) {
