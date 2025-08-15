@@ -45,7 +45,7 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
 	message->write<uint32_t>(data.realcode);
     message->write<uint32_t>(data.effcode);
     message->write<uint32_t>(data.namecode);
-    if(data.effcode == 0 && data.realcard)
+    if(data.realcard)
         message->write(data.realcard->get_info_location());
 	return code;
 }
