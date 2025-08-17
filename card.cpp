@@ -312,9 +312,9 @@ uint32_t card::get_code() {
 		/////////kdiy////////
 		//if(data.alias && !addcode)
 			//code = data.alias;
-		if(data.alias && !data.realcode && !addcode)
+		if(data.alias && !(data.realcode && !data.nreal) && !addcode)
 			code = data.alias;
-		else if(data.realcode)
+		else if(data.realcode && !data.nreal)
 			code = 0;
 		/////////kdiy////////
 	} else {
@@ -336,7 +336,7 @@ uint32_t card::get_ocode() {
 	filter_effect(EFFECT_CHANGE_CODE, &effects);
 	if (effects.size())
 		code = effects.back()->get_value(this);
-	if (code != data.code || data.realcode)
+	if (code != data.code || (data.realcode && !data.nreal))
 	    return 0;
 	return code;
 }
@@ -402,7 +402,7 @@ int32_t card::is_set_card(uint16_t set_code) {
 	uint32_t code = get_code();
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
-	if ((data.alias && ocode && ocode == data.code) || data.realcode) {
+	if ((data.alias && ocode && ocode == data.code) || (data.realcode && !data.nreal)) {
 		for(auto& setcode : data.setcodes) {
 			if(match_setcode(set_code, setcode))
 			    return TRUE;
@@ -450,7 +450,7 @@ int32_t card::is_pre_set_card(uint16_t set_code) {
 	uint32_t code = previous.code;
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
-	if ((data.alias && ocode && ocode == data.code) || data.realcode) {
+	if ((data.alias && ocode && ocode == data.code) || (data.realcode && !data.nreal)) {
 		for(auto& setcode : data.setcodes) {
 			if(match_setcode(set_code, setcode))
 			    return TRUE;
@@ -489,7 +489,7 @@ void card::get_set_card(std::set<uint16_t>& setcodes) {
 	setcodes.insert(og_setcodes.begin(), og_setcodes.end());
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
-	if ((data.alias && ocode && ocode == data.code) || data.realcode) {
+	if ((data.alias && ocode && ocode == data.code) || (data.realcode && !data.nreal)) {
 	    if(data.setcodes.size())
 		    setcodes.insert(data.setcodes.begin(), data.setcodes.end());
 	}
@@ -517,7 +517,7 @@ void card::get_pre_set_card(std::set<uint16_t>& setcodes) {
 	setcodes.insert(og_setcodes.begin(), og_setcodes.end());
 	///kdiy/////////
 	uint32_t ocode = get_ocode();
-	if ((data.alias && ocode && ocode == data.code) || data.realcode) {
+	if ((data.alias && ocode && ocode == data.code) || (data.realcode && !data.nreal)) {
 	    if(data.setcodes.size())
 		    setcodes.insert(data.setcodes.begin(), data.setcodes.end());
 	}

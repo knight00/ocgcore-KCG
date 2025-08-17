@@ -48,6 +48,7 @@ struct card_data {
     uint32_t effcode{0};
     uint32_t namecode{0};
     card* realcard{nullptr};
+	bool nreal{false};
 	///////kdiy///////
 	card_data(const OCG_CardData& data);
 	card_data() = default;

@@ -57,6 +57,11 @@ LUA_FUNCTION(SetEntityCode) {
             self->data.effcode = lua_get<uint32_t>(L, 16, 0);
             self->data.namecode = lua_get<uint32_t>(L, 17, 0);
             self->data.realcard = lua_get<card*, false>(L, 18);
+			self->data.nreal = lua_get<bool, false>(L, 19);
+			if (self->data.nreal) {
+				self->data.code = code;
+				self->data.alias = lua_get<uint32_t>(L, 3, self->data.alias);
+			}
 		}
 		lua_pushinteger(L, self->set_entity_code(code));
 	}
@@ -750,11 +755,13 @@ LUA_FUNCTION(IsCode) {
 		uint32_t tcode = lua_get<uint32_t>(L, -1);
 		////kdiy/////
 		//return code1 == tcode || (code2 && code2 == tcode);
+		if(tcode == 0)
+			return false;
 		effect_set eset;
 		self->filter_effect(EFFECT_INCLUDE_CODE, &eset, FALSE);
 		for (const auto& peff : eset)
 			return peff->get_value(self) == tcode;
-		return code1 == tcode || code3 == tcode ||  (code2 && code2 == tcode);
+		return code1 == tcode || code3 == tcode || (code2 && code2 == tcode);
 		////kdiy/////
 	});
 	lua_pushboolean(L, found);
