@@ -1334,6 +1334,51 @@ LUA_FUNCTION(GetFieldEffect) {
 	}
 	return static_cast<int32_t>(size);
 }
+LUA_FUNCTION(GetEquipEffect) {
+    effect_set eset;
+	for(auto& eit : self->equip_effect) {
+		eset.push_back(eit.second);
+	}
+	auto size = eset.size();
+    luaL_checkstack(L, static_cast<int>(size), nullptr);
+	for(const auto& peffect : eset)
+		interpreter::pushobject(L, peffect);
+	if(!size) {
+		lua_pushnil(L);
+		return 1;
+	}
+	return static_cast<int32_t>(size);
+}
+LUA_FUNCTION(GetTargetEffect) {
+    effect_set eset;
+	for(auto& eit : self->target_effect) {
+		eset.push_back(eit.second);
+	}
+	auto size = eset.size();
+    luaL_checkstack(L, static_cast<int>(size), nullptr);
+	for(const auto& peffect : eset)
+		interpreter::pushobject(L, peffect);
+	if(!size) {
+		lua_pushnil(L);
+		return 1;
+	}
+	return static_cast<int32_t>(size);
+}
+LUA_FUNCTION(GetXMaterialEffect) {
+    effect_set eset;
+	for(auto& eit : self->xmaterial_effect) {
+		eset.push_back(eit.second);
+	}
+	auto size = eset.size();
+    luaL_checkstack(L, static_cast<int>(size), nullptr);
+	for(const auto& peffect : eset)
+		interpreter::pushobject(L, peffect);
+	if(!size) {
+		lua_pushnil(L);
+		return 1;
+	}
+	return static_cast<int32_t>(size);
+}
 /////kdiy///////////////
 LUA_FUNCTION(CheckActivateEffect) {
 	check_param_count(L, 4);
