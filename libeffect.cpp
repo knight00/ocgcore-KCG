@@ -25,6 +25,12 @@ LUA_FUNCTION(SetOwner) {
 	self->owner = pcard;
 	return 0;
 }
+LUA_FUNCTION(SetHandler) {
+	check_param_count(L, 2);
+    auto pcard = lua_get<card*, true>(L, 2);
+	self->handler = pcard;
+	return 0;
+}
 //////kdiy//////////////////
 LUA_STATIC_FUNCTION(CreateEffect) {
 	auto pcard = lua_get<card*, true>(L, 1);
