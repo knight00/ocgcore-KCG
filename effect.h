@@ -32,6 +32,8 @@ public:
 	uint16_t copy_id{};
 	uint16_t range{};
 	//kdiy///////
+	card_data data{};
+	// card_data rdata{};
     bool addtotext{ false };
     uint64_t cardtext{0},cardtext2{0},cardtext3{0},cardtext4{0};
 	uint32_t replacetext{0};

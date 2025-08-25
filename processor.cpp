@@ -3989,7 +3989,7 @@ bool field::process(Processors::AddChain& arg) {
 				deffect->owner = seffect->owner;
 				deffect->code = EFFECT_SANCT_MZONE;
 				deffect->type = EFFECT_TYPE_SINGLE;
-				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE | EFFECT_FLAG_OWNER_RELATE;
+				deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_IGNORE_IMMUNE | EFFECT_FLAG_UNCOPYABLE;
 				deffect->reset_flag = RESET_EVENT+0x1fe0000-RESET_TURN_SET+RESET_CONTROL;
 				phandler->add_effect(deffect);
                 phandler->reset(EFFECT_ORICA_SZONE, RESET_CODE);

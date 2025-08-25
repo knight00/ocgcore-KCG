@@ -35,7 +35,7 @@ struct card_state {
 	uint32_t code2{};
 	std::set<uint16_t> setcodes;
 	uint32_t type{};
-	/////////kdiy/////////	
+	/////////kdiy/////////
 	//uint32_t level;
     int32_t level;
 	int32_t rank;
@@ -102,7 +102,7 @@ public:
 	};
 
     ///////////kdiy//////////////
-	uint32_t set_entity_code(uint32_t entity_code);		
+	uint32_t set_entity_code(uint32_t entity_code);
     ///////////kdiy//////////////
 
 	struct sendto_param_t {
@@ -127,7 +127,7 @@ public:
 	card_state previous{};
 	card_state temp{};
 	//kdiy////
-	card_state prev_temp;
+	card_state prev_temp{};
 	//kdiy////
 	card_state current{};
 	uint8_t owner{ PLAYER_NONE };
@@ -297,6 +297,7 @@ public:
 	/////kdiy//////////
 	//int32_t replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating = false);
 	int32_t replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating = false, bool uncopy = false);
+	void add_setentity(effect* peffect, card_data rdata);
 	/////kdiy//////////
 	void reset(uint32_t id, uint32_t reset_type);
 	void reset_effect_count();
