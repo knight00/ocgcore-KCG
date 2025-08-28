@@ -29,7 +29,6 @@ LUA_FUNCTION(SetEntityCode) {
 	uint32_t property = 0;
 	uint32_t reset = 0;
 	card* pcard = self;
-	uint8_t lab = 0;
 	effect* peffect = pduel->new_effect();
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_SET_ENTITY;
@@ -57,36 +56,33 @@ LUA_FUNCTION(SetEntityCode) {
 		self->data.link_marker = lua_get<uint32_t>(L, 13, self->data.link_marker);
 		uint8_t lastarg = 14;
 		if(lua_isinteger(L, lastarg)) {
-			property = lua_get<uint32_t>(L, lastarg);
+			property = lua_get<uint32_t>(L, lastarg, 0);
 			++lastarg;
-			reset = lua_get<uint32_t>(L, lastarg);
+			reset = lua_get<uint32_t>(L, lastarg, 0);
 			++lastarg;
 			pcard = lua_get<card*, false>(L, lastarg);
 			++lastarg;
 		}
 		if (lua_get<bool, false>(L, lastarg)) {
 			self->replace_effect(code, 0, 0, true, true);
-			lab = 1;
+			peffect->replace = true;
 		}
 		self->data.realcode = lua_get<uint32_t>(L, lastarg+1, 0);
 		if (self->data.realcode > 0) {
             check_param_count(L, lastarg+2);
 			self->data.realalias = self->data.alias > 0 ? self->data.alias : self->data.code;
-			self->data.alias = self->data.realcode;
             self->data.effcode = lua_get<uint32_t>(L, lastarg+2, 0);
             self->data.namecode = lua_get<uint32_t>(L, lastarg+3, 0);
             self->data.realcard = lua_get<card*, false>(L, lastarg+4);
 			self->data.nreal = lua_get<bool, false>(L, lastarg+5);
-			if (self->data.nreal) {
-				self->data.code = code;
+			if (self->data.nreal)
 				self->data.alias = lua_get<uint32_t>(L, 3, self->data.alias);
-			}
+			else
+				self->data.alias = self->data.realcode;
 		}
-		// peffect->rdata = self->data;
 		peffect->flag[0] = EFFECT_FLAG_UNCOPYABLE | property;
 		peffect->owner = pcard;
 		peffect->reset_flag = reset;
-		peffect->label = { lab };
 		self->add_effect(peffect);
 		lua_pushinteger(L, self->set_entity_code(code));
 	}

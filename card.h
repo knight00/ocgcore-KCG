@@ -296,7 +296,7 @@ public:
 	/////kdiy//////////
 	//int32_t replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating = false);
 	int32_t replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating = false, bool uncopy = false);
-	void add_setentity(effect* peffect, card_data rdata);
+	void revert_entity(effect* peffect);
 	/////kdiy//////////
 	void reset(uint32_t id, uint32_t reset_type);
 	void reset_effect_count();

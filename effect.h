@@ -35,6 +35,7 @@ public:
 	card_data data{};
 	// card_data rdata{};
     bool addtotext{ false };
+    bool replace { false };
     uint64_t cardtext{0},cardtext2{0},cardtext3{0},cardtext4{0};
 	uint32_t replacetext{0};
     bool addtofront{ false };

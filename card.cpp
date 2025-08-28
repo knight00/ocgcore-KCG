@@ -2492,44 +2492,6 @@ void card::remove_effect(effect* peffect) {
 		return;
 	remove_effect(peffect, it->second);
 }
-//kdiy///////
-void card::add_setentity(effect* peffect, card_data rdata) {
-	if (recreate(rdata.code)) {
-		data.alias = rdata.alias;
-		data.setcodes = rdata.setcodes;
-		data.type = rdata.type;
-		data.level = rdata.level;
-		data.attribute = rdata.attribute;
-		data.race = rdata.race;
-		data.attack = rdata.attack;
-		data.defense = rdata.defense;
-		data.lscale = rdata.lscale;
-		data.rscale = rdata.rscale;
-		data.link_marker = rdata.link_marker;
-		for(const auto& lab : peffect->label) {
-			if(lab == 1) {
-				replace_effect(rdata.code, 0, 0, true, true);
-				break;
-			}
-		}
-		data.realcode = rdata.realcode;
-		if (data.realcode > 0) {
-			data.realalias = rdata.realalias;
-			data.effcode = rdata.effcode;
-			data.namecode = rdata.namecode;
-			data.realcard = rdata.realcard;
-			data.nreal = rdata.nreal;
-		} else {
-			data.realalias = 0;
-			data.effcode = 0;
-			data.namecode = 0;
-			data.realcard = nullptr;
-			data.nreal = false;
-		}
-		set_entity_code(rdata.code);
-	}
-}
-//kdiy///////
 void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	card_set check_target = { this };
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
@@ -2610,6 +2572,45 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	}
 	pduel->game_field->core.reseted_effects.insert(peffect);
 }
+//kdiy///////
+void card::revert_entity(effect* peffect) {
+	auto rdata = peffect->data;
+	if (recreate(rdata.code)) {
+		data.alias = rdata.alias;
+		data.setcodes = rdata.setcodes;
+		data.type = rdata.type;
+		data.level = rdata.level;
+		data.attribute = rdata.attribute;
+		data.race = rdata.race;
+		data.attack = rdata.attack;
+		data.defense = rdata.defense;
+		data.lscale = rdata.lscale;
+		data.rscale = rdata.rscale;
+		data.link_marker = rdata.link_marker;
+		if(peffect->replace)
+			replace_effect(rdata.code, 0, 0, true, true);
+		data.realcode = rdata.realcode;
+		if(data.realcode > 0) {
+			data.realalias = rdata.realalias;
+			data.effcode = rdata.effcode;
+			data.namecode = rdata.namecode;
+			data.realcard = rdata.realcard;
+			data.nreal = rdata.nreal;
+			if(data.nreal)
+				data.alias = rdata.alias;
+			else
+				data.alias = rdata.realcode;
+		} else {
+			data.realalias = 0;
+			data.effcode = 0;
+			data.namecode = 0;
+			data.realcard = nullptr;
+			data.nreal = false;
+		}
+		set_entity_code(rdata.code);
+	}
+}
+//kdiy///////
 int32_t card::copy_effect(uint32_t code, uint32_t reset, uint32_t count) {
 	if(pduel->read_card(code).type & TYPE_NORMAL)
 		return -1;
@@ -2792,20 +2793,22 @@ void card::reset(uint32_t id, uint32_t reset_type) {
 		}
 	}
 	//kdiy///////
-	// auto j = 0;
-	// auto jsize = 0;
+	auto j = 0;
+	auto jsize = 0;
+	auto jrsize = 0;
 	for (auto i = indexer.end(); i != indexer.begin();) {
 		auto rm = --i;
 		effect* peffect = rm->first;
 		if ((peffect->type & EFFECT_TYPE_SINGLE) && peffect->code == EFFECT_SET_ENTITY && peffect->data.code > 0) {
-			// jsize++;
+			jsize++;
 			if (peffect->reset(id, reset_type)) {
-				add_setentity(peffect, peffect->data);
-				// j = jsize;
+				jrsize++;
+				j = jsize;
+				revert_entity(peffect);
 			}
 		}
 	}
-	// j = jsize - j + 1;
+	j -= jrsize;
 	//kdiy///////
 	for (auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
@@ -2815,16 +2818,20 @@ void card::reset(uint32_t id, uint32_t reset_type) {
 			remove_effect(peffect, it);
 	}
 	//kdiy///////
-	// auto jrsize = 0;
-	// for (auto i = indexer.begin(); i != indexer.end();) {
-	// 	auto rm = i++;
-	// 	effect* peffect = rm->first;
-	// 	if ((peffect->type & EFFECT_TYPE_SINGLE) && peffect->code == EFFECT_SET_ENTITY && peffect->rdata.code > 0) {
-	// 		if (jrsize >= j)
-	// 			add_setentity(peffect, peffect->rdata);
-	// 		jrsize++;
-	// 	}
-	// }
+	auto jrsize2 = 0;
+	for (auto i = indexer.begin(); i != indexer.end();) {
+		auto rm = i++;
+		effect* peffect = rm->first;
+		if ((peffect->type & EFFECT_TYPE_SINGLE) && peffect->code == EFFECT_SET_ENTITY) {
+			jrsize2++;
+			if(jrsize2 <= j) {
+				card_set cset;
+				cset.insert(this);
+				pduel->game_field->raise_single_event(peffect->owner, &cset, EVENT_ENTITY_RESET, peffect, 0, 0, 0, 0);
+				pduel->game_field->process_single_event();
+			}
+		}
+	}
 	//kdiy///////
 }
 void card::reset_effect_count() {
@@ -3143,21 +3150,22 @@ void card::clear_card_target() {
 	}
 	for(auto& pcard : effect_target_cards) {
 		//kdiy///////
-		// auto j = 0;
-		// auto jsize = 0;
+		auto j = 0;
+		auto jsize = 0;
+		auto jrsize = 0;
 		for(auto it = pcard->single_effect.end(); it != pcard->single_effect.begin();) {
 			auto rm = --it;
 			effect* peffect = rm->second;
 			if(peffect->code == EFFECT_SET_ENTITY && peffect->data.code > 0) {
-				// jsize++;
+				jsize++;
 				if((peffect->owner == this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE)) {
-					// j = jsize;
-					pcard->add_setentity(peffect, peffect->data);
+					jrsize++;
+					j = jsize;
+					pcard->revert_entity(peffect);
 				}
 			}
 		}
-		// j = jsize - j + 1;
-		// auto jrsize = 0;
+		j -= jrsize;
 		//kdiy///////
 		pcard->effect_target_owner.erase(this);
 		for(auto& it : target_effect) {
@@ -3171,13 +3179,20 @@ void card::clear_card_target() {
 				pcard->remove_effect(peffect, rm);
 		}
 		//kdiy///////
-		// for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
-		// 	auto rm = it++;
-		// 	effect* peffect = rm->second;
-		// 	if((peffect->owner != this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE) && jrsize >= j)
-		// 		pcard->add_setentity(peffect, peffect->rdata);
-		// 	jrsize++;
-		// }
+		auto jrsize2 = 0;
+		for(auto it = pcard->single_effect.end(); it != pcard->single_effect.begin();) {
+			auto rm = --it;
+			effect* peffect = rm->second;
+			if((peffect->owner != this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE) && peffect->code == EFFECT_SET_ENTITY) {
+				jrsize2++;
+				if(jrsize2 <= j) {
+					card_set cset;
+					cset.insert(pcard);
+					pduel->game_field->raise_single_event(peffect->owner, &cset, EVENT_ENTITY_RESET, peffect, 0, 0, 0, 0);
+					pduel->game_field->process_single_event();
+				}
+			}
+		}
 		//kdiy///////
 	}
 	effect_target_owner.clear();

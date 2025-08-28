@@ -139,6 +139,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_PREATTACK_ANNOUNCE            2030
 #define EVENT_PRESPSUMMON_SUCCESS           2031
 #define EFFECT_SET_ENTITY                   2032
+#define EVENT_ENTITY_RESET                  2033
 //////////kdiy/////////
 #define EFFECT_IMMUNE_EFFECT                1
 #define EFFECT_DISABLE                      2
