@@ -4021,7 +4021,6 @@ bool field::process(Processors::AddChain& arg) {
 		message->write<uint64_t>(peffect->description);
 		message->write<uint32_t>(core.current_chain.size() + 1);
 		/////kdiy//////
-		message->write(phandler->get_pinfo_location());
 		message->write<bool>(!!phandler->current.pzone);
         phandler->prev_temp.location = 0;
 		/////kdiy//////
