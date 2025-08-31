@@ -33,6 +33,7 @@ struct card_data {
 	///////kdiy///////
 	//uint32_t level{};
 	int32_t level{};
+	uint32_t piccode{0};
 	///////kdiy///////
 	uint32_t attribute{};
 	uint64_t race{};

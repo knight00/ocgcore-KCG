@@ -2564,6 +2564,17 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		message->write(get_info_location());
 		message->write<uint8_t>(CHINT_DESC_REMOVE);
 		message->write<uint64_t>(peffect->description);
+        //kdiy////////
+        if(!((peffect->type & EFFECT_TYPE_EQUIP) || (peffect->type & EFFECT_TYPE_GRANT) || (peffect->type & EFFECT_TYPE_XMATERIAL) || (peffect->type & EFFECT_TYPE_TARGET))) {
+        message->write<bool>(peffect->addtotext);
+        message->write<uint64_t>(peffect->cardtext);
+        message->write<uint64_t>(peffect->cardtext2);
+        message->write<uint64_t>(peffect->cardtext3);
+        message->write<uint64_t>(peffect->cardtext4);
+        message->write<uint32_t>(peffect->replacetext);
+        message->write<bool>(peffect->addtofront);
+        }
+        //kdiy////////
 	}
 	if(peffect->code == EFFECT_UNIQUE_CHECK) {
 		pduel->game_field->remove_unique_card(this);
@@ -2577,6 +2588,7 @@ void card::revert_entity(effect* peffect) {
 	auto rdata = peffect->data;
 	if (recreate(rdata.code)) {
 		data.alias = rdata.alias;
+		data.piccode = rdata.piccode;
 		data.setcodes = rdata.setcodes;
 		data.type = rdata.type;
 		data.level = rdata.level;
@@ -2608,6 +2620,11 @@ void card::revert_entity(effect* peffect) {
 			data.nreal = false;
 		}
 		set_entity_code(rdata.code);
+		if(data.piccode > 0) {
+			auto message = pduel->new_message(MSG_PICCHANGE);
+			message->write<uint32_t>(data.piccode);
+			message->write(get_info_location());
+		}
 	}
 }
 //kdiy///////
@@ -2795,20 +2812,20 @@ void card::reset(uint32_t id, uint32_t reset_type) {
 	//kdiy///////
 	auto j = 0;
 	auto jsize = 0;
-	auto jrsize = 0;
-	for (auto i = indexer.end(); i != indexer.begin();) {
-		auto rm = --i;
+	std::list<effect*> effectlist;
+	for (auto i = indexer.begin(); i != indexer.end();) {
+		auto rm = i++;
 		effect* peffect = rm->first;
 		if ((peffect->type & EFFECT_TYPE_SINGLE) && peffect->code == EFFECT_SET_ENTITY && peffect->data.code > 0) {
 			jsize++;
 			if (peffect->reset(id, reset_type)) {
-				jrsize++;
-				j = jsize;
-				revert_entity(peffect);
+				if(j == 0) j = jsize;
+				effectlist.push_front(peffect);
 			}
 		}
 	}
-	j -= jrsize;
+	for (const auto& peffect : effectlist)
+		revert_entity(peffect);
 	//kdiy///////
 	for (auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
@@ -2818,13 +2835,14 @@ void card::reset(uint32_t id, uint32_t reset_type) {
 			remove_effect(peffect, it);
 	}
 	//kdiy///////
-	auto jrsize2 = 0;
+	if(j >= jsize) return;;
+	auto jrsize = 0;
 	for (auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
 		effect* peffect = rm->first;
 		if ((peffect->type & EFFECT_TYPE_SINGLE) && peffect->code == EFFECT_SET_ENTITY) {
-			jrsize2++;
-			if(jrsize2 <= j) {
+			jrsize++;
+			if(jrsize >= j) {
 				card_set cset;
 				cset.insert(this);
 				pduel->game_field->raise_single_event(peffect->owner, &cset, EVENT_ENTITY_RESET, peffect, 0, 0, 0, 0);
@@ -3152,20 +3170,20 @@ void card::clear_card_target() {
 		//kdiy///////
 		auto j = 0;
 		auto jsize = 0;
-		auto jrsize = 0;
-		for(auto it = pcard->single_effect.end(); it != pcard->single_effect.begin();) {
-			auto rm = --it;
+		std::list<effect*> effectlist;
+		for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
+			auto rm = it++;
 			effect* peffect = rm->second;
 			if(peffect->code == EFFECT_SET_ENTITY && peffect->data.code > 0) {
 				jsize++;
 				if((peffect->owner == this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE)) {
-					jrsize++;
-					j = jsize;
-					pcard->revert_entity(peffect);
+					if(j == 0) j = jsize;
+					effectlist.push_front(peffect);
 				}
 			}
 		}
-		j -= jrsize;
+		for (const auto& peffect : effectlist)
+			pcard->revert_entity(peffect);
 		//kdiy///////
 		pcard->effect_target_owner.erase(this);
 		for(auto& it : target_effect) {
@@ -3179,13 +3197,14 @@ void card::clear_card_target() {
 				pcard->remove_effect(peffect, rm);
 		}
 		//kdiy///////
-		auto jrsize2 = 0;
-		for(auto it = pcard->single_effect.end(); it != pcard->single_effect.begin();) {
-			auto rm = --it;
+		if(j >= jsize) continue;
+		auto jrsize = 0;
+		for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
+			auto rm = it++;
 			effect* peffect = rm->second;
 			if((peffect->owner != this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE) && peffect->code == EFFECT_SET_ENTITY) {
-				jrsize2++;
-				if(jrsize2 <= j) {
+				jrsize++;
+				if(jrsize >= j) {
 					card_set cset;
 					cset.insert(pcard);
 					pduel->game_field->raise_single_event(peffect->owner, &cset, EVENT_ENTITY_RESET, peffect, 0, 0, 0, 0);

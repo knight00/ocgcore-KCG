@@ -36,45 +36,49 @@ LUA_FUNCTION(SetEntityCode) {
 	auto code = lua_get<uint32_t>(L, 2);
     if (self->recreate(code)) {
 		self->data.alias = lua_get<uint32_t>(L, 3, self->data.alias);
-		if(lua_gettop(L) > 3 && !lua_isnoneornil(L, 4)) {
+		uint8_t lastarg = 4;
+		if(lua_isinteger(L, lastarg)) {
+			self->data.piccode = lua_get<uint32_t>(L, lastarg, 0);
+			++lastarg;
+		}
+		if(lua_gettop(L) > lastarg-1 && !lua_isnoneornil(L, lastarg)) {
 			self->data.setcodes.clear();
-			if(lua_istable(L, 4)) {
-				lua_table_iterate(L, 4, [&setcodes = self->data.setcodes, &L] {
+			if(lua_istable(L, lastarg)) {
+				lua_table_iterate(L, lastarg, [&setcodes = self->data.setcodes, &L] {
 					setcodes.insert(lua_get<uint16_t>(L, -1));
 				});
 			} else
-				self->data.setcodes.insert(lua_get<uint16_t>(L, 4));
+				self->data.setcodes.insert(lua_get<uint16_t>(L, lastarg));
 		}
-		self->data.type = lua_get<uint32_t>(L, 5, self->data.type);
-		self->data.level = lua_get<uint32_t>(L, 6, self->data.level);
-		self->data.attribute = lua_get<uint32_t>(L, 7, self->data.attribute);
-		self->data.race = lua_get<uint64_t>(L, 8, self->data.race);
-		self->data.attack = lua_get<int32_t>(L, 9, self->data.attack);
-		self->data.defense = lua_get<int32_t>(L, 10, self->data.defense);
-		self->data.lscale = lua_get<uint32_t>(L, 11, self->data.lscale);
-		self->data.rscale = lua_get<uint32_t>(L, 12, self->data.rscale);
-		self->data.link_marker = lua_get<uint32_t>(L, 13, self->data.link_marker);
-		uint8_t lastarg = 14;
-		if(lua_isinteger(L, lastarg)) {
-			property = lua_get<uint32_t>(L, lastarg, 0);
+		self->data.type = lua_get<uint32_t>(L, lastarg+1, self->data.type);
+		self->data.level = lua_get<uint32_t>(L, lastarg+2, self->data.level);
+		self->data.attribute = lua_get<uint32_t>(L, lastarg+3, self->data.attribute);
+		self->data.race = lua_get<uint64_t>(L, lastarg+4, self->data.race);
+		self->data.attack = lua_get<int32_t>(L, lastarg+5, self->data.attack);
+		self->data.defense = lua_get<int32_t>(L, lastarg+6, self->data.defense);
+		self->data.lscale = lua_get<uint32_t>(L, lastarg+7, self->data.lscale);
+		self->data.rscale = lua_get<uint32_t>(L, lastarg+8, self->data.rscale);
+		self->data.link_marker = lua_get<uint32_t>(L, lastarg+9, self->data.link_marker);
+		if(lua_isinteger(L, lastarg+10)) {
+			property = lua_get<uint32_t>(L, lastarg+10, 0);
 			++lastarg;
-			reset = lua_get<uint32_t>(L, lastarg, 0);
+			reset = lua_get<uint32_t>(L, lastarg+10, 0);
 			++lastarg;
-			pcard = lua_get<card*, false>(L, lastarg);
+			pcard = lua_get<card*, false>(L, lastarg+10);
 			++lastarg;
 		}
-		if (lua_get<bool, false>(L, lastarg)) {
+		if (lua_get<bool, false>(L, lastarg+10)) {
 			self->replace_effect(code, 0, 0, true, true);
 			peffect->replace = true;
 		}
-		self->data.realcode = lua_get<uint32_t>(L, lastarg+1, 0);
+		self->data.realcode = lua_get<uint32_t>(L, lastarg+11, 0);
 		if (self->data.realcode > 0) {
-            check_param_count(L, lastarg+2);
+            check_param_count(L, lastarg+12);
 			self->data.realalias = self->data.alias > 0 ? self->data.alias : self->data.code;
-            self->data.effcode = lua_get<uint32_t>(L, lastarg+2, 0);
-            self->data.namecode = lua_get<uint32_t>(L, lastarg+3, 0);
-            self->data.realcard = lua_get<card*, false>(L, lastarg+4);
-			self->data.nreal = lua_get<bool, false>(L, lastarg+5);
+            self->data.effcode = lua_get<uint32_t>(L, lastarg+12, 0);
+            self->data.namecode = lua_get<uint32_t>(L, lastarg+13, 0);
+            self->data.realcard = lua_get<card*, false>(L, lastarg+14);
+			self->data.nreal = lua_get<bool, false>(L, lastarg+15);
 			if (self->data.nreal)
 				self->data.alias = lua_get<uint32_t>(L, 3, self->data.alias);
 			else
@@ -85,19 +89,30 @@ LUA_FUNCTION(SetEntityCode) {
 		peffect->reset_flag = reset;
 		self->add_effect(peffect);
 		lua_pushinteger(L, self->set_entity_code(code));
+		if(self->data.piccode > 0) {
+			auto message = pduel->new_message(MSG_PICCHANGE);
+			message->write<uint32_t>(self->data.piccode);
+			message->write(self->get_info_location());
+		}
 	}
 	return 1;
 }
 LUA_FUNCTION(SetCardData) {
 	check_param_count(L, 3);
+	uint32_t property = 0;
+	uint32_t reset = 0;
+	card* pcard = self;
+	effect* peffect = pduel->new_effect();
+	peffect->type = EFFECT_TYPE_SINGLE;
+	peffect->code = EFFECT_SET_ENTITY;
+	peffect->data = self->data;
 	int32_t stype = lua_tointeger(L, 2);
-	uint32_t piccode = 0;
 	switch(stype) {
 	// case CARDDATA_CODE:
 	// 	self->data.code = lua_tointeger(L, 3);
 	// 	break;
 	case CARDDATA_PICCODE:
-		piccode = lua_get<uint32_t>(L, 3);
+		self->data.piccode = lua_get<uint32_t>(L, 3);
 		break;
 	case CARDDATA_ALIAS:
 		self->data.alias = lua_get<uint32_t>(L, 3, self->data.alias);
@@ -141,9 +156,20 @@ LUA_FUNCTION(SetCardData) {
 		self->data.link_marker = lua_get<uint32_t>(L, 3, self->data.link_marker);
 		break;
 	}
-	auto message = pduel->new_message(piccode > 0 ? MSG_PICCHANGE : MSG_CHANGE);
-	message->write<uint32_t>(piccode > 0 ? piccode : self->data.code);
+	if(lua_isinteger(L, 4)) {
+		property = lua_get<uint32_t>(L, 4, 0);
+		reset = lua_get<uint32_t>(L, 5, 0);
+		pcard = lua_get<card*, false>(L, 6);
+	}
+	peffect->flag[0] = EFFECT_FLAG_UNCOPYABLE | property;
+	peffect->owner = pcard;
+	peffect->reset_flag = reset;
+	self->add_effect(peffect);
+	auto message = pduel->new_message(self->data.piccode > 0 ? MSG_PICCHANGE : MSG_CHANGE);
+	message->write<uint32_t>(self->data.piccode > 0 ? self->data.piccode : self->data.code);
 	message->write(self->get_info_location());
+	if(self->data.piccode > 0)
+		return 0;
 	uint64_t setnames = 0;
 	int i = 0;
 	for(auto &s : self->data.setcodes) {
