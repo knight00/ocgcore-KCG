@@ -158,10 +158,7 @@ void insert_value(std::vector<uint8_t>& vec, const T& _val) {
 void card::get_infos(uint32_t query_flag) {
 	CHECK_AND_INSERT(QUERY_CODE, data.code);
 	CHECK_AND_INSERT(QUERY_POSITION, get_info_location().position);
-	//////kdiy//////////
-	//CHECK_AND_INSERT(QUERY_ALIAS, get_code());
-	CHECK_AND_INSERT(QUERY_ALIAS, (data.realcode && get_code() == 0) ? data.realcode : get_code());
-	//////kdiy//////////
+	CHECK_AND_INSERT(QUERY_ALIAS, get_code());
 	CHECK_AND_INSERT(QUERY_TYPE, get_type());
 	CHECK_AND_INSERT(QUERY_LEVEL, get_level());
 	CHECK_AND_INSERT(QUERY_RANK, get_rank());
@@ -287,6 +284,11 @@ uint32_t card::get_code() {
 	uint32_t code = data.code;
 	temp.code = data.code;
 	filter_effect(EFFECT_CHANGE_CODE, &effects);
+	/////////kdiy////////
+	bool change_code = false;
+	if (effects.size())
+		change_code = true;
+	/////////kdiy////////
 	if (effects.size())
 		code = effects.back()->get_value(this);
 	set_max_property_val(temp.code);
@@ -303,12 +305,16 @@ uint32_t card::get_code() {
 		/////////kdiy////////
 		//if(data.alias && !addcode)
 			//code = data.alias;
-		if(data.alias && !(data.realcode && !data.nreal) && !addcode)
+		if (data.alias && !(data.realcode && !data.nreal) && !addcode)
 			code = data.alias;
-		else if(data.realcode && !data.nreal)
+		else if (data.realcode && !data.nreal && !change_code)
 			code = 0;
 		/////////kdiy////////
 	} else {
+		/////////kdiy////////
+		if (!(data.ot & SCOPE_OFFICIAL))
+			return code;
+		/////////kdiy////////
 		const auto& dat = pduel->read_card(code);
 		if (dat.alias && !second_code(code))
 			code = dat.alias;
@@ -2587,6 +2593,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 void card::revert_entity(effect* peffect) {
 	auto rdata = peffect->data;
 	if (recreate(rdata.code)) {
+		data.ot = rdata.ot;
 		data.alias = rdata.alias;
 		data.piccode = rdata.piccode;
 		data.setcodes = rdata.setcodes;

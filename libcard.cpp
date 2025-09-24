@@ -35,6 +35,7 @@ LUA_FUNCTION(SetEntityCode) {
 	peffect->data = self->data;
 	auto code = lua_get<uint32_t>(L, 2);
     if (self->recreate(code)) {
+		self->data.ot = SCOPE_ANIME;
 		self->data.alias = lua_get<uint32_t>(L, 3, self->data.alias);
 		uint8_t lastarg = 4;
 		if(lua_isinteger(L, lastarg)) {
