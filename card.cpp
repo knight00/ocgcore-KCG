@@ -2496,7 +2496,38 @@ void card::remove_effect(effect* peffect) {
 	auto it = indexer.find(peffect);
 	if (it == indexer.end())
 		return;
+	//kdiy///////
+	auto j = 0;
+	auto jsize = 0;
+	if ((peffect->type & EFFECT_TYPE_SINGLE) && peffect->code == EFFECT_SET_ENTITY && peffect->data.code > 0) {
+		for (auto i = indexer.begin(); i != indexer.end();) {
+			auto rm = i++;
+			effect* peffect2 = rm->first;
+			if ((peffect2->type & EFFECT_TYPE_SINGLE) && peffect2->code == EFFECT_SET_ENTITY && peffect2->data.code > 0) {
+				jsize++;
+				if(peffect2 == peffect) j = jsize;
+			}
+		}
+	}
+	revert_entity(peffect);
+	//kdiy///////
 	remove_effect(peffect, it->second);
+	//kdiy///////
+	auto jrsize = 0;
+	for (auto i = indexer.begin(); i != indexer.end();) {
+		auto rm = i++;
+		effect* peffect = rm->first;
+		if ((peffect->type & EFFECT_TYPE_SINGLE) && peffect->code == EFFECT_SET_ENTITY) {
+			jrsize++;
+			if(jrsize >= j) {
+				card_set cset;
+				cset.insert(this);
+				pduel->game_field->raise_single_event(peffect->owner, &cset, EVENT_ENTITY_RESET, peffect, 0, 0, 0, 0);
+				pduel->game_field->process_single_event();
+			}
+		}
+	}
+	//kdiy///////
 }
 void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	card_set check_target = { this };
