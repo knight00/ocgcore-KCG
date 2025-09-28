@@ -88,6 +88,8 @@ LUA_FUNCTION(SetEntityCode) {
 		peffect->flag[0] = EFFECT_FLAG_UNCOPYABLE | property;
 		peffect->owner = pcard;
 		peffect->reset_flag = reset;
+		if((peffect->reset_flag & RESET_PHASE) && !(peffect->reset_flag & (RESET_SELF_TURN | RESET_OPPO_TURN)))
+			peffect->reset_flag |= (RESET_SELF_TURN | RESET_OPPO_TURN);
 		self->add_effect(peffect);
 		lua_pushinteger(L, self->set_entity_code(code));
 		if(self->data.piccode > 0) {
@@ -165,6 +167,8 @@ LUA_FUNCTION(SetCardData) {
 	peffect->flag[0] = EFFECT_FLAG_UNCOPYABLE | property;
 	peffect->owner = pcard;
 	peffect->reset_flag = reset;
+	if((peffect->reset_flag & RESET_PHASE) && !(peffect->reset_flag & (RESET_SELF_TURN | RESET_OPPO_TURN)))
+		peffect->reset_flag |= (RESET_SELF_TURN | RESET_OPPO_TURN);
 	self->add_effect(peffect);
 	auto message = pduel->new_message(self->data.piccode > 0 ? MSG_PICCHANGE : MSG_CHANGE);
 	message->write<uint32_t>(self->data.piccode > 0 ? self->data.piccode : self->data.code);

@@ -2497,22 +2497,27 @@ void card::remove_effect(effect* peffect) {
 	if (it == indexer.end())
 		return;
 	//kdiy///////
+	bool resetentity = false;
 	auto j = 0;
-	auto jsize = 0;
 	if ((peffect->type & EFFECT_TYPE_SINGLE) && peffect->code == EFFECT_SET_ENTITY && peffect->data.code > 0) {
 		for (auto i = indexer.begin(); i != indexer.end();) {
 			auto rm = i++;
 			effect* peffect2 = rm->first;
 			if ((peffect2->type & EFFECT_TYPE_SINGLE) && peffect2->code == EFFECT_SET_ENTITY && peffect2->data.code > 0) {
-				jsize++;
-				if(peffect2 == peffect) j = jsize;
+				j++;
+				if(peffect2 == peffect) {
+					resetentity = true;
+					break;
+				}
 			}
 		}
 	}
-	revert_entity(peffect);
+	if(resetentity)
+		revert_entity(peffect);
 	//kdiy///////
 	remove_effect(peffect, it->second);
 	//kdiy///////
+	if(!resetentity) return;;
 	auto jrsize = 0;
 	for (auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
@@ -2848,6 +2853,7 @@ void card::reset(uint32_t id, uint32_t reset_type) {
 		}
 	}
 	//kdiy///////
+	bool resetentity = false;
 	auto j = 0;
 	auto jsize = 0;
 	std::list<effect*> effectlist;
@@ -2857,6 +2863,7 @@ void card::reset(uint32_t id, uint32_t reset_type) {
 		if ((peffect->type & EFFECT_TYPE_SINGLE) && peffect->code == EFFECT_SET_ENTITY && peffect->data.code > 0) {
 			jsize++;
 			if (peffect->reset(id, reset_type)) {
+				resetentity = true;
 				if(j == 0) j = jsize;
 				effectlist.push_front(peffect);
 			}
@@ -2873,7 +2880,7 @@ void card::reset(uint32_t id, uint32_t reset_type) {
 			remove_effect(peffect, it);
 	}
 	//kdiy///////
-	if(j >= jsize) return;;
+	if(!resetentity || j >= jsize) return;;
 	auto jrsize = 0;
 	for (auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
@@ -3206,6 +3213,7 @@ void card::clear_card_target() {
 	}
 	for(auto& pcard : effect_target_cards) {
 		//kdiy///////
+		bool resetentity = false;
 		auto j = 0;
 		auto jsize = 0;
 		std::list<effect*> effectlist;
@@ -3215,6 +3223,7 @@ void card::clear_card_target() {
 			if(peffect->code == EFFECT_SET_ENTITY && peffect->data.code > 0) {
 				jsize++;
 				if((peffect->owner == this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE)) {
+					resetentity = true;
 					if(j == 0) j = jsize;
 					effectlist.push_front(peffect);
 				}
@@ -3235,7 +3244,7 @@ void card::clear_card_target() {
 				pcard->remove_effect(peffect, rm);
 		}
 		//kdiy///////
-		if(j >= jsize) continue;
+		if(!resetentity || j >= jsize) continue;
 		auto jrsize = 0;
 		for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
 			auto rm = it++;
