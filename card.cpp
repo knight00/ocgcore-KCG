@@ -42,6 +42,7 @@ uint32_t card::set_entity_code(uint32_t entity_code) {
 	message->write<uint32_t>(data.lscale);
 	message->write<uint32_t>(data.rscale);
 	message->write<uint32_t>(data.link_marker);
+	message->write<bool>(false);
 	message->write<uint32_t>(data.realcode);
     message->write<uint32_t>(data.effcode);
     message->write<uint32_t>(data.namecode);
