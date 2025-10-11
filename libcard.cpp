@@ -26,6 +26,7 @@ using namespace scriptlib;
 ////kdiy////////////////////
 LUA_FUNCTION(SetEntityCode) {
 	check_param_count(L, 2);
+	bool revertentity = false;
 	uint32_t property = 0;
 	uint32_t reset = 0;
 	card* pcard = self;
@@ -35,7 +36,6 @@ LUA_FUNCTION(SetEntityCode) {
 	peffect->data = self->data;
 	auto code = lua_get<uint32_t>(L, 2);
     if (self->recreate(code)) {
-		self->data.ot = SCOPE_ANIME;
 		self->data.alias = lua_get<uint32_t>(L, 3, self->data.alias);
 		uint8_t lastarg = 4;
 		if(lua_isinteger(L, lastarg)) {
@@ -62,6 +62,7 @@ LUA_FUNCTION(SetEntityCode) {
 		self->data.rscale = lua_get<uint32_t>(L, lastarg+8, self->data.rscale);
 		self->data.link_marker = lua_get<uint32_t>(L, lastarg+9, self->data.link_marker);
 		if(lua_isinteger(L, lastarg+10)) {
+			revertentity = true;
 			property = lua_get<uint32_t>(L, lastarg+10, 0);
 			++lastarg;
 			reset = lua_get<uint32_t>(L, lastarg+10, 0);
@@ -70,12 +71,13 @@ LUA_FUNCTION(SetEntityCode) {
 			++lastarg;
 		}
 		if (lua_get<bool, false>(L, lastarg+10)) {
-			self->replace_effect(code, 0, 0, true, true);
+			self->replace_effect(code, 0, 0, true);
 			peffect->replace = true;
 		} else
 			peffect->replace = false;
 		self->data.realcode = lua_get<uint32_t>(L, lastarg+11, 0);
 		if (self->data.realcode > 0) {
+			self->data.ot = SCOPE_ANIME;
             check_param_count(L, lastarg+12);
 			self->data.realalias = self->data.alias > 0 ? self->data.alias : self->data.code;
             self->data.effcode = lua_get<uint32_t>(L, lastarg+12, 0);
@@ -97,7 +99,8 @@ LUA_FUNCTION(SetEntityCode) {
 		peffect->reset_flag = reset;
 		if((peffect->reset_flag & RESET_PHASE) && !(peffect->reset_flag & (RESET_SELF_TURN | RESET_OPPO_TURN)))
 			peffect->reset_flag |= (RESET_SELF_TURN | RESET_OPPO_TURN);
-		self->add_effect(peffect);
+		if(revertentity)
+			self->add_effect(peffect);
 		interpreter::pushobject(L, peffect);
 		self->set_entity_code(code);
 		if(self->data.piccode > 0) {
@@ -111,6 +114,7 @@ LUA_FUNCTION(SetEntityCode) {
 LUA_FUNCTION(SetCardData) {
 	check_param_count(L, 3);
 	uint32_t piccode = 0;
+	bool revertentity = false;
 	uint32_t property = 0;
 	uint32_t reset = 0;
 	card* pcard = self;
@@ -167,6 +171,7 @@ LUA_FUNCTION(SetCardData) {
 		break;
 	}
 	if(lua_isinteger(L, 4)) {
+		revertentity = true;
 		property = lua_get<uint32_t>(L, 4, 0);
 		reset = lua_get<uint32_t>(L, 5, 0);
 		pcard = lua_get<card*, false>(L, 6);
@@ -176,7 +181,8 @@ LUA_FUNCTION(SetCardData) {
 	peffect->reset_flag = reset;
 	if((peffect->reset_flag & RESET_PHASE) && !(peffect->reset_flag & (RESET_SELF_TURN | RESET_OPPO_TURN)))
 		peffect->reset_flag |= (RESET_SELF_TURN | RESET_OPPO_TURN);
-	self->add_effect(peffect);
+	if(revertentity)
+		self->add_effect(peffect);
 	interpreter::pushobject(L, peffect);
 	auto message = pduel->new_message(piccode > 0 ? MSG_PICCHANGE : MSG_CHANGE);
 	message->write<uint32_t>(piccode > 0 ? self->data.piccode : self->data.code);
