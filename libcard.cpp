@@ -70,11 +70,7 @@ LUA_FUNCTION(SetEntityCode) {
 			pcard = lua_get<card*, false>(L, lastarg+10);
 			++lastarg;
 		}
-		if (lua_get<bool, false>(L, lastarg+10)) {
-			self->replace_effect(code, 0, 0, true);
-			peffect->replace = true;
-		} else
-			peffect->replace = false;
+		peffect->replace = lua_get<bool, false>(L, lastarg+10);
 		self->data.realcode = lua_get<uint32_t>(L, lastarg+11, 0);
 		if (self->data.realcode > 0) {
 			self->data.ot = SCOPE_ANIME;
@@ -83,12 +79,17 @@ LUA_FUNCTION(SetEntityCode) {
             self->data.effcode = lua_get<uint32_t>(L, lastarg+12, 0);
             self->data.namecode = lua_get<uint32_t>(L, lastarg+13, 0);
             self->data.realcard = lua_get<card*, false>(L, lastarg+14);
+			if(peffect->replace) {
+				if(self->data.realcard) self->replace_effect(code, 0, 0, true, self->data.realcard);
+				else self->replace_effect(code, 0, 0, true);
+			}
 			self->data.nreal = lua_get<bool, false>(L, lastarg+15);
 			if (self->data.nreal)
 				self->data.alias = lua_get<uint32_t>(L, 3, self->data.alias);
 			else
 				self->data.alias = self->data.realcode;
 		} else {
+			if(peffect->replace) self->replace_effect(code, 0, 0, true);
 			self->data.realalias = 0;
             self->data.effcode = 0;
             self->data.namecode = 0;

@@ -2644,20 +2644,23 @@ void card::revert_entity(effect* peffect) {
 		data.lscale = rdata.lscale;
 		data.rscale = rdata.rscale;
 		data.link_marker = rdata.link_marker;
-		if(peffect->replace)
-			replace_effect(rdata.code, 0, 0, true);
 		data.realcode = rdata.realcode;
 		if(data.realcode > 0) {
 			data.realalias = rdata.realalias;
 			data.effcode = rdata.effcode;
 			data.namecode = rdata.namecode;
 			data.realcard = rdata.realcard;
+			if(peffect->replace) {
+				if(data.realcard) replace_effect(rdata.code, 0, 0, true, data.realcard);
+				else replace_effect(rdata.code, 0, 0, true);
+			}
 			data.nreal = rdata.nreal;
 			if(data.nreal)
 				data.alias = rdata.alias;
 			else
 				data.alias = rdata.realcode;
 		} else {
+			if(peffect->replace) replace_effect(rdata.code, 0, 0, true);
 			data.realalias = 0;
 			data.effcode = 0;
 			data.namecode = 0;
@@ -2707,7 +2710,10 @@ int32_t card::copy_effect(uint32_t code, uint32_t reset, uint32_t count) {
 	}
 	return pduel->game_field->infos.copy_id - 1;
 }
-int32_t card::replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating) {
+///////////kdiy//////////////
+//int32_t card::replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating) {
+int32_t card::replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool recreating, card* target) {
+///////////kdiy//////////////
 	if(pduel->read_card(code).type & TYPE_NORMAL)
 		return -1;
 	if(is_status(STATUS_EFFECT_REPLACED))
@@ -2727,13 +2733,28 @@ int32_t card::replace_effect(uint32_t code, uint32_t reset, uint32_t count, bool
 	if(!recreating)
 		set_status(STATUS_COPYING_EFFECT, TRUE);
 	///////////kdiy//////////////
-	lua_rawgeti(pduel->lua->current_state, LUA_REGISTRYINDEX, this->ref_handle);
+	if (!target)
+		lua_rawgeti(pduel->lua->current_state, LUA_REGISTRYINDEX, this->ref_handle);
 	///////////kdiy//////////////
 	pduel->lua->load_card_script(code);
 	///////////kdiy//////////////
-	//set metatable of pointer to base script
-	lua_setmetatable(pduel->lua->current_state, -2);
-	lua_pop(pduel->lua->current_state, 1);
+	if (!target) {
+		//set metatable of pointer to base script
+		lua_setmetatable(pduel->lua->current_state, -2);
+		lua_pop(pduel->lua->current_state, 1);
+	} else {
+		luaL_checkstack(pduel->lua->current_state, 3, nullptr); // Ensure there's enough stack space
+		// Get the reference to the target card's userdata
+    	lua_rawgeti(pduel->lua->current_state, LUA_REGISTRYINDEX, this->ref_handle);
+		// Get the metatable of the new card
+		lua_rawgeti(pduel->lua->current_state, LUA_REGISTRYINDEX, target->ref_handle);
+		// Get new card's metatable
+		lua_getmetatable(pduel->lua->current_state, -1);
+    	lua_setmetatable(pduel->lua->current_state, -2); // Set new card's metatable to target card
+		// Clean up the stack
+		lua_pop(pduel->lua->current_state, 1); // Pop the new card userdata
+		lua_pop(pduel->lua->current_state, 1); // Pop the target card userdata
+	}
 	///////////kdiy//////////////
 	pduel->lua->add_param<LuaParam::CARD>(this);
 	pduel->lua->call_code_function(code, "initial_effect", 1, 0);
