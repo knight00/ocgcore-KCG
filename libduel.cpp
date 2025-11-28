@@ -988,6 +988,10 @@ LUA_STATIC_FUNCTION(MoveSequence) {
 	if(pcard->is_affect_by_effect(core.reason_effect)) {
 		const auto previous_loc_info = pcard->get_info_location();
 		const auto previous_code = pcard->data.code;
+		///kdiy///////////
+		pcard->prev_temp.location = location;
+		pcard->temp.location = location;
+		///kdiy///////////
 		if(res = field.move_card(playerid, pcard, pcard->current.location, seq, pzone); res) {
 			if(cur_pzone != pzone) {
 				auto message = pduel->new_message(MSG_MOVE);
@@ -1007,6 +1011,10 @@ LUA_STATIC_FUNCTION(MoveSequence) {
 			field.process_single_event();
 			field.process_instant_event();
 		}
+		///kdiy///////////
+		pcard->prev_temp.location = 0;
+		pcard->temp.location = 0;
+		///kdiy///////////
 	}
 	lua_pushboolean(L, res);
 	return 1;

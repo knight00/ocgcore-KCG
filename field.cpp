@@ -328,45 +328,19 @@ bool field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_t s
 				pcard->previous.position = pcard->current.position;
 				pcard->previous.pzone = pcard->current.pzone;
 				if (location == LOCATION_MZONE) {
-					///kdiy//////
-					// if (pcard->current.location == LOCATION_SZONE) {
-					// player[preplayer].list_szone[presequence] = 0;
-					// player[preplayer].used_location &= ~(256 << presequence);
-					// player[playerid].list_mzone[sequence] = pcard;
-					// player[playerid].used_location |= 1 << sequence;
-					// pcard->current.controler = playerid;
-					// pcard->current.sequence = sequence;
-					// } else {
-					///kdiy//////
 					player[preplayer].list_mzone[presequence] = nullptr;
 					player[preplayer].used_location &= ~(1 << presequence);
 					player[playerid].list_mzone[sequence] = pcard;
 					player[playerid].used_location |= 1 << sequence;
 					pcard->current.controler = playerid;
 					pcard->current.sequence = sequence;
-					///kdiy//////
-					// }
-					///kdiy//////
 				} else {
-					///kdiy//////
-					// if (pcard->current.location == LOCATION_MZONE) {
-					// player[preplayer].list_mzone[presequence] = 0;
-					// player[preplayer].used_location &= ~(1 << presequence);
-					// player[playerid].list_szone[sequence] = pcard;
-					// player[playerid].used_location |= 256 << sequence;
-					// pcard->current.controler = playerid;
-					// pcard->current.sequence = sequence;
-					// } else {
-					///kdiy//////
 					player[preplayer].list_szone[presequence] = nullptr;
 					player[preplayer].used_location &= ~(256 << presequence);
 					player[playerid].list_szone[sequence] = pcard;
 					player[playerid].used_location |= 256 << sequence;
 					pcard->current.controler = playerid;
 					pcard->current.sequence = sequence;
-					///kdiy//////
-					// }
-					///kdiy//////
 				}
 				///kdiy//////
 				pcard->current.location = location;
