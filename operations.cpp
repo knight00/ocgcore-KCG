@@ -4023,6 +4023,10 @@ bool field::process(Processors::SpSummonRule& arg) {
 		for(auto& pcard : pgroup->container) {
 			pcard->set_status(STATUS_SUMMONING, FALSE);
 			pcard->set_status(STATUS_SPSUMMON_TURN, TRUE);
+			///kdiy////
+			if(!(pcard->current.reason_effect->owner->data.ot & SCOPE_ANIME))
+				pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
+			///kdiy////
 			pcard->enable_field_effect(true);
 			if(pcard->is_status(STATUS_DISABLED))
 				pcard->reset(RESET_DISABLE, RESET_EVENT);
@@ -4326,6 +4330,10 @@ bool field::process(Processors::SpSummon& arg) {
 		for(auto& pcard : targets->container) {
 			pcard->set_status(STATUS_SPSUMMON_STEP, FALSE);
 			pcard->set_status(STATUS_SPSUMMON_TURN, TRUE);
+			///kdiy////
+			if(!(pcard->current.reason_effect->owner->data.ot & SCOPE_ANIME))
+				pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
+			///kdiy////
 			if(pcard->is_position(POS_FACEUP))
 				pcard->enable_field_effect(true);
 		}

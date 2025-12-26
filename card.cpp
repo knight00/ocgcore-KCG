@@ -313,11 +313,11 @@ uint32_t card::get_code() {
 			code = 0;
 		/////////kdiy////////
 	} else {
+		const auto& dat = pduel->read_card(code);
 		/////////kdiy////////
-		if (!(data.ot & SCOPE_OFFICIAL))
+		if (!(dat.ot & (SCOPE_OFFICIAL | SCOPE_RUSH)))
 			return code;
 		/////////kdiy////////
-		const auto& dat = pduel->read_card(code);
 		if (dat.alias && !second_code(code))
 			code = dat.alias;
 	}
