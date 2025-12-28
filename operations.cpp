@@ -3989,10 +3989,10 @@ bool field::process(Processors::SpSummonRule& arg) {
 			card* pcard = *cit++;
 			if(!pcard->is_status(STATUS_SUMMONING)) {
 				pgroup->container.erase(pcard);
-				///////////kdiy//////////			
+				///////////kdiy//////////
 				//if(pcard->current.location == LOCATION_MZONE)
 				if((pcard->current.location == LOCATION_MZONE && !pcard->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (pcard->current.location == LOCATION_SZONE && pcard->is_affected_by_effect(EFFECT_ORICA_SZONE)))
-				///////////kdiy//////////	
+				///////////kdiy//////////
 					cset.insert(pcard);
 			}
 		}
@@ -4024,7 +4024,7 @@ bool field::process(Processors::SpSummonRule& arg) {
 			pcard->set_status(STATUS_SUMMONING, FALSE);
 			pcard->set_status(STATUS_SPSUMMON_TURN, TRUE);
 			///kdiy////
-			if(!(pcard->current.reason_effect->owner->data.ot & SCOPE_ANIME))
+			if(pcard->previous.location & (LOCATION_DECK|LOCATION_EXTRA|LOCATION_HAND) && pcard->current.reason_effect && pcard->current.reason_effect->owner && pcard->current.reason_effect->owner->data.ot & (SCOPE_ANIME|SCOPE_ILLEGAL|SCOPE_VIDEO_GAME))
 				pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
 			///kdiy////
 			pcard->enable_field_effect(true);
@@ -4331,7 +4331,7 @@ bool field::process(Processors::SpSummon& arg) {
 			pcard->set_status(STATUS_SPSUMMON_STEP, FALSE);
 			pcard->set_status(STATUS_SPSUMMON_TURN, TRUE);
 			///kdiy////
-			if(!(pcard->current.reason_effect->owner->data.ot & SCOPE_ANIME))
+			if(pcard->previous.location & (LOCATION_DECK|LOCATION_EXTRA|LOCATION_HAND) && pcard->current.reason_effect && pcard->current.reason_effect->owner && pcard->current.reason_effect->owner->data.ot & (SCOPE_ANIME|SCOPE_ILLEGAL|SCOPE_VIDEO_GAME))
 				pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
 			///kdiy////
 			if(pcard->is_position(POS_FACEUP))
@@ -5135,6 +5135,10 @@ bool field::process(Processors::SendTo& arg) {
 		uint8_t seq = pcard->sendto_param.sequence;
 		uint8_t control_player = pcard->overlay_target ? pcard->overlay_target->current.controler : pcard->current.controler;
 		if(dest == LOCATION_GRAVE) {
+			///kdiy////
+			if(oloc & (LOCATION_DECK|LOCATION_EXTRA|LOCATION_HAND) && pcard->current.reason_effect && pcard->current.reason_effect->owner && pcard->current.reason_effect->owner->data.ot & (SCOPE_ANIME|SCOPE_ILLEGAL|SCOPE_VIDEO_GAME))
+				pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
+			///kdiy////
 			core.hint_timing[control_player] |= TIMING_TOGRAVE;
 		} else if(dest == LOCATION_HAND) {
 			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
@@ -5143,6 +5147,10 @@ bool field::process(Processors::SendTo& arg) {
 			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
 			core.hint_timing[control_player] |= TIMING_TODECK;
 		} else if(dest == LOCATION_REMOVED) {
+			///kdiy////
+			if(oloc & (LOCATION_DECK|LOCATION_EXTRA|LOCATION_HAND) && pcard->current.reason_effect && pcard->current.reason_effect->owner && pcard->current.reason_effect->owner->data.ot & (SCOPE_ANIME|SCOPE_ILLEGAL|SCOPE_VIDEO_GAME))
+				pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
+			///kdiy////
 			core.hint_timing[control_player] |= TIMING_REMOVE;
 		}
 		//call move_card()
@@ -5501,6 +5509,12 @@ bool field::process(Processors::DiscardDeck& arg) {
 			uint8_t dest = pcard->sendto_param.location;
 			if(dest == LOCATION_GRAVE)
 				pcard->reset(RESET_TOGRAVE, RESET_EVENT);
+			///kdiy////
+			if(dest == LOCATION_GRAVE) {
+				if(pcard->current.reason_effect && pcard->current.reason_effect->owner && pcard->current.reason_effect->owner->data.ot & (SCOPE_ANIME|SCOPE_ILLEGAL|SCOPE_VIDEO_GAME))
+					pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
+			}
+			///kdiy////
 			else if(dest == LOCATION_HAND) {
 				pcard->reset(RESET_TOHAND, RESET_EVENT);
 				pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
@@ -5512,6 +5526,10 @@ bool field::process(Processors::DiscardDeck& arg) {
 					pcard->reset(RESET_TEMP_REMOVE, RESET_EVENT);
 				else
 					pcard->reset(RESET_REMOVE, RESET_EVENT);
+				///kdiy////
+				if(!(pcard->current.reason & REASON_TEMPORARY) && pcard->current.reason_effect && pcard->current.reason_effect->owner && pcard->current.reason_effect->owner->data.ot & (SCOPE_ANIME|SCOPE_ILLEGAL|SCOPE_VIDEO_GAME))
+					pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
+				///kdiy////
 			}
 			auto message = pduel->new_message(MSG_MOVE);
 			message->write<uint32_t>(pcard->data.code);
