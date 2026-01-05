@@ -114,7 +114,6 @@ LUA_FUNCTION(SetEntityCode) {
 }
 LUA_FUNCTION(SetCardData) {
 	check_param_count(L, 3);
-	uint32_t piccode = 0;
 	bool revertentity = false;
 	uint32_t property = 0;
 	uint32_t reset = 0;
@@ -126,7 +125,6 @@ LUA_FUNCTION(SetCardData) {
 	uint8_t stype = lua_tointeger(L, 2);
 	switch(stype) {
 	case CARDDATA_PICCODE:
-		piccode = lua_get<uint32_t>(L, 3);
 		self->data.piccode = lua_get<uint32_t>(L, 3);
 		break;
 	case CARDDATA_ALIAS:
@@ -185,29 +183,33 @@ LUA_FUNCTION(SetCardData) {
 	if(revertentity)
 		self->add_effect(peffect);
 	interpreter::pushobject(L, peffect);
-	auto message = pduel->new_message(piccode > 0 ? MSG_PICCHANGE : MSG_CHANGE);
-	message->write<uint32_t>(piccode > 0 ? self->data.piccode : self->data.code);
-	message->write(self->get_info_location());
-	if(piccode > 0)
-		return 1;
-	uint64_t setnames = 0;
-	int i = 0;
-	for(auto &s : self->data.setcodes) {
-        setnames |= (uint64_t)(s & 0xffff) << (i * 16);
-		i++;
-		if(i == 4) break;
-    }
-	message->write<uint64_t>(setnames);
-	message->write<uint32_t>(self->data.type);
-	message->write<uint32_t>(self->data.level);
-	message->write<uint32_t>(self->data.attribute);
-	message->write<uint64_t>(self->data.race);
-	message->write<int32_t>(self->data.attack);
-	message->write<int32_t>(self->data.defense);
-	message->write<uint32_t>(self->data.lscale);
-	message->write<uint32_t>(self->data.rscale);
-	message->write<uint32_t>(self->data.link_marker);
-	message->write<bool>(true);
+	if(stype == CARDDATA_PICCODE) {
+		auto message = pduel->new_message(MSG_PICCHANGE);
+		message->write<uint32_t>(self->data.piccode);
+		message->write(self->get_info_location());
+	} else {
+		auto message = pduel->new_message(MSG_CHANGE);
+		message->write<uint32_t>(self->data.code);
+		message->write(self->get_info_location());
+		uint64_t setnames = 0;
+		int i = 0;
+		for(auto &s : self->data.setcodes) {
+			setnames |= (uint64_t)(s & 0xffff) << (i * 16);
+			i++;
+			if(i == 4) break;
+		}
+		message->write<uint64_t>(setnames);
+		message->write<uint32_t>(self->data.type);
+		message->write<uint32_t>(self->data.level);
+		message->write<uint32_t>(self->data.attribute);
+		message->write<uint64_t>(self->data.race);
+		message->write<int32_t>(self->data.attack);
+		message->write<int32_t>(self->data.defense);
+		message->write<uint32_t>(self->data.lscale);
+		message->write<uint32_t>(self->data.rscale);
+		message->write<uint32_t>(self->data.link_marker);
+		message->write<bool>(true);
+	}
 	return 1;
 }
 LUA_FUNCTION(GetOriginalLinkMarker) {
