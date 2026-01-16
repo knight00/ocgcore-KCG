@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2010-2015, Argon Sun (Fluorohydride)
- * Copyright (c) 2016-2025, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
+ * Copyright (c) 2016-2026, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -3240,7 +3240,7 @@ LUA_STATIC_FUNCTION(SetOperationInfo) {
 	check_action_permission(L);
 	check_param_count(L, 6);
 	auto ct = lua_get<uint32_t>(L, 1);
-	auto cate = lua_get<uint32_t>(L, 2);
+	auto cate = lua_get<uint64_t>(L, 2);
 	auto count = lua_get<uint8_t>(L, 4);
 	auto playerid = lua_get<uint8_t>(L, 5);
 	auto param = lua_get<int32_t>(L, 6);
@@ -3263,7 +3263,7 @@ LUA_STATIC_FUNCTION(SetOperationInfo) {
 LUA_STATIC_FUNCTION(GetOperationInfo) {
 	check_param_count(L, 2);
 	auto ct = lua_get<uint32_t>(L, 1);
-	auto cate = lua_get<uint32_t>(L, 2);
+	auto cate = lua_get<uint64_t>(L, 2);
 	chain* ch = pduel->game_field->get_chain(ct);
 	if(!ch)
 		return 0;
@@ -3288,7 +3288,7 @@ LUA_STATIC_FUNCTION(SetPossibleOperationInfo) {
 	check_action_permission(L);
 	check_param_count(L, 6);
 	auto ct = lua_get<uint32_t>(L, 1);
-	auto cate = lua_get<uint32_t>(L, 2);
+	auto cate = lua_get<uint64_t>(L, 2);
 	auto count = lua_get<uint8_t>(L, 4);
 	auto playerid = lua_get<uint8_t>(L, 5);
 	auto param = lua_get<int32_t>(L, 6);
@@ -3307,7 +3307,7 @@ LUA_STATIC_FUNCTION(SetPossibleOperationInfo) {
 LUA_STATIC_FUNCTION(GetPossibleOperationInfo) {
 	check_param_count(L, 2);
 	auto ct = lua_get<uint32_t>(L, 1);
-	auto cate = lua_get<uint32_t>(L, 2);
+	auto cate = lua_get<uint64_t>(L, 2);
 	chain* ch = pduel->game_field->get_chain(ct);
 	if(!ch)
 		return 0;
