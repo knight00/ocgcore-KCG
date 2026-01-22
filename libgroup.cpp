@@ -371,6 +371,10 @@ LUA_FUNCTION(CheckWithSumEqual) {
 	const auto beginit = pduel->game_field->core.must_select_cards.begin();
 	const auto endit = pduel->game_field->core.must_select_cards.end();
 	for(auto& pcard : self->container) {
+		////kdiy///////////
+		if(pduel->lua->get_operation_value(pcard, findex, extraargs) == 0)
+			continue;
+		////kdiy///////////
 		if(std::find(beginit, endit, pcard) == endit)
 			cv.push_back(pcard);
 	}
@@ -405,7 +409,25 @@ LUA_FUNCTION(SelectWithSumEqual) {
 		auto it = std::remove(pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end(), pcard);
 		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
 	}
-	card_vector cv(pduel->game_field->core.must_select_cards);
+	////kdiy///////////
+	// card_vector cv(pduel->game_field->core.must_select_cards);
+	card_vector cv0;
+	for(auto& pcard : pduel->game_field->core.select_cards) {
+		if(pduel->lua->get_operation_value(pcard, findex, extraargs) == 0)
+			cv0.push_back(pcard);
+	}
+	for(auto& pcard : cv0) {
+		auto it = std::remove(pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end(), pcard);
+		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
+	}
+	card_vector cv;
+	for(auto& pcard : pduel->game_field->core.must_select_cards) {
+		if(pduel->lua->get_operation_value(pcard, findex, extraargs) == 0)
+			continue;
+		pcard->sum_param = pduel->lua->get_operation_value(pcard, findex, extraargs);
+		cv.push_back(pcard);
+	}
+	////kdiy///////////
 	int32_t mcount = static_cast<int32_t>(cv.size());
 	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
 	for(auto& pcard : cv) {
@@ -437,6 +459,10 @@ LUA_FUNCTION(CheckWithSumGreater) {
 	const auto beginit = pduel->game_field->core.must_select_cards.begin();
 	const auto endit = pduel->game_field->core.must_select_cards.end();
 	for(auto& pcard : self->container) {
+		////kdiy///////////
+		if(pduel->lua->get_operation_value(pcard, findex, extraargs) == 0)
+			continue;
+		////kdiy///////////
 		if(std::find(beginit, endit, pcard) == endit)
 			cv.push_back(pcard);
 	}
@@ -465,7 +491,25 @@ LUA_FUNCTION(SelectWithSumGreater) {
 		auto it = std::remove(pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end(), pcard);
 		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
 	}
-	card_vector cv(pduel->game_field->core.must_select_cards);
+	////kdiy///////////
+	// card_vector cv(pduel->game_field->core.must_select_cards);
+	card_vector cv0;
+	for(auto& pcard : pduel->game_field->core.select_cards) {
+		if(pduel->lua->get_operation_value(pcard, findex, extraargs) == 0)
+			cv0.push_back(pcard);
+	}
+	for(auto& pcard : cv0) {
+		auto it = std::remove(pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end(), pcard);
+		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
+	}
+	card_vector cv;
+	for(auto& pcard : pduel->game_field->core.must_select_cards) {
+		if(pduel->lua->get_operation_value(pcard, findex, extraargs) == 0)
+			continue;
+		pcard->sum_param = pduel->lua->get_operation_value(pcard, findex, extraargs);
+		cv.push_back(pcard);
+	}
+	////kdiy///////////
 	int32_t mcount = static_cast<int32_t>(cv.size());
 	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
 	for(auto& pcard : cv) {
