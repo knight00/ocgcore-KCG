@@ -1465,12 +1465,16 @@ bool field::process(Processors::IdleCommand& arg) {
 		core.to_ep = true;
 		if((!is_flag(DUEL_ATTACK_FIRST_TURN) && infos.turn_id == 1 && !(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_FIRST_TURN))) || infos.phase == PHASE_MAIN2 || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP) || core.force_turn_end)
 			core.to_bp = false;
+		/////kdiy//////////
+		if(is_flag(DUEL_TAG_NOSWAP) && !is_flag(DUEL_RELAY) && !infos.allplay_canbp)
+			core.to_bp = false;
+		/////kdiy//////////
 		if(infos.phase == PHASE_MAIN1) {
 			for(auto& pcard : player[infos.turn_player].list_mzone) {
 				/////kdiy//////////
 				//if(pcard && pcard->is_capable_attack() && pcard->is_affected_by_effect(EFFECT_MUST_ATTACK)) {
 				if(pcard && pcard->is_capable_attack() && pcard->is_affected_by_effect(EFFECT_MUST_ATTACK) && !(pcard->is_affected_by_effect(EFFECT_SANCT_MZONE) && !pcard->is_affected_by_effect(EFFECT_EQUIP_MONSTER))) {
-				/////kdiy//////////	
+				/////kdiy//////////
 					must_attack = true;
 					break;
 				}
@@ -2891,12 +2895,18 @@ bool field::process(Processors::ForcedBattle& arg) {
         ////kdiy///////////
 			auto message = pduel->new_message(MSG_NEW_PHASE);
 			message->write<uint16_t>(PHASE_BATTLE_START);
+			////kdiy///////////
+			message->write<uint8_t>(infos.turn_player);
+			////kdiy///////////
 			reset_phase(PHASE_BATTLE_START);
 			reset_phase(PHASE_BATTLE_STEP);
 			reset_phase(PHASE_BATTLE);
 			adjust_all();
 			message = pduel->new_message(MSG_NEW_PHASE);
 			message->write<uint16_t>(infos.phase);
+			////kdiy///////////
+			message->write<uint8_t>(infos.turn_player);
+			////kdiy///////////
 			return TRUE;
 		}
 		arg.backup_phase = infos.phase;
@@ -2960,6 +2970,9 @@ bool field::process(Processors::ForcedBattle& arg) {
 		core.delayed_quick_tmp.clear();
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(PHASE_BATTLE_START);
+		////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		emplace_process<Processors::BattleCommand>(Step{ 1 }, nullptr, true);
 		return FALSE;
 	}
@@ -3008,6 +3021,9 @@ bool field::process(Processors::ForcedBattle& arg) {
 		//////kdiy//////////
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+		////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		return TRUE;
 	}
 	}
@@ -3626,6 +3642,9 @@ bool field::process(Processors::Turn& arg) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+		////kdiy///////////
+		message->write<uint8_t>(turn_player);
+		////kdiy///////////
 		raise_event(nullptr, EVENT_PREDRAW, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		message = pduel->new_message(MSG_HINT);
@@ -3675,6 +3694,9 @@ bool field::process(Processors::Turn& arg) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+		////kdiy///////////
+		message->write<uint8_t>(turn_player);
+		////kdiy///////////
 		raise_event(nullptr, EVENT_PHASE_START + PHASE_STANDBY, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		/*if(core.set_forced_attack)
@@ -3711,6 +3733,9 @@ bool field::process(Processors::Turn& arg) {
 		core.delayed_quick_tmp.clear();
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+		////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		emplace_process<Processors::IdleCommand>();
 		/*if(core.set_forced_attack)
 			emplace_process<Processors::ForcedBattle>();*/
@@ -3733,6 +3758,9 @@ bool field::process(Processors::Turn& arg) {
 		++core.battle_phase_count[infos.turn_player];
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+		////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		// Show the texts to indicate that BP is entered and skipped
 		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) || core.force_turn_end) {
 			arg.step = 15;
@@ -3846,6 +3874,9 @@ bool field::process(Processors::Turn& arg) {
 		core.delayed_quick_tmp.clear();
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+		////kdiy///////////
+		message->write<uint8_t>(infos.turn_player);
+		////kdiy///////////
 		infos.can_shuffle = true;
 		emplace_process<Processors::IdleCommand>();
 		/*if(core.set_forced_attack)
@@ -3864,6 +3895,9 @@ bool field::process(Processors::Turn& arg) {
 		}
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
+		////kdiy///////////
+		message->write<uint8_t>(turn_player);
+		////kdiy///////////
 		raise_event(nullptr, EVENT_PHASE_START + PHASE_END, nullptr, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();
@@ -3902,6 +3936,16 @@ bool field::process(Processors::Turn& arg) {
 		core.quick_f_chain.clear();
 		core.delayed_quick_tmp.clear();
 		arg.step = Processors::restart;
+		//////////kdiy/////////
+		int playercount = static_cast<int>(player[turn_player].extra_lists_main.size() + 1);
+		infos.playedcount[turn_player]++;
+		infos.playedcount[turn_player] %= playercount;
+		if(is_flag(DUEL_TAG_NOSWAP) && !is_flag(DUEL_RELAY)) {
+			if(infos.turn_id == 1) infos.allplay_canbp = false;
+			if(infos.playedcount[turn_player] == 0) infos.allplay_canbp = true;
+		}
+		if(!(is_flag(DUEL_TAG_NOSWAP) && !is_flag(DUEL_RELAY))|| infos.playedcount[turn_player] == 0)
+		//////////kdiy/////////
 		arg.turn_player = 1 - arg.turn_player;
 		return FALSE;
 	}

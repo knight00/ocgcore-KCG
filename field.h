@@ -170,6 +170,10 @@ struct field_info {
 	uint8_t turn_player{ 0 };
 	uint8_t priorities[2]{ 0,0 };
 	bool can_shuffle{ true };
+	/////kdiy//////////
+	bool allplay_canbp{ true };
+	int playedcount[2]{ 0,0 };
+	/////kdiy//////////
 };
 struct lpcost {
 	int32_t count{ 0 };

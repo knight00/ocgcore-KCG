@@ -3981,7 +3981,10 @@ int32_t field::check_spself_from_hand_trigger(const chain& ch) const {
 	return TRUE;
 }
 int32_t field::is_able_to_enter_bp() {
-	return (is_flag(DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1 || is_player_affected_by_effect(infos.turn_player, EFFECT_BP_FIRST_TURN))
+	///kdiy//////
+	// return (is_flag(DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1 || is_player_affected_by_effect(infos.turn_player, EFFECT_BP_FIRST_TURN))
+	return (is_flag(DUEL_ATTACK_FIRST_TURN) || (infos.allplay_canbp && infos.turn_id != 1) || is_player_affected_by_effect(infos.turn_player, EFFECT_BP_FIRST_TURN))
+	///kdiy//////
 	        && infos.phase < PHASE_BATTLE_START
 	        && !is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP);
 }
