@@ -5788,9 +5788,9 @@ bool field::process(Processors::MoveToField& arg) {
 		uint32_t sanct = 0;
 		effect* oeffect = is_player_affected_by_effect(playerid, EFFECT_ORICA);
 		effect* seffect = is_player_affected_by_effect(playerid, EFFECT_SANCT);
-		if(location == LOCATION_MZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
+		if(location == LOCATION_MZONE && (target->is_affected_by_effect(EFFECT_ORICA_SZONE) || target->prev_temp.location == 0))
 			orica = 1;
-		if(location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_SANCT_MZONE))
+		if(location == LOCATION_SZONE && (target->is_affected_by_effect(EFFECT_SANCT_MZONE) || target->prev_temp.location == 0))
 			sanct = 1;
 		//kdiy///////
 		if(location == LOCATION_SZONE && zone == 0x1 << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & (TYPE_SPELL | TYPE_TRAP)))
