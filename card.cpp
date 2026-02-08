@@ -4307,7 +4307,10 @@ int32_t card::is_setable_mzone(uint8_t playerid, uint8_t ignore_count, effect* p
 int32_t card::is_setable_szone(uint8_t playerid, uint8_t ignore_fd) {
 	if(!(data.type & TYPE_FIELD) && !ignore_fd && pduel->game_field->get_useable_count(this, playerid, LOCATION_SZONE, current.controler, LOCATION_REASON_TOFIELD) <= 0)
 		return FALSE;
-	if(data.type & TYPE_MONSTER && !is_affected_by_effect(EFFECT_MONSTER_SSET))
+	////kdiy/////////
+	// if(data.type & TYPE_MONSTER && !is_affected_by_effect(EFFECT_MONSTER_SSET))
+	if((data.type & TYPE_MONSTER) && !(data.type & (TYPE_SPELL|TYPE_TRAP)) && !is_affected_by_effect(EFFECT_MONSTER_SSET))
+	////kdiy/////////
 		return FALSE;
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;

@@ -3230,7 +3230,7 @@ bool field::process(Processors::SpellSet& arg) {
 			return TRUE;
 		//////////kdiy///////
 		//if(target->data.type & TYPE_MONSTER && !target->is_affected_by_effect(EFFECT_MONSTER_SSET))
-		if((target->data.type & TYPE_MONSTER) && (!target->is_affected_by_effect(EFFECT_MONSTER_SSET) && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)))
+		if((target->data.type & TYPE_MONSTER) && !(target->data.type & (TYPE_SPELL|TYPE_TRAP)) && (!target->is_affected_by_effect(EFFECT_MONSTER_SSET) && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)))
 		//////////kdiy///////
 			return TRUE;
 		///////////kdiy//////////
@@ -3278,7 +3278,10 @@ bool field::process(Processors::SpellSet& arg) {
 	case 2: {
 		core.phase_action = true;
 		target->set_status(STATUS_SET_TURN, TRUE);
-		if(target->data.type & TYPE_MONSTER) {
+		////kdiy/////////
+		// if(target->data.type & TYPE_MONSTER) {
+		if((target->data.type & TYPE_MONSTER) && !(target->data.type & (TYPE_SPELL|TYPE_TRAP))) {
+		////kdiy/////////
 			effect* peffect = target->is_affected_by_effect(EFFECT_MONSTER_SSET);
 			int32_t type_val = peffect->get_value();
 			peffect = pduel->new_effect();
@@ -3320,7 +3323,10 @@ bool field::process(Processors::SpellSetGroup& arg) {
 		core.operated_set.clear();
 		for(auto& target : ptarget->container) {
 			if((!(target->data.type & TYPE_FIELD) && get_useable_count(target, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD) <= 0)
-				|| (target->data.type & TYPE_MONSTER && !target->is_affected_by_effect(EFFECT_MONSTER_SSET))
+				////kdiy/////////
+				// || (target->data.type & TYPE_MONSTER && !target->is_affected_by_effect(EFFECT_MONSTER_SSET))
+				|| ((target->data.type & TYPE_MONSTER) && !(target->data.type & (TYPE_SPELL|TYPE_TRAP)) && !target->is_affected_by_effect(EFFECT_MONSTER_SSET))
+				////kdiy/////////
 				|| (target->current.location == LOCATION_SZONE)
 				|| (!is_player_can_sset(setplayer, target))
 				|| (target->is_affected_by_effect(EFFECT_CANNOT_SSET))) {
@@ -3423,7 +3429,10 @@ bool field::process(Processors::SpellSetGroup& arg) {
 	case 4: {
 		card* target = *core.set_group_pre_set.begin();
 		target->set_status(STATUS_SET_TURN, TRUE);
-		if(target->data.type & TYPE_MONSTER) {
+		// ////kdiy/////////
+		// if(target->data.type & TYPE_MONSTER) {
+		if((target->data.type & TYPE_MONSTER) && !(target->data.type & (TYPE_SPELL|TYPE_TRAP))) {
+		////kdiy/////////
 			effect* peffect = target->is_affected_by_effect(EFFECT_MONSTER_SSET);
 			int32_t type_val = peffect->get_value();
 			peffect = pduel->new_effect();
