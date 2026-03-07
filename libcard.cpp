@@ -1450,11 +1450,17 @@ LUA_FUNCTION(CheckActivateEffect) {
 	bool neglect_con = lua_get<bool>(L, 2);
 	bool neglect_cost = lua_get<bool>(L, 3);
 	bool copy_info = lua_get<bool>(L, 4);
+	/////kdiy///////////////
+	bool modify_eff = lua_get<bool>(L, 5);
+	/////kdiy///////////////
 	tevent pe;
 	for(const auto& eit : self->field_effect) {
 		effect* peffect = eit.second;
 		if((peffect->type & EFFECT_TYPE_ACTIVATE)
-		        && pduel->game_field->check_event_c(peffect, pduel->game_field->core.reason_player, neglect_con, neglect_cost, copy_info, &pe)) {
+				/////kdiy///////////////
+		        // && pduel->game_field->check_event_c(peffect, pduel->game_field->core.reason_player, neglect_con, neglect_cost, copy_info, &pe)) {
+				&& pduel->game_field->check_event_c(peffect, pduel->game_field->core.reason_player, neglect_con, neglect_cost, copy_info, &pe, modify_eff)) {
+				/////kdiy///////////////
 			if(!copy_info || (peffect->code == EVENT_FREE_CHAIN)) {
 				interpreter::pushobject(L, peffect);
 				return 1;

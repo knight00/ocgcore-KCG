@@ -258,13 +258,23 @@ int32_t field::check_event(uint32_t code, tevent* pe) {
 	}
 	return FALSE;
 }
-int32_t field::check_event_c(effect* peffect, uint8_t playerid, int32_t neglect_con, int32_t neglect_cost, int32_t copy_info, tevent* pe) {
+/////kdiy///////////////
+// int32_t field::check_event_c(effect* peffect, uint8_t playerid, int32_t neglect_con, int32_t neglect_cost, int32_t copy_info, tevent* pe) {
+int32_t field::check_event_c(effect* peffect, uint8_t playerid, int32_t neglect_con, int32_t neglect_cost, int32_t copy_info, tevent* pe, bool modify_eff) {
+/////kdiy///////////////
 	if(peffect->code == EVENT_FREE_CHAIN) {
+		/////kdiy///////////////
+		if(modify_eff) return peffect->is_activate_ready(peffect, playerid, nil_event, neglect_con, neglect_cost, FALSE);
+		else
+		/////kdiy///////////////
 		return peffect->is_activate_ready(core.reason_effect, playerid, nil_event, neglect_con, neglect_cost, FALSE);
 	}
 	for(const auto& ev : core.point_event) {
 		if(ev.event_code == peffect->code &&
-		        peffect->is_activate_ready(core.reason_effect, playerid, ev, neglect_con, neglect_cost, FALSE)) {
+				/////kdiy///////////////
+		        // peffect->is_activate_ready(core.reason_effect, playerid, ev, neglect_con, neglect_cost, FALSE)) {
+				peffect->is_activate_ready(modify_eff ? peffect : core.reason_effect, playerid, ev, neglect_con, neglect_cost, FALSE)) {
+				/////kdiy///////////////
 			if(pe)
 				*pe = ev;
 			if(copy_info && !pduel->lua->no_action && core.current_chain.size()) {
@@ -275,7 +285,10 @@ int32_t field::check_event_c(effect* peffect, uint8_t playerid, int32_t neglect_
 	}
 	for(const auto& ev : core.instant_event) {
 		if(ev.event_code == peffect->code &&
-		        peffect->is_activate_ready(core.reason_effect, playerid, ev, neglect_con, neglect_cost, FALSE)) {
+				/////kdiy///////////////
+		        // peffect->is_activate_ready(core.reason_effect, playerid, ev, neglect_con, neglect_cost, FALSE)) {
+				peffect->is_activate_ready(modify_eff ? peffect : core.reason_effect, playerid, ev, neglect_con, neglect_cost, FALSE)) {
+				/////kdiy///////////////
 			if(pe)
 				*pe = ev;
 			if(copy_info && !pduel->lua->no_action && core.current_chain.size()) {
