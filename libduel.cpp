@@ -26,22 +26,21 @@ using namespace scriptlib;
 /////zdiy////
 LUA_STATIC_FUNCTION(GetRandomGroup) {
 	check_action_permission(L);
-	check_param_count(L, 3);
+	check_param_count(L, 2);
 	auto playerid = lua_get<uint8_t>(L, 1);
 	if (playerid >= PLAYER_NONE) return 0;
 	auto count = lua_get<uint16_t>(L, 2);
-	auto type = lua_get<uint32_t>(L, 3);
-	auto attribute = lua_get<uint32_t, 0>(L, 4);
-	auto race = lua_get<uint64_t, 0>(L, 5);
-	auto ot = lua_get<uint32_t, 0>(L, 6);
+	auto type = lua_get<uint32_t>(L, 3, 0);
+	auto attribute = lua_get<uint32_t>(L, 4, 0);
+	auto race = lua_get<uint64_t>(L, 5, 0);
+	auto ot = lua_get<uint32_t>(L, 6, 0);
 	std::set<uint16_t> setcodes;
 	if (lua_gettop(L) > 6 && !lua_isnoneornil(L, 7)) {
 		if (lua_istable(L, 7)) {
 			lua_table_iterate(L, 7, [&set_codes = setcodes, &L] {
 				set_codes.insert(lua_get<uint16_t>(L, -1));
 				});
-		}
-		else
+		} else
 			setcodes.insert(lua_get<uint16_t>(L, 7));
 	}
 	auto isExtra = lua_get<bool,true>(L, 8);
@@ -87,6 +86,7 @@ LUA_STATIC_FUNCTION(GetRandomGroup) {
 	std::map<int32_t, uint32_t> indexset; //count no. of same index randomly picked
 	for(int i = 0; i <= randMax; ++i)
 		indexset[i] = 0; //initial count index to 0
+	int32_t count2 = 0;
 	for (int32_t i = 0; i < count; ) {
 		index = pduel->get_next_integer(randStart, randMax);
 		uint32_t code = 0;
@@ -99,17 +99,15 @@ LUA_STATIC_FUNCTION(GetRandomGroup) {
 			if(indexcount > 3)
 				continue; //same cards > 3 not add to pgroup
 			i++;
+			count2++;
 			indexset[index] = indexcount + 1;
-			card* pcard = pduel->new_card(code);
-			pcard->owner = playerid;
-			pcard->current.location = 0;
-			pcard->current.controler = playerid;
-			pgroup->container.insert(pcard);
+			lua_pushinteger(L, code);
+			// pgroup->container.insert(pcard);
 		}
 	}
-	interpreter::pushobject(L, pgroup);
+	// interpreter::pushobject(L, pgroup);
 	delete p_codes;
-	return 1;
+	return count2;
 }
 /////zdiy/////
 
@@ -4623,6 +4621,14 @@ LUA_STATIC_FUNCTION(GetReasonPlayer) {
 	lua_pushinteger(L, pduel->game_field->core.reason_player);
 	return 1;
 }
+//kdiy//////////
+LUA_STATIC_FUNCTION(SetReasonEffect) {
+	check_param_count(L, 1);
+	auto peffect = lua_get<effect*, true>(L, 1);
+	pduel->game_field->core.reason_effect = peffect;
+	return 0;
+}
+//kdiy//////////
 LUA_STATIC_FUNCTION(GetReasonEffect) {
 	interpreter::pushobject(L, pduel->game_field->core.reason_effect);
 	return 1;
