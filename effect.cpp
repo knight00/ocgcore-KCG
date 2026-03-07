@@ -774,7 +774,10 @@ int32_t effect::get_speed() {
 	else if(type & (EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F))
 		return 2;
 	else if(type & EFFECT_TYPE_ACTIVATE) {
-		if(handler->data.type & TYPE_MONSTER)
+		////kdiy////////
+		// if(handler->data.type & TYPE_MONSTER)
+		if(!(handler->data.type & (TYPE_SPELL | TYPE_TRAP)) && !(handler->data.type & TYPE_TRAPMONSTER))
+		////kdiy////////
 			return 0;
 		else if(handler->data.type & TYPE_SPELL) {
 			if((handler->data.type & TYPE_QUICKPLAY) || handler->is_affected_by_effect(EFFECT_BECOME_QUICK))
