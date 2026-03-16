@@ -1356,13 +1356,24 @@ LUA_FUNCTION(GetActivateEffect) {
 }
 /////kdiy///////////////
 LUA_FUNCTION(GetTriggerEffect) {
+	bool own_effect = lua_get<bool, false>(L, 2);
     effect_set eset;
+	effect_set eset0;
+	self->get_own_effects(&eset0);
+	if(own_effect && eset0.empty()) {
+		lua_pushnil(L);
+		return 1;
+	}
 	for(auto& eit : self->field_effect) {
+		if(own_effect && std::find(eset0.begin(), eset0.end(), eit.second) == eset0.end())
+			continue;
 		if(eit.second->type & (EFFECT_TYPE_IGNITION | EFFECT_TYPE_QUICK_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_ACTIVATE)) {
 			eset.push_back(eit.second);
 		}
 	}
 	for(auto& eit : self->single_effect) {
+		if(own_effect && std::find(eset0.begin(), eset0.end(), eit.second) == eset0.end())
+			continue;
 		if(eit.second->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O)) {
 			eset.push_back(eit.second);
 		}
@@ -1384,6 +1395,7 @@ LUA_FUNCTION(GetFieldEffect) {
 			eset.push_back(eit.second);
 		}
 	}
+
 	for(auto& eit : self->single_effect) {
 		if(!(eit.second->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O))) {
 			eset.push_back(eit.second);
@@ -1400,8 +1412,17 @@ LUA_FUNCTION(GetFieldEffect) {
 	return static_cast<int32_t>(size);
 }
 LUA_FUNCTION(GetEquipEffect) {
+	bool own_effect = lua_get<bool, false>(L, 2);
     effect_set eset;
+	effect_set eset0;
+	self->get_own_effects(&eset0);
+	if(own_effect && eset0.empty()) {
+		lua_pushnil(L);
+		return 1;
+	}
 	for(auto& eit : self->equip_effect) {
+		if(own_effect && std::find(eset0.begin(), eset0.end(), eit.second) == eset0.end())
+			continue;
 		eset.push_back(eit.second);
 	}
 	auto size = eset.size();
@@ -1415,8 +1436,17 @@ LUA_FUNCTION(GetEquipEffect) {
 	return static_cast<int32_t>(size);
 }
 LUA_FUNCTION(GetTargetEffect) {
+	bool own_effect = lua_get<bool, false>(L, 2);
     effect_set eset;
+	effect_set eset0;
+	self->get_own_effects(&eset0);
+	if(own_effect && eset0.empty()) {
+		lua_pushnil(L);
+		return 1;
+	}
 	for(auto& eit : self->target_effect) {
+		if(own_effect && std::find(eset0.begin(), eset0.end(), eit.second) == eset0.end())
+			continue;
 		eset.push_back(eit.second);
 	}
 	auto size = eset.size();
@@ -1430,8 +1460,17 @@ LUA_FUNCTION(GetTargetEffect) {
 	return static_cast<int32_t>(size);
 }
 LUA_FUNCTION(GetXMaterialEffect) {
+	bool own_effect = lua_get<bool, false>(L, 2);
     effect_set eset;
+	effect_set eset0;
+	self->get_own_effects(&eset0);
+	if(own_effect && eset0.empty()) {
+		lua_pushnil(L);
+		return 1;
+	}
 	for(auto& eit : self->xmaterial_effect) {
+		if(own_effect && std::find(eset0.begin(), eset0.end(), eit.second) == eset0.end())
+			continue;
 		eset.push_back(eit.second);
 	}
 	auto size = eset.size();
@@ -1451,7 +1490,7 @@ LUA_FUNCTION(CheckActivateEffect) {
 	bool neglect_cost = lua_get<bool>(L, 3);
 	bool copy_info = lua_get<bool>(L, 4);
 	/////kdiy///////////////
-	bool modify_eff = lua_get<bool>(L, 5);
+	bool modify_eff = lua_get<bool, false>(L, 5);
 	/////kdiy///////////////
 	tevent pe;
 	for(const auto& eit : self->field_effect) {
