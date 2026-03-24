@@ -3,9 +3,9 @@ local ocgcore_config=function()
 	warnings "Extra"
 	cppdialect "C++17"
 	rtti "Off"
-	
+
 	filter "configurations:Release"
-		optimize "Speed"	
+		optimize "Speed"
 	filter "configurations:Debug"
 		optimize "Off"
 	filter "action:not vs*"
@@ -56,7 +56,11 @@ if not subproject then
 		end
 
 	filter "action:vs*"
-		flags "MultiProcessorCompile"
+		if multiprocessorcompile then
+			multiprocessorcompile "On"
+		else
+			flags "MultiProcessorCompile"
+		end
 
 	filter "configurations:Debug"
 		defines "_DEBUG"
@@ -116,10 +120,18 @@ project "ocgcore"
 
 project "ocgcoreshared"
 	kind "SharedLib"
-	flags "NoImportLib"
--- 	filter "configurations:Release"
--- 		flags "LinkTimeOptimization"
--- 	filter {}
+	if useimportlib then
+		useimportlib "Off"
+	else
+		flags "NoImportLib"
+	end
+	-- filter "configurations:Release"
+		-- if linktimeoptimization then
+			-- linktimeoptimization "On"
+		-- else
+			-- flags "LinkTimeOptimization"
+		-- end
+	-- filter {}
 	targetname "ocgcore"
 	defines "OCGCORE_EXPORT_FUNCTIONS"
 	staticruntime "on"
