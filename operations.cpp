@@ -5692,13 +5692,21 @@ bool field::process(Processors::MoveToField& arg) {
 			uint32_t flag;
 			///////////kdiy//////////
 			//uint32_t lreason = reason ? reason : (target->current.location == LOCATION_MZONE) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
+			// int32_t ct = get_useable_count(target, playerid, location, move_player, lreason, zone, &flag);
 			uint32_t lreason = reason ? reason : ((target->current.location == LOCATION_MZONE && !target->is_affected_by_effect(EFFECT_SANCT_MZONE)) || (target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
-            uint32_t zone2 = zone;
-            uint32_t zone = zone2 & 0xff;
-			if(location == LOCATION_SZONE && is_player_affected_by_effect(playerid, EFFECT_SANCT) && Rloc != 0 && Rloc != 0x40 && Rloc != 0x80)
-			    zone |= (Rloc << 8);
+			// if(location == LOCATION_SZONE && is_player_affected_by_effect(playerid, EFFECT_SANCT) && Rloc != 0 && Rloc != 0x40 && Rloc != 0x80)
+			//     zone |= (Rloc << 8);
+			int32_t ct = 0;
+			int32_t ct2 = 0;
+			if(!(location == LOCATION_SZONE && is_player_affected_by_effect(playerid, EFFECT_SANCT) && zone != 0xff && Rloc != 0x40 && Rloc != 0x80))
+				ct = get_useable_count(target, playerid, location, move_player, lreason, zone, &flag);
+			else {
+				uint32_t flag2;
+				ct = get_useable_count(target, playerid, LOCATION_MZONE, move_player, lreason, zone, &flag);
+				ct2 = get_useable_count(target, playerid, LOCATION_SZONE, move_player, lreason, Rloc, &flag2);
+				flag = (flag & 0xff) | (flag2 & 0xff00) | 0xffff0000;
+			}
 			//////////kdiy//////////
-			int32_t ct = get_useable_count(target, playerid, location, move_player, lreason, zone, &flag);
 			if(location == LOCATION_MZONE && (zone & 0x60) && (zone != 0xff) && !rule) {
 				if((zone & 0x20) && is_location_useable(playerid, location, 5)) {
 					flag = flag & ~(1u << 5);
@@ -5712,6 +5720,7 @@ bool field::process(Processors::MoveToField& arg) {
             ///////////kdiy//////////
 			//if(location == LOCATION_SZONE)
 				//flag = flag | ~zone;
+			ct = ct + ct2;
             ///////////kdiy//////////
 			if((ret == 1) && (ct <= 0 || target->is_status(STATUS_FORBIDDEN) || (!(positions & POS_FACEDOWN) && check_unique_onfield(target, playerid, location)))) {
 				arg.step = 3;

@@ -4019,6 +4019,10 @@ bool field::process(Processors::AddChain& arg) {
 				pduel->lua->add_param<LuaParam::INT>(clit.evt.reason);
 				pduel->lua->add_param<LuaParam::INT>(clit.evt.reason_player);
 				zone = peffect->get_value(7);
+				///////kdiy///////
+				if(peffect->is_flag(EFFECT_FLAG_LINK_MAGIC) && pduel->game_field->is_player_affected_by_effect(phandler->current.controler, EFFECT_SANCT))
+					zone = pduel->game_field->get_linked_zone(phandler->current.controler);
+				///////kdiy///////
 				if(!zone)
 					return TRUE;
 			}

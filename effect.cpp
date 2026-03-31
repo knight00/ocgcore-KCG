@@ -198,14 +198,36 @@ int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t negle
 					return FALSE;
 				////////kdiy/////////
 				//if(!(handler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && is_flag(EFFECT_FLAG_LIMIT_ZONE) && !(zone & (1u << handler->current.sequence)))
-				uint32_t zone2 = 0xff;
-				if(handler->current.location == LOCATION_MZONE)
-				    zone2 = zone & 0xff;
-				if(handler->current.location == LOCATION_SZONE)
-				    zone2 = (zone & 0xff00) >> 8;
-				if(!(handler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && is_flag(EFFECT_FLAG_LIMIT_ZONE) && !(zone2 & (1u << handler->current.sequence)))
+				if(!(handler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && is_flag(EFFECT_FLAG_LINK_MAGIC) && pduel->game_field->is_player_affected_by_effect(playerid, EFFECT_SANCT)) {
+					zone = pduel->game_field->get_linked_zone(playerid);
+					uint32_t zone2 = 0xff;
+					if(handler->current.location == LOCATION_MZONE)
+				    	zone2 = zone & 0xff;
+					if(handler->current.location == LOCATION_SZONE)
+				    	zone2 = (zone & 0xff00) >> 8;
+					if(!(zone2 & (1u << handler->current.sequence)))
+						return FALSE;
+				} else if(!(handler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && is_flag(EFFECT_FLAG_LIMIT_ZONE) && !(zone & (1u << handler->current.sequence)))
 				////////kdiy/////////
 					return FALSE;
+			////////kdiy/////////
+			} else if(!(handler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && is_flag(EFFECT_FLAG_LINK_MAGIC) && pduel->game_field->is_player_affected_by_effect(playerid, EFFECT_SANCT)) {
+				zone = pduel->game_field->get_linked_zone(playerid);
+				if((zone & 0xff) != 0 && (zone & 0xff00) != 0) {
+					uint32_t zone2 = (zone & 0xff00) >> 8;
+					zone = zone & 0x1f;
+					if (pduel->game_field->get_useable_count(handler, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD, zone) <= 0 && pduel->game_field->get_useable_count(handler, playerid, LOCATION_SZONE, playerid, LOCATION_REASON_TOFIELD, zone2) <= 0)
+						return FALSE;
+				} else if(zone & 0xff00) {
+					uint32_t zone2 = (zone & 0xff00) >> 8;
+					if (pduel->game_field->get_useable_count(handler, playerid, LOCATION_SZONE, playerid, LOCATION_REASON_TOFIELD, zone2) <= 0)
+						return FALSE;
+				} else {
+					zone = zone & 0x1f;
+					if (pduel->game_field->get_useable_count(handler, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD, zone) <= 0)
+						return FALSE;
+				}
+			////////kdiy/////////
 			} else {
 				if(!(((handler->data.type & TYPE_FIELD) && (!is_flag(EFFECT_FLAG_LIMIT_ZONE) && value<=0)) || (!is_flag(EFFECT_FLAG_LIMIT_ZONE) && (value & LOCATION_FZONE)) || (!is_flag(EFFECT_FLAG_LIMIT_ZONE) && (value & LOCATION_HAND)))) {
 					if (!is_flag(EFFECT_FLAG_LIMIT_ZONE) && (value & LOCATION_MZONE)) {

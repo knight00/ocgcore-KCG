@@ -92,6 +92,9 @@ enum effect_flag : uint32_t {
 //	EFFECT_FLAG_COF               = 0x20000000,
 //	EFFECT_FLAG_CVAL_CHECK        = 0x40000000,
 	EFFECT_FLAG_IMMEDIATELY_APPLY = 0x80000000,
+	//////////kdiy/////////
+	EFFECT_FLAG_LINK_MAGIC        = 0x20000000,
+	//////////kdiy/////////
 };
 enum effect_flag2 : uint32_t {
 	EFFECT_FLAG2_CONTINUOUS_EQUIP   = 0x0001,
