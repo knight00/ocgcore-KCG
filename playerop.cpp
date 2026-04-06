@@ -600,6 +600,9 @@ bool field::process(Processors::SelectPosition& arg) {
 	auto playerid = arg.playerid;
 	auto code = arg.code;
 	uint8_t positions = arg.positions;
+	////kdiy////
+	auto pcard = arg.pcard;
+	////kdiy////
 	if(arg.step == 0) {
 		if(positions == 0) {
 			returns.set<int32_t>(0, POS_FACEUP_ATTACK);
@@ -625,6 +628,9 @@ bool field::process(Processors::SelectPosition& arg) {
 		message->write<uint8_t>(playerid);
 		message->write<uint32_t>(code);
 		message->write<uint8_t>(positions);
+		///kdiy////////
+		message->write(pcard->get_info_location());
+		///kdiy////////
 		returns.set<int32_t>(0, 0);
 		return FALSE;
 	} else {

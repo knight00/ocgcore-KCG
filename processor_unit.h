@@ -128,8 +128,13 @@ struct SelectPosition : public Process<true> {
 	uint8_t playerid;
 	uint8_t positions;
 	uint32_t code;
-	SelectPosition(uint16_t step_, uint8_t playerid_, uint32_t code_, uint8_t positions_) :
-		Process(step_), playerid(playerid_), positions(positions_), code(code_) {}
+	////kdiy////
+	// SelectPosition(uint16_t step_, uint8_t playerid_, uint32_t code_, uint8_t positions_) :
+		// Process(step_), playerid(playerid_), positions(positions_), code(code_) {}
+	card* pcard;
+	SelectPosition(uint16_t step_, uint8_t playerid_, uint32_t code_, uint8_t positions_, card* pcard_) :
+		Process(step_), playerid(playerid_), positions(positions_), code(code_), pcard(pcard_) {}
+	////kdiy////
 };
 struct SelectTributeP : public Process<true> {
 	uint8_t playerid;

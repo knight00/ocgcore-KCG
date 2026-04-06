@@ -5882,7 +5882,10 @@ bool field::process(Processors::MoveToField& arg) {
 			returns.set<int32_t>(0, POS_FACEUP_ATTACK);
 			return FALSE;
 		}
-		emplace_process<Processors::SelectPosition>(move_player, target->data.code, positions);
+		////kdiy////
+		//emplace_process<Processors::SelectPosition>(move_player, target->data.code, positions);
+		emplace_process<Processors::SelectPosition>(move_player, target->data.code, positions, target);
+		////kdiy////
 		return FALSE;
 	}
 	case 2: {			

@@ -3537,7 +3537,10 @@ LUA_STATIC_FUNCTION(SelectPosition) {
 	auto pcard = lua_get<card*, true>(L, 2);
 	auto playerid = lua_get<uint8_t>(L, 1);
 	auto positions = lua_get<uint8_t>(L, 3);
-	pduel->game_field->emplace_process<Processors::SelectPosition>(playerid, pcard->data.code, positions);
+	////kdiy////
+	// pduel->game_field->emplace_process<Processors::SelectPosition>(playerid, pcard->data.code, positions);
+	pduel->game_field->emplace_process<Processors::SelectPosition>(playerid, pcard->data.code, positions, pcard);
+	////kdiy////
 	return yieldk({
 		lua_pushinteger(L, pduel->game_field->returns.at<int32_t>(0));
 		return 1;

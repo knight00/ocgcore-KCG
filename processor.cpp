@@ -1757,7 +1757,10 @@ bool field::process(Processors::IdleCommand& arg) {
 				positions |= POS_FACEDOWN_DEFENSE;
 			if(target->is_can_be_flip_summoned(infos.turn_player))
 				positions |= POS_FACEUP_ATTACK;
-			emplace_process<Processors::SelectPosition>(infos.turn_player, target->data.code, positions);
+			////kdiy////
+			//emplace_process<Processors::SelectPosition>(infos.turn_player, target->data.code, positions);
+			emplace_process<Processors::SelectPosition>(infos.turn_player, target->data.code, positions, target);
+			////kdiy////
 			arg.step = 12;
 			return FALSE;
 		} else
