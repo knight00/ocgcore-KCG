@@ -3750,7 +3750,7 @@ bool field::process(Processors::Turn& arg) {
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
 		////kdiy///////////
-		message->write<uint8_t>(infos.turn_player);
+		message->write<uint8_t>(turn_player);
 		////kdiy///////////
 		emplace_process<Processors::IdleCommand>();
 		/*if(core.set_forced_attack)
@@ -3775,7 +3775,7 @@ bool field::process(Processors::Turn& arg) {
 		auto message = pduel->new_message(MSG_NEW_PHASE);
 		message->write<uint16_t>(infos.phase);
 		////kdiy///////////
-		message->write<uint8_t>(infos.turn_player);
+		message->write<uint8_t>(turn_player);
 		////kdiy///////////
 		// Show the texts to indicate that BP is entered and skipped
 		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) || core.force_turn_end) {
