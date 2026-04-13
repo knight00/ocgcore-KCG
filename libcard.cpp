@@ -229,6 +229,10 @@ LUA_FUNCTION(GetOriginalAlias) {
 	    lua_pushinteger(L, self->data.code);
 	return 1;
 }
+LUA_FUNCTION(GetCodeAlias) {
+	lua_pushinteger(L, self->get_codealias());
+	return 1;
+}
 ////kdiy////////////////////
 LUA_FUNCTION(GetCode) {
 	if (lua_gettop(L) > 1) {

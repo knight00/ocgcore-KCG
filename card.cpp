@@ -339,6 +339,17 @@ uint32_t card::get_ocode() {
 	    return 0;
 	return code;
 }
+uint32_t card::get_codealias() {
+	auto code = get_ocode();
+	if (code == data.code && !(data.realcode && !data.nreal)) {
+		const auto& dat = pduel->read_card(code);
+		if (!(dat.ot & (SCOPE_OFFICIAL | SCOPE_RUSH)))
+			return code;
+		code = dat.alias;
+	} else
+		code = get_code();
+	return code;
+}
 /////////kdiy////////
 // return: the current second card name
 // for double-name cards, it returns the name in description
