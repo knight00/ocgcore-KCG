@@ -2531,6 +2531,9 @@ bool field::process(Processors::BattleCommand& arg) {
 				message->write<uint8_t>(HINT_CARD);
 				message->write<uint8_t>(0);
 				message->write<uint64_t>(indestructable_effect->owner->data.code);
+				///kdiy///////
+				message->write(indestructable_effect->owner->get_info_location());
+				///kdiy///////
 				bd[0] = false;
 			} else
 				core.attacker->set_status(STATUS_BATTLE_RESULT, TRUE);
@@ -2542,6 +2545,9 @@ bool field::process(Processors::BattleCommand& arg) {
 				message->write<uint8_t>(HINT_CARD);
 				message->write<uint8_t>(0);
 				message->write<uint64_t>(indestructable_effect->owner->data.code);
+				///kdiy///////
+				message->write(indestructable_effect->owner->get_info_location());
+				///kdiy///////
 				bd[1] = false;
 			} else
 				core.attack_target->set_status(STATUS_BATTLE_RESULT, TRUE);

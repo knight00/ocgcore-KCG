@@ -2423,6 +2423,9 @@ bool field::process(Processors::SummonRule& arg) {
 				message->write<uint8_t>(HINT_CARD);
 				message->write<uint8_t>(0);
 				message->write<uint64_t>(pdec->handler->data.code);
+				///kdiy///////
+				message->write(pdec->handler->get_info_location());
+				///kdiy///////
 			}
 			for(const auto& peffect : eset) {
 				if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit > 0 && peffect->target) {
@@ -2433,6 +2436,9 @@ bool field::process(Processors::SummonRule& arg) {
 					message->write<uint8_t>(HINT_CARD);
 					message->write<uint8_t>(0);
 					message->write<uint64_t>(peffect->handler->data.code);
+					///kdiy///////
+					message->write(peffect->handler->get_info_location());
+					///kdiy///////
 					if(min <= 0)
 						break;
 				}
@@ -2446,6 +2452,9 @@ bool field::process(Processors::SummonRule& arg) {
 					message->write<uint8_t>(HINT_CARD);
 					message->write<uint8_t>(0);
 					message->write<uint64_t>(peffect->handler->data.code);
+					///kdiy///////
+					message->write(peffect->handler->get_info_location());
+					///kdiy///////
 					if(min <= 0)
 						break;
 				}
@@ -2514,6 +2523,9 @@ bool field::process(Processors::SummonRule& arg) {
 			message->write<uint8_t>(HINT_CARD);
 			message->write<uint8_t>(0);
 			message->write<uint64_t>(pextra->handler->data.code);
+			///kdiy///////
+			message->write(pextra->handler->get_info_location());
+			///kdiy///////
 			if(pextra->operation) {
 				pduel->lua->add_param<LuaParam::CARD>(target);
 				core.sub_solving_event.push_back(nil_event);
@@ -2607,6 +2619,9 @@ bool field::process(Processors::SummonRule& arg) {
 			message->write<uint8_t>(HINT_CARD);
 			message->write<uint8_t>(0);
 			message->write<uint64_t>(pextra->handler->data.code);
+			///kdiy///////
+			message->write(pextra->handler->get_info_location());
+			///kdiy///////
 			if(pextra->operation) {
 				pduel->lua->add_param<LuaParam::CARD>(target);
 				core.sub_solving_event.push_back(nil_event);
@@ -3158,6 +3173,9 @@ bool field::process(Processors::MonsterSet& arg) {
 			message->write<uint8_t>(HINT_CARD);
 			message->write<uint8_t>(0);
 			message->write<uint64_t>(pextra->handler->data.code);
+			///kdiy///////
+			message->write(pextra->handler->get_info_location());
+			///kdiy///////
 			if(pextra->operation) {
 				pduel->lua->add_param<LuaParam::CARD>(target);
 				core.sub_solving_event.push_back(nil_event);
@@ -4564,6 +4582,9 @@ bool field::process(Processors::Destroy& arg) {
 			message->write<uint8_t>(HINT_CARD);
 			message->write<uint8_t>(0);
 			message->write<uint64_t>(peffect->owner->data.code);
+			///kdiy///////
+			message->write(peffect->owner->get_info_location());
+			///kdiy///////
 		}
 		operation_replace(EFFECT_DESTROY_REPLACE, 5, targets);
 		return FALSE;
@@ -4663,6 +4684,9 @@ bool field::process(Processors::Destroy& arg) {
 						message->write<uint8_t>(HINT_CARD);
 						message->write<uint8_t>(0);
 						message->write<uint64_t>(peff->owner->data.code);
+						///kdiy///////
+						message->write(peff->owner->get_info_location());
+						///kdiy///////
 						indes = true;
 						break;
 					}
@@ -4693,6 +4717,9 @@ bool field::process(Processors::Destroy& arg) {
 							message->write<uint8_t>(HINT_CARD);
 							message->write<uint8_t>(0);
 							message->write<uint64_t>(peff->owner->data.code);
+							///kdiy///////
+							message->write(peff->owner->get_info_location());
+							///kdiy///////
 							indes = true;
 						}
 					} else {
@@ -4707,6 +4734,9 @@ bool field::process(Processors::Destroy& arg) {
 								message->write<uint8_t>(HINT_CARD);
 								message->write<uint8_t>(0);
 								message->write<uint64_t>(peff->owner->data.code);
+								///kdiy///////
+								message->write(peff->owner->get_info_location());
+								///kdiy///////
 								indes = true;
 							}
 						}
@@ -4851,6 +4881,9 @@ bool field::process(Processors::Release& arg) {
 			message->write<uint8_t>(HINT_CARD);
 			message->write<uint8_t>(0);
 			message->write<uint64_t>(peffect->get_handler()->data.code);
+			///kdiy///////
+			message->write(peffect->get_handler()->get_info_location());
+			///kdiy///////
 		}
 		auto sendtargets = pduel->new_group(targets->container);
 		sendtargets->is_readonly = true;
