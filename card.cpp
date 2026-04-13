@@ -345,7 +345,8 @@ uint32_t card::get_codealias() {
 		const auto& dat = pduel->read_card(code);
 		if (!(dat.ot & (SCOPE_OFFICIAL | SCOPE_RUSH)))
 			return code;
-		code = dat.alias;
+		if (dat.alias)
+			code = dat.alias;
 	} else
 		code = get_code();
 	return code;
