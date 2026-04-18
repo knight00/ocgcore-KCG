@@ -347,8 +347,23 @@ uint32_t card::get_codealias() {
 			return code;
 		if (dat.alias)
 			code = dat.alias;
-	} else
+	} else if (!(data.realcode && !data.nreal))
 		code = get_code();
+	else
+		code = data.realalias;
+	return code;
+}
+uint32_t card::get_codealias2() {
+	auto code = get_ocode();
+	if (code == data.code && !(data.realcode && !data.nreal)) {
+		const auto& dat = pduel->read_card(code);
+		if (dat.alias)
+			code = dat.alias;
+	}
+	else if (!(data.realcode && !data.nreal))
+		code = get_code();
+	else
+		code = data.realalias;
 	return code;
 }
 /////////kdiy////////

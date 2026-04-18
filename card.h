@@ -215,6 +215,7 @@ public:
 	//////kdiy/////
 	uint32_t get_ocode();
 	uint32_t get_codealias();
+	uint32_t get_codealias2();
 	//////kdiy/////
 	uint32_t get_another_code();
 	void get_summon_code(std::set<uint32_t>& codes, card* scard = nullptr, uint64_t sumtype = 0, uint8_t playerid = 2);

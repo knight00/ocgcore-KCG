@@ -230,8 +230,11 @@ LUA_FUNCTION(GetOriginalAlias) {
 	return 1;
 }
 LUA_FUNCTION(GetCodeAlias) {
-	lua_pushinteger(L, self->get_codealias());
-	return 1;
+	uint32_t code = self->get_codealias();
+	uint32_t code2 = self->get_codealias2();
+	lua_pushinteger(L, code);
+	lua_pushinteger(L, code2);
+	return 2;
 }
 ////kdiy////////////////////
 LUA_FUNCTION(GetCode) {
