@@ -30,8 +30,14 @@ jobs:
       VISUAL_STUDIO_VERSION: vs2022
       PREMAKE_FLAGS: ${{ matrix.premake-flag }}
     steps:
+    - uses: actions/checkout@v1
+      with:
+        ref: ${{ github.head_ref }}
+        repository: ${{github.event.pull_request.head.repo.full_name}}
+        fetch-depth: 1
+        submodules: recursive
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@v3
     - name: Install winxp components
       if: matrix.arch == 'Win32' || matrix.arch == 'x64'
       run: |
@@ -45,12 +51,6 @@ jobs:
               $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart', '--nocache')
               # should be run twice
               $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
-    - uses: actions/checkout@v1
-      with:
-        ref: ${{ github.head_ref }}
-        repository: ${{github.event.pull_request.head.repo.full_name}}
-        fetch-depth: 1
-        submodules: recursive
     - name: Install premake
       shell: cmd
       run: "scripts/install-premake5"
@@ -509,7 +509,7 @@ jobs:
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       shell: bash
       run: ./scripts/deploy.sh
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       with:
         name: osx-cctools
@@ -564,7 +564,7 @@ jobs:
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       shell: bash
       run: ./scripts/deploy.sh
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       with:
         name: osx-aarch64-cctools
