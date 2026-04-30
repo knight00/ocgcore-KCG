@@ -3301,7 +3301,7 @@ bool field::process(Processors::SpellSet& arg) {
 		target->set_status(STATUS_SET_TURN, TRUE);
 		////kdiy/////////
 		// if(target->data.type & TYPE_MONSTER) {
-		if((target->data.type & TYPE_MONSTER) && !(target->data.type & (TYPE_SPELL|TYPE_TRAP))) {
+		if((target->data.type & TYPE_MONSTER) && !((target->data.type & (TYPE_SPELL|TYPE_TRAP)) && !(target->current.type & TYPE_TRAPMONSTER))) {
 		////kdiy/////////
 			effect* peffect = target->is_affected_by_effect(EFFECT_MONSTER_SSET);
 			int32_t type_val = peffect->get_value();
@@ -3383,27 +3383,36 @@ bool field::process(Processors::SpellSetGroup& arg) {
 			return FALSE;
 		}
 		uint32_t flag;
-		get_useable_count(target, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD, 0xff, &flag);
-		flag |= core.set_group_used_zones;
 		///kdiy///////
+		// get_useable_count(target, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD, 0xff, &flag);
+		// flag |= core.set_group_used_zones;
 		// if(setplayer == toplayer) {
 		// 	flag = ((flag & 0xff) << 8) | 0xffff00ff;
 		// } else {
 		// 	flag = ((flag & 0xff) << 24) | 0xffffff;
 		// }
-		//flag |= 0xe080e080;
+		if(!is_player_affected_by_effect(toplayer, EFFECT_SANCT))
+			get_useable_count(target, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD, 0xff, &flag);
+		else {
+			uint32_t flag2;
+			get_useable_count(target, toplayer, LOCATION_MZONE, setplayer, LOCATION_REASON_TOFIELD, 0xff, &flag);
+			get_useable_count(target, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD, 0xff, &flag2);
+			flag = (flag & 0xff) | (flag2 & 0xff00) | 0xffff0000;
+		}
+		flag |= (core.set_group_used_zones & 0xff) << 8;
 		if(setplayer == toplayer) {
             if(is_player_affected_by_effect(toplayer, EFFECT_SANCT))
-			    flag = ((flag & 0xff1f)) | 0xffffe0e0;
+				flag = (flag & 0xff1f) | 0xffff00e0;
             else
-			    flag = ((flag & 0xff00)) | 0xffffe0ff;
+			    flag = (flag & 0xff00) | 0xffff00ff;
 		} else {
 			if(is_player_affected_by_effect(toplayer, EFFECT_SANCT))
-			    flag = ((flag & 0xff1f) << 16) | 0xe0e0ffff;
-            else
-			    flag = ((flag & 0xff00) << 16) | 0xe0ffffff;
+				flag = ((flag & 0xff1f) << 16) | 0xe0ffff;
+			else
+				flag = ((flag & 0xff00) << 16) | 0xffffff;
 		}
 		///kdiy///////
+		flag |= 0xe080e080;
 		auto message = pduel->new_message(MSG_HINT);
 		message->write<uint8_t>(HINT_SELECTMSG);
 		message->write<uint8_t>(setplayer);
@@ -3436,7 +3445,7 @@ bool field::process(Processors::SpellSetGroup& arg) {
 					break;
 				}
 			}
-		}	
+		}
 		/////kdiy////////////
 		target->prev_temp.location = target->current.location;
 		if(target->current.location == LOCATION_SZONE && target->is_affected_by_effect(EFFECT_ORICA_SZONE))
@@ -3452,7 +3461,7 @@ bool field::process(Processors::SpellSetGroup& arg) {
 		target->set_status(STATUS_SET_TURN, TRUE);
 		// ////kdiy/////////
 		// if(target->data.type & TYPE_MONSTER) {
-		if((target->data.type & TYPE_MONSTER) && !(target->data.type & (TYPE_SPELL|TYPE_TRAP))) {
+		if((target->data.type & TYPE_MONSTER) && !((target->data.type & (TYPE_SPELL|TYPE_TRAP)) && !(target->current.type & TYPE_TRAPMONSTER))) {
 		////kdiy/////////
 			effect* peffect = target->is_affected_by_effect(EFFECT_MONSTER_SSET);
 			int32_t type_val = peffect->get_value();
