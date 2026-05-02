@@ -5983,6 +5983,10 @@ bool field::process(Processors::MoveToField& arg) {
 					(*rm)->unequip();
 				}
 			}
+			////kdiy///////
+			//allow s/t can overlay
+			if(!((target->data.type & (TYPE_SPELL|TYPE_TRAP)) && !(target->current.type & TYPE_TRAPMONSTER)))
+			////kdiy///////
 			if(target->xyz_materials.size()) {
 				send_to(card_set{ target->xyz_materials.begin(), target->xyz_materials.end() }, nullptr, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 			}
