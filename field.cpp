@@ -1843,9 +1843,7 @@ int32_t field::filter_matching_card(int32_t findex, uint8_t self, uint32_t locat
 		   && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
 		   ////kdiy////////////
 		   && !pcard->is_affected_by_effect(EFFECT_ASSUME_ZERO)
-		   //&& (!findex || pduel->lua->check_matching(pcard, findex, extraargs))
-		   && (!findex || (pduel->lua->check_matching(pcard, findex, extraargs) && !pcard->is_affected_by_effect(EFFECT_DARKNESS_HIDE)))
-		   ////kdiy////////////
+		   && (!findex || pduel->lua->check_matching(pcard, findex, extraargs))
 		   && (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 			if(pret) {
 				*pret = pcard;

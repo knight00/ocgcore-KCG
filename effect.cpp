@@ -798,7 +798,7 @@ int32_t effect::get_speed() {
 	else if(type & EFFECT_TYPE_ACTIVATE) {
 		////kdiy////////
 		// if(handler->data.type & TYPE_MONSTER)
-		if(!(handler->data.type & (TYPE_SPELL | TYPE_TRAP)) && !(handler->data.type & TYPE_TRAPMONSTER))
+		if(!((handler->data.type & (TYPE_SPELL | TYPE_TRAP)) && !(handler->data.type & TYPE_TRAPMONSTER)))
 		////kdiy////////
 			return 0;
 		else if(handler->data.type & TYPE_SPELL) {
