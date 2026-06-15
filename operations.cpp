@@ -6568,6 +6568,40 @@ bool field::process(Processors::ActivateEffect& arg) {
 		card* phandler = peffect->get_handler();
 		int32_t playerid = phandler->current.controler;
 		nil_event.event_code = EVENT_FREE_CHAIN;
+		////kdiy//////////
+		if((((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))) && (phandler->current.position & POS_FACEDOWN) != 0) && phandler->is_affected_by_effect(EFFECT_DARKNESS_HIDE)) {
+			for(const auto& eit : phandler->field_effect) {
+				effect* peffect0 = eit.second;
+				if(peffect0->type & EFFECT_TYPE_ACTIVATE) {
+					if(peffect0->code == EVENT_FREE_CHAIN && peffect0->is_activateable(playerid, nil_event)) {
+						if(peffect == peffect0) break;
+						else continue;
+					}
+					auto& newchain = core.new_chains.emplace_back();
+					newchain.flag = 0;
+					newchain.chain_id = infos.field_id++;
+					newchain.evt.event_code = peffect0->code;
+					newchain.evt.event_player = PLAYER_NONE;
+					newchain.evt.event_value = 0;
+					newchain.evt.event_cards = nullptr;
+					newchain.evt.reason = 0;
+					newchain.evt.reason_effect = nullptr;
+					newchain.evt.reason_player = PLAYER_NONE;
+					newchain.triggering_effect = peffect0;
+					newchain.set_triggering_state(phandler);
+					newchain.triggering_player = playerid;
+					phandler->set_status(STATUS_CHAINING, TRUE);
+					peffect0->dec_count(playerid);
+					newchain.peffect_darkness = true;
+					emplace_process<Processors::AddChain>();
+					emplace_process<Processors::QuickEffect>(false, 1 - playerid);
+					infos.priorities[0] = 0;
+					infos.priorities[1] = 0;
+					return FALSE;
+				}
+			}
+		}
+		////kdiy//////////
 		if(!peffect->is_activateable(playerid, nil_event))
 			return TRUE;
 		auto& newchain = core.new_chains.emplace_back();

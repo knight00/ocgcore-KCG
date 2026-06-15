@@ -155,7 +155,10 @@ int32_t effect::check_count_limit(uint8_t playerid) const {
 }
 // check if an EFFECT_TYPE_ACTIONS effect can be activated
 // for triggering effects, it checks EFFECT_FLAG_DAMAGE_STEP, EFFECT_FLAG_SET_AVAILABLE
-int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target, int32_t neglect_loc, int32_t neglect_faceup) {
+////kdiy//////////
+// int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target, int32_t neglect_loc, int32_t neglect_faceup) {
+int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target, int32_t neglect_loc, int32_t neglect_faceup, int32_t darkness) {
+////kdiy//////////
 	if(!(type & EFFECT_TYPE_ACTIONS))
 		return FALSE;
 	if(!check_count_limit(playerid))
@@ -344,6 +347,21 @@ int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t negle
 	int32_t result = TRUE;
 	if(!(type & EFFECT_TYPE_CONTINUOUS))
 		result = is_action_check(playerid);
+	////kdiy//////////
+	card* phandler = get_handler();
+	if(darkness) {
+		if(result) {
+			if((((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))) && (phandler->current.position & POS_FACEDOWN) != 0) && phandler->is_affected_by_effect(EFFECT_DARKNESS_HIDE))
+				result = TRUE;
+			else
+				result = FALSE;
+		}
+		pduel->game_field->core.reason_effect = oreason;
+		pduel->game_field->core.reason_player = op;
+		pduel->game_field->restore_lp_cost();
+		return result;
+	}
+	////kdiy//////////
 	if(result)
 		result = is_activate_ready(playerid, e, neglect_cond, neglect_cost, neglect_target);
 	pduel->game_field->core.reason_effect = oreason;

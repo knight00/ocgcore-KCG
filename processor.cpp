@@ -398,14 +398,60 @@ bool field::process(Processors::PhaseEvent& arg) {
 				effect* peffect = eit->second;
 				++eit;
 				peffect->set_activate_location();
-				if(!peffect->is_chainable(check_player) || !peffect->is_activateable(check_player, nil_event))
+				////kdiy//////////
+				// if(!peffect->is_chainable(check_player) || !peffect->is_activateable(check_player, nil_event))
+				// 	continue;
+				if(!peffect->is_chainable(check_player))
 					continue;
+				if(!peffect->is_activateable(check_player, nil_event)) {
+					if(peffect->is_activateable(check_player, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+						if(core.effect_darkness.find(peffect->get_handler()) != core.effect_darkness.end())
+							continue;
+						peffect->id = infos.field_id++;
+						auto& newchain = core.select_chains.emplace_back();
+						newchain.triggering_effect = peffect;
+						if(check_hint_timing(peffect) || check_cteffect_hint(peffect, check_player))
+							++core.spe_effect[check_player];
+						++fc_count;
+						newchain.peffect_darkness = true;
+						core.effect_darkness.insert(peffect->get_handler());
+						continue;
+					} else
+						continue;
+				}
+				if(peffect->is_activateable(check_player, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+					if(core.effect_darkness.find(peffect->get_handler()) == core.effect_darkness.end())
+						core.effect_darkness.insert(peffect->get_handler());
+				}
+				////kdiy//////////
 				peffect->id = infos.field_id++;
 				core.select_chains.emplace_back().triggering_effect = peffect;
 				if(check_hint_timing(peffect) || check_cteffect_hint(peffect, check_player))
 					++core.spe_effect[check_player];
 				++fc_count;
 			}
+			////kdiy//////////
+			//for darkness: other events
+			auto aeffects = effects.activate_effect;
+			for(const auto& [code, peffect] : aeffects) {
+				if(code == EVENT_FREE_CHAIN) continue;
+				if(!peffect->is_chainable(check_player))
+					break;
+				peffect->set_activate_location();
+				if(peffect->is_activateable(check_player, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+					if(core.effect_darkness.find(peffect->get_handler()) != core.effect_darkness.end())
+						continue;
+					peffect->id = infos.field_id++;
+					auto& newchain = core.select_chains.emplace_back();
+					newchain.triggering_effect = peffect;
+					if(check_hint_timing(peffect) || check_cteffect_hint(peffect, check_player))
+						++core.spe_effect[check_player];
+					++fc_count;
+					newchain.peffect_darkness = true;
+					core.effect_darkness.insert(peffect->get_handler());
+				}
+			}
+			////kdiy//////////
 			pr = effects.quick_o_effect.equal_range(EVENT_FREE_CHAIN);
 			for(auto eit = pr.first; eit != pr.second;) {
 				effect* peffect = eit->second;
@@ -468,6 +514,9 @@ bool field::process(Processors::PhaseEvent& arg) {
 		return FALSE;
 	}
 	case 2: {
+		////kdiy//////////
+		core.effect_darkness.clear();
+		////kdiy//////////
 		if(returns.at<int32_t>(0) == -1) {
 			if(arg.priority_passed)
 				arg.step = 19;
@@ -1025,6 +1074,12 @@ bool field::process(Processors::QuickEffect& arg) {
 					++eit;
 					peffect->set_activate_location();
 					if(!peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_chainable(priority) && peffect->is_activateable(priority, *evit)) {
+					////kdiy//////////
+						if(peffect->is_activateable(priority, *evit, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+							if(core.effect_darkness.find(peffect->get_handler()) == core.effect_darkness.end())
+								core.effect_darkness.insert(peffect->get_handler());
+						}
+					////kdiy//////////
 						card* phandler = peffect->get_handler();
 						auto& newchain = core.select_chains.emplace_back();
 						newchain.flag = 0;
@@ -1078,6 +1133,12 @@ bool field::process(Processors::QuickEffect& arg) {
 				++eit;
 				peffect->set_activate_location();
 				if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_chainable(priority) && peffect->is_activateable(priority, ev)) {
+				////kdiy//////////
+					if(peffect->is_activateable(priority, ev, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+						if(core.effect_darkness.find(peffect->get_handler()) == core.effect_darkness.end())
+							core.effect_darkness.insert(peffect->get_handler());
+					}
+				////kdiy//////////
 					card* phandler = peffect->get_handler();
 					auto& newchain = core.select_chains.emplace_back();
 					newchain.flag = 0;
@@ -1114,7 +1175,32 @@ bool field::process(Processors::QuickEffect& arg) {
 				effect* peffect = eit->second;
 				++eit;
 				peffect->set_activate_location();
-				if(peffect->is_chainable(priority) && peffect->is_activateable(priority, nil_event)) {
+				////kdiy//////////
+				// if(peffect->is_chainable(priority) && peffect->is_activateable(priority, nil_event)) {
+				if(!peffect->is_chainable(priority))
+					continue;
+				if(!peffect->is_activateable(priority, nil_event)) {
+					if(peffect->is_activateable(priority, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+						if(core.effect_darkness.find(peffect->get_handler()) != core.effect_darkness.end())
+							continue;
+						card* phandler = peffect->get_handler();
+						auto& newchain = core.select_chains.emplace_back();
+						newchain.chain_id = infos.field_id++;
+						newchain.evt = nil_event;
+						newchain.triggering_effect = peffect;
+						newchain.set_triggering_state(phandler);
+						newchain.triggering_player = priority;
+						if(check_hint_timing(peffect) || check_cteffect_hint(peffect, priority))
+							++core.spe_effect[priority];
+						newchain.peffect_darkness = true;
+						core.effect_darkness.insert(peffect->get_handler());
+					}
+				} else {
+					if(peffect->is_activateable(priority, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+						if(core.effect_darkness.find(peffect->get_handler()) == core.effect_darkness.end())
+							core.effect_darkness.insert(peffect->get_handler());
+					}
+				////kdiy//////////
 					card* phandler = peffect->get_handler();
 					auto& newchain = core.select_chains.emplace_back();
 					newchain.flag = 0;
@@ -1127,6 +1213,32 @@ bool field::process(Processors::QuickEffect& arg) {
 						++core.spe_effect[priority];
 				}
 			}
+			////kdiy//////////
+			//for darkness: other events
+			auto aeffects = effects.activate_effect;
+			for(const auto& [code, peffect] : aeffects) {
+				if(code == EVENT_FREE_CHAIN) continue;
+				if(!peffect->is_chainable(priority))
+					continue;
+				peffect->set_activate_location();
+				if(peffect->is_activateable(priority, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+					if(core.effect_darkness.find(peffect->get_handler()) != core.effect_darkness.end())
+						continue;
+					card* phandler = peffect->get_handler();
+					auto& newchain = core.select_chains.emplace_back();
+					newchain.flag = 0;
+					newchain.chain_id = infos.field_id++;
+					newchain.evt = nil_event;
+					newchain.triggering_effect = peffect;
+					newchain.set_triggering_state(phandler);
+					newchain.triggering_player = priority;
+					if(check_hint_timing(peffect) || check_cteffect_hint(peffect, priority))
+						++core.spe_effect[priority];
+					newchain.peffect_darkness = true;
+					core.effect_darkness.insert(peffect->get_handler());
+				}
+			}
+			////kdiy//////////
 			pr = effects.quick_o_effect.equal_range(EVENT_FREE_CHAIN);
 			for(auto eit = pr.first; eit != pr.second;) {
 				effect* peffect = eit->second;
@@ -1152,6 +1264,9 @@ bool field::process(Processors::QuickEffect& arg) {
 		return FALSE;
 	}
 	case 3: {
+		////kdiy//////////
+		core.effect_darkness.clear();
+		////kdiy//////////
 		if(core.select_chains.size() && returns.at<int32_t>(0) != -1) {
 			auto newchain = std::next(core.select_chains.begin(), returns.at<int32_t>(0));
 			effect* peffect = newchain->triggering_effect;
@@ -1498,7 +1613,7 @@ bool field::process(Processors::IdleCommand& arg) {
 					must_attack = true;
 					break;
 				}
-			}	
+			}
 			/////kdiy//////////
 			if(core.to_bp && (must_attack || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_EP)))
 				core.to_ep = false;
@@ -1533,10 +1648,46 @@ bool field::process(Processors::IdleCommand& arg) {
 		for(auto eit = pr.first; eit != pr.second; eit++) {
 			effect* peffect = eit->second;
 			peffect->set_activate_location();
+			////kdiy//////////
+			// if(peffect->is_activateable(infos.turn_player, nil_event)) {
+			// 	core.select_chains.emplace_back().triggering_effect = peffect;
+			// }
 			if(peffect->is_activateable(infos.turn_player, nil_event)) {
 				core.select_chains.emplace_back().triggering_effect = peffect;
+				if(peffect->is_activateable(infos.turn_player, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+					if(core.effect_darkness.find(peffect->get_handler()) == core.effect_darkness.end())
+						core.effect_darkness.insert(peffect->get_handler());
+				}
+			}
+			//for darkness: free chain event, but not fulfill activate condition
+			else {
+				if(peffect->is_activateable(infos.turn_player, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+					if(core.effect_darkness.find(peffect->get_handler()) != core.effect_darkness.end())
+						continue;
+					auto& newchain = core.select_chains.emplace_back();
+					newchain.triggering_effect = peffect;
+					newchain.peffect_darkness = true;
+					core.effect_darkness.insert(peffect->get_handler());
+				}
+			}
+			////kdiy//////////
+		}
+		////kdiy//////////
+		//for darkness: not free chain event
+		auto aeffects = effects.activate_effect;
+		for(const auto& [code, peffect] : aeffects) {
+			if(code == EVENT_FREE_CHAIN) continue;
+			peffect->set_activate_location();
+			if(peffect->is_activateable(infos.turn_player, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+				if(core.effect_darkness.find(peffect->get_handler()) != core.effect_darkness.end())
+					continue;
+				auto& newchain = core.select_chains.emplace_back();
+				newchain.triggering_effect = peffect;
+				newchain.peffect_darkness = true;
+				core.effect_darkness.insert(peffect->get_handler());
 			}
 		}
+		////kdiy//////////
 		pr = effects.quick_o_effect.equal_range(EVENT_FREE_CHAIN);
 		for(auto eit = pr.first; eit != pr.second; eit++) {
 			effect* peffect = eit->second;
@@ -1875,10 +2026,48 @@ bool field::process(Processors::BattleCommand& arg) {
 		for(auto eit = pr.first; eit != pr.second; eit++) {
 			auto peffect = eit->second;
 			peffect->set_activate_location();
-			if(peffect->is_activateable(infos.turn_player, nil_event) && peffect->get_speed() > 1) {
+			////kdiy//////////
+			// if(peffect->is_activateable(infos.turn_player, nil_event) && peffect->get_speed() > 1) {
+			// 	core.select_chains.emplace_back().triggering_effect = peffect;
+			// }
+			if(peffect->get_speed() <= 1)
+				continue;
+			if(peffect->is_activateable(infos.turn_player, nil_event)) {
 				core.select_chains.emplace_back().triggering_effect = peffect;
+				if(peffect->is_activateable(infos.turn_player, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+					if(core.effect_darkness.find(peffect->get_handler()) == core.effect_darkness.end())
+						core.effect_darkness.insert(peffect->get_handler());
+				}
+			} else {
+				if(peffect->is_activateable(infos.turn_player, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+					if(core.effect_darkness.find(peffect->get_handler()) != core.effect_darkness.end())
+						continue;
+					auto& newchain = core.select_chains.emplace_back();
+					newchain.triggering_effect = peffect;
+					newchain.peffect_darkness = true;
+					core.effect_darkness.insert(peffect->get_handler());
+				}
+			}
+			////kdiy//////////
+		}
+		////kdiy//////////
+		//for darkness: not free chain event
+		auto aeffects = effects.activate_effect;
+		for(const auto& [code, peffect] : aeffects) {
+			if(code == EVENT_FREE_CHAIN) continue;
+			if(peffect->get_speed() <= 1)
+				continue;
+			peffect->set_activate_location();
+			if(peffect->is_activateable(infos.turn_player, nil_event, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)) {
+				if(core.effect_darkness.find(peffect->get_handler()) != core.effect_darkness.end())
+					continue;
+				auto& newchain = core.select_chains.emplace_back();
+				newchain.triggering_effect = peffect;
+				newchain.peffect_darkness = true;
+				core.effect_darkness.insert(peffect->get_handler());
 			}
 		}
+		////kdiy//////////
 		pr = effects.quick_o_effect.equal_range(EVENT_FREE_CHAIN);
 		for(auto eit = pr.first; eit != pr.second; eit++) {
 			auto peffect = eit->second;
@@ -1957,6 +2146,9 @@ bool field::process(Processors::BattleCommand& arg) {
 		return FALSE;
 	}
 	case 1: {
+		////kdiy//////////
+		core.effect_darkness.clear();
+		////kdiy//////////
 		int32_t ctype = returns.at<int32_t>(0) & 0xffff;
 		int32_t sel = returns.at<int32_t>(0) >> 16;
 		if(arg.forced_attack_done || (ctype != 0 && ctype != 1)) {
@@ -4009,10 +4201,6 @@ bool field::process(Processors::AddChain& arg) {
 		card* phandler = peffect->get_handler();
 		phandler->set_status(STATUS_ACT_FROM_HAND, phandler->current.location == LOCATION_HAND);
         ///////kdiy///////
-        uint8_t temp_controler = phandler->current.controler;
-        uint8_t temp_location = phandler->current.location;
-        uint32_t temp_sequence = phandler->current.sequence;
-		uint32_t temp_position = phandler->current.position;
 		//if(phandler->current.location == LOCATION_SZONE) {
 		if((phandler->current.location == LOCATION_SZONE && !phandler->is_affected_by_effect(EFFECT_ORICA_SZONE)) || (phandler->current.location == LOCATION_MZONE && phandler->is_affected_by_effect(EFFECT_SANCT_MZONE))) {
         ///////kdiy///////
@@ -4049,6 +4237,10 @@ bool field::process(Processors::AddChain& arg) {
 			}
 			phandler->enable_field_effect(false);
 			///////kdiy///////
+			uint8_t temp_controler = phandler->current.controler;
+			uint8_t temp_location = phandler->current.location;
+			uint32_t temp_sequence = phandler->current.sequence;
+			uint32_t temp_position = phandler->current.position;
 			phandler->prev_temp.location = phandler->current.location;
 			if(phandler->current.location == LOCATION_SZONE && phandler->is_affected_by_effect(EFFECT_ORICA_SZONE))
 			    phandler->prev_temp.location = LOCATION_MZONE;
@@ -4067,12 +4259,29 @@ bool field::process(Processors::AddChain& arg) {
 			}
 			///////kdiy///////
 			move_to_field(phandler, phandler->current.controler, phandler->current.controler, loc, (loc == LOCATION_MZONE) ? POS_FACEUP_ATTACK : POS_FACEUP, FALSE, 0, zone);
+			///////kdiy///////
+			phandler->prev_temp.controler = temp_controler;
+			phandler->prev_temp.location = temp_location;
+			phandler->prev_temp.sequence = temp_sequence;
+			phandler->prev_temp.position = temp_position;
+			///////kdiy///////
 		}
         ///////kdiy///////
-        phandler->prev_temp.controler = temp_controler;
-        phandler->prev_temp.location = temp_location;
-        phandler->prev_temp.sequence = temp_sequence;
-        phandler->prev_temp.position = temp_position;
+		core.effect_darkness.clear();
+		if(clit.peffect_darkness) {
+			change_position(phandler, nullptr, phandler->current.controler, POS_FACEUP, 0);
+			phandler->set_status(STATUS_CHAINING, FALSE);
+			if(peffect->type & EFFECT_TYPE_ACTIVATE) {
+				core.leave_confirmed.insert(phandler);
+				if(!(phandler->data.type & (TYPE_CONTINUOUS | TYPE_FIELD | TYPE_EQUIP | TYPE_PENDULUM | TYPE_LINK))
+						&& !phandler->is_affected_by_effect(EFFECT_REMAIN_FIELD))
+					phandler->set_status(STATUS_LEAVE_CONFIRMED, TRUE);
+			}
+			core.just_sent_cards.clear();
+			core.new_chains.pop_front();
+			arg.step = Processors::restart;
+			return TRUE;
+		}
         ///////kdiy///////
 		return FALSE;
 	}

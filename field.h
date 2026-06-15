@@ -70,6 +70,9 @@ struct chain {
 	uint32_t flag;
 	uint32_t event_id;
 	effect* triggering_effect;
+	////kdiy////
+	bool peffect_darkness{ false };
+	////kdiy////
 	owned_lua<group> target_cards;
 	effect* disable_reason;
 	applied_chain_counter_t* applied_chain_counters;
@@ -316,6 +319,7 @@ struct processor {
 	bool set_forced_attack;
 	//////kdiy//////////
 	bool mainphase_attack;
+	card_set effect_darkness;
 	//////kdiy//////////
 	card* forced_attacker;
 	card* forced_attack_target;
