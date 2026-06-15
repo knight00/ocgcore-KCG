@@ -43,6 +43,9 @@ void chain::set_triggering_state(card* pcard) {
 	triggering_state.code2 = pcard->get_another_code();
 	triggering_state.level = pcard->get_level();
 	triggering_state.rank = pcard->get_rank();
+	triggering_state.link = pcard->get_link();
+	triggering_state.lscale = pcard->get_lscale();
+	triggering_state.rscale = pcard->get_rscale();
 	triggering_state.attribute = pcard->get_attribute();
 	triggering_state.type = pcard->get_type();
 	triggering_state.race = pcard->get_race();
@@ -2684,12 +2687,16 @@ void field::get_fusion_material(uint8_t playerid, card_set* material) {
 		if(pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
 			material->insert(pcard);
 }
-void field::ritual_release(const card_set& material) {
+void field::ritual_release(const card_set& material, bool release_deck) {
 	card_set rel, rem, tograve;
+	uint32_t to_grave_types = LOCATION_OVERLAY | LOCATION_EXTRA;
+	if(!release_deck) {
+		to_grave_types |= LOCATION_DECK;
+	}
 	for(auto& pcard : material) {
 		if(pcard->current.location == LOCATION_GRAVE)
 			rem.insert(pcard);
-		else if((pcard->current.location & (LOCATION_OVERLAY | LOCATION_EXTRA | LOCATION_DECK)) != 0)
+		else if((pcard->current.location & to_grave_types) != 0)
 			tograve.insert(pcard);
 		else
 			rel.insert(pcard);
@@ -3684,7 +3691,7 @@ int32_t field::is_player_can_remove_overlay_card(uint8_t playerid, group* pgroup
 	}
 	return FALSE;
 }
-int32_t field::is_player_can_send_to_grave(uint8_t playerid, card* pcard) {
+int32_t field::is_player_can_send_to_grave(uint8_t playerid, card* pcard, uint32_t reason) {
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_CANNOT_TO_GRAVE, &eset);
 	for(const auto& peff : eset) {
@@ -3693,7 +3700,8 @@ int32_t field::is_player_can_send_to_grave(uint8_t playerid, card* pcard) {
 		pduel->lua->add_param<LuaParam::EFFECT>(peff);
 		pduel->lua->add_param<LuaParam::CARD>(pcard);
 		pduel->lua->add_param<LuaParam::INT>(playerid);
-		if (pduel->lua->check_condition(peff->target, 3))
+		pduel->lua->add_param<LuaParam::INT>(reason);
+		if (pduel->lua->check_condition(peff->target, 4))
 			return FALSE;
 	}
 	return TRUE;

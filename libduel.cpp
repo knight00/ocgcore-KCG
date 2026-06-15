@@ -1112,7 +1112,15 @@ LUA_STATIC_FUNCTION(ConfirmDecktop) {
 		message->write<uint8_t>(pcard->current.location);
 		message->write<uint32_t>(pcard->current.sequence);
 	}
-	return yield();
+	return yieldk({
+		auto playerid = lua_get<uint8_t>(L, 1);
+		auto& main = pduel->game_field->player[playerid].list_main;
+		const auto count = std::min<size_t>(lua_get<uint32_t>(L, 2), main.size());
+		const auto offset = main.size() - count;
+		auto pgroup = pduel->new_group(main.begin() + offset, main.end());
+		interpreter::pushobject(L, pgroup);
+		return 1;
+	});
 }
 LUA_STATIC_FUNCTION(ConfirmExtratop) {
 	check_param_count(L, 2);
@@ -1134,7 +1142,16 @@ LUA_STATIC_FUNCTION(ConfirmExtratop) {
 		message->write<uint8_t>(pcard->current.location);
 		message->write<uint32_t>(pcard->current.sequence);
 	}
-	return yield();
+	return yieldk({
+		auto playerid = lua_get<uint8_t>(L, 1);
+		const auto& player = pduel->game_field->player[playerid];
+		auto& extra = player.list_extra;
+		const auto count = std::min<size_t>(lua_get<uint32_t>(L, 2), extra.size() - player.extra_p_count);
+		auto begin = extra.rbegin() + player.extra_p_count;
+		auto pgroup = pduel->new_group(begin, begin + count);
+		interpreter::pushobject(L, pgroup);
+		return 1;
+	});
 }
 LUA_STATIC_FUNCTION(ConfirmCards) {
 	check_param_count(L, 2);
@@ -2336,6 +2353,15 @@ LUA_STATIC_FUNCTION(GetChainInfo) {
 		case CHAININFO::TRIGGERING_RANK:
 			lua_pushinteger(L, ch->triggering_state.rank);
 			break;
+		case CHAININFO::TRIGGERING_LSCALE:
+			lua_pushinteger(L, ch->triggering_state.lscale);
+			break;
+		case CHAININFO::TRIGGERING_RSCALE:
+			lua_pushinteger(L, ch->triggering_state.rscale);
+			break;
+		case CHAININFO::TRIGGERING_LINK:
+			lua_pushinteger(L, ch->triggering_state.link);
+			break;
 		case CHAININFO::TRIGGERING_ATTRIBUTE:
 			lua_pushinteger(L, ch->triggering_state.attribute);
 			break;
@@ -2619,11 +2645,11 @@ LUA_STATIC_FUNCTION(GetDeckbottomGroup) {
 LUA_STATIC_FUNCTION(GetExtraTopGroup) {
 	check_param_count(L, 2);
 	auto playerid = lua_get<uint8_t>(L, 1);
-	auto count = lua_get<uint32_t>(L, 2);
-	auto pgroup = pduel->new_group();
-	auto cit = pduel->game_field->player[playerid].list_extra.rbegin() + pduel->game_field->player[playerid].extra_p_count;
-	for(uint32_t i = 0; i < count && cit != pduel->game_field->player[playerid].list_extra.rend(); ++i, ++cit)
-		pgroup->container.insert(*cit);
+	const auto& player = pduel->game_field->player[playerid];
+	auto& extra = player.list_extra;
+	const auto count = std::min<size_t>(lua_get<uint32_t>(L, 2), extra.size() - player.extra_p_count);
+	auto begin = extra.rbegin() + player.extra_p_count;
+	auto pgroup = pduel->new_group(begin, begin + count);
 	interpreter::pushobject(L, pgroup);
 	return 1;
 }
@@ -3137,7 +3163,8 @@ LUA_STATIC_FUNCTION(ReleaseRitualMaterial) {
 	check_action_permission(L);
 	check_param_count(L, 1);
 	auto pgroup = lua_get<group*, true>(L, 1);
-	pduel->game_field->ritual_release(pgroup->container);
+	auto release_deck = lua_get<bool, false>(L, 2);
+	pduel->game_field->ritual_release(pgroup->container, release_deck);
 	return yield();
 }
 LUA_STATIC_FUNCTION(GetFusionMaterial) {
@@ -4172,7 +4199,7 @@ LUA_STATIC_FUNCTION(IsPlayerCanFlipSummon) {
 	return 1;
 }
 LUA_STATIC_FUNCTION(IsPlayerCanSpecialSummonMonster) {
-	check_param_count(L, 9);
+	check_param_count(L, 2);
 	auto playerid = lua_get<uint8_t>(L, 1);
 	if(playerid != 0 && playerid != 1) {
 		lua_pushboolean(L, 0);
@@ -4278,7 +4305,8 @@ LUA_STATIC_FUNCTION(IsPlayerCanSendtoGrave) {
 	else {
 		check_param_count(L, 2);
 		auto pcard = lua_get<card*, true>(L, 2);
-		lua_pushboolean(L, pduel->game_field->is_player_can_send_to_grave(playerid, pcard));
+		auto reason = lua_get<uint32_t, REASON_EFFECT>(L, 3);
+		lua_pushboolean(L, pduel->game_field->is_player_can_send_to_grave(playerid, pcard, reason));
 	}
 	return 1;
 }

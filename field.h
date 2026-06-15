@@ -497,7 +497,7 @@ public:
 	int32_t get_draw_count(uint8_t playerid);
 	void get_ritual_material(uint8_t playerid, effect* peffect, card_set* material, bool check_level);
 	void get_fusion_material(uint8_t playerid, card_set* material);
-	void ritual_release(const card_set& material);
+	void ritual_release(const card_set& material, bool release_deck);
 	void get_overlay_group(uint8_t playerid, uint8_t self, uint8_t oppo, card_set* pset, group* pgroup);
 	int32_t get_overlay_count(uint8_t playerid, uint8_t self, uint8_t oppo, group* pgroup);
 	void update_disable_check_list(effect* peffect);
@@ -551,7 +551,7 @@ public:
 	int32_t is_player_can_place_counter(uint8_t playerid, card* pcard, uint16_t countertype, uint16_t count);
 	int32_t is_player_can_remove_counter(uint8_t playerid, card* pcard, uint8_t self, uint8_t oppo, uint16_t countertype, uint16_t count, uint32_t reason);
 	int32_t is_player_can_remove_overlay_card(uint8_t playerid, group* pcard, uint8_t self, uint8_t oppo, uint16_t count, uint32_t reason);
-	int32_t is_player_can_send_to_grave(uint8_t playerid, card* pcard);
+	int32_t is_player_can_send_to_grave(uint8_t playerid, card* pcard, uint32_t reason);
 	int32_t is_player_can_send_to_hand(uint8_t playerid, card* pcard);
 	int32_t is_player_can_send_to_deck(uint8_t playerid, card* pcard);
 	int32_t is_player_can_remove(uint8_t playerid, card* pcard, uint32_t reason);
@@ -771,6 +771,9 @@ enum class CHAININFO {
 	TRIGGERING_SUMMON_TYPE,
 	TRIGGERING_SUMMON_PROC_COMPLETE,
 	TRIGGERING_SETCODES,
+	TRIGGERING_LINK,
+	TRIGGERING_LSCALE,
+	TRIGGERING_RSCALE,
 };
 
 //Timing
