@@ -219,15 +219,15 @@ int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t negle
 				if((zone & 0xff) != 0 && (zone & 0xff00) != 0) {
 					uint32_t zone2 = (zone & 0xff00) >> 8;
 					zone = zone & 0x1f;
-					if (pduel->game_field->get_useable_count(handler, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD, zone) <= 0 && pduel->game_field->get_useable_count(handler, playerid, LOCATION_SZONE, playerid, LOCATION_REASON_TOFIELD, zone2) <= 0)
+					if (pduel->game_field->get_useable_count(handler, playerid, LOCATION_MZONE, playerid, LOCATION_REASON::TOFIELD, zone) <= 0 && pduel->game_field->get_useable_count(handler, playerid, LOCATION_SZONE, playerid, LOCATION_REASON::TOFIELD, zone2) <= 0)
 						return FALSE;
 				} else if(zone & 0xff00) {
 					uint32_t zone2 = (zone & 0xff00) >> 8;
-					if (pduel->game_field->get_useable_count(handler, playerid, LOCATION_SZONE, playerid, LOCATION_REASON_TOFIELD, zone2) <= 0)
+					if (pduel->game_field->get_useable_count(handler, playerid, LOCATION_SZONE, playerid, LOCATION_REASON::TOFIELD, zone2) <= 0)
 						return FALSE;
 				} else {
 					zone = zone & 0x1f;
-					if (pduel->game_field->get_useable_count(handler, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD, zone) <= 0)
+					if (pduel->game_field->get_useable_count(handler, playerid, LOCATION_MZONE, playerid, LOCATION_REASON::TOFIELD, zone) <= 0)
 						return FALSE;
 				}
 			////////kdiy/////////
