@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2010-2015, Argon Sun (Fluorohydride)
- * Copyright (c) 2016-2025, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
+ * Copyright (c) 2016-2026, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -3655,7 +3655,8 @@ void card::filter_spsummon_procedure(uint8_t playerid, effect_set* peset, uint32
 			peffect->get_value(this, 0, retval);
 			uint32_t sumtype = retval.size() > 0 ? static_cast<uint32_t>(retval[0]) : 0;
 			uint32_t zone = retval.size() > 1 ? static_cast<uint32_t>(retval[1]) : 0xff;
-			if(zone != 0xff && pduel->game_field->get_useable_count(this, toplayer, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD, zone, nullptr) <= 0)
+			bool ignore_zone_check = retval.size() > 2 ? static_cast<bool>(retval[2]) : false;
+			if(zone != 0xff && !ignore_zone_check && pduel->game_field->get_useable_count(this, toplayer, LOCATION_MZONE, playerid, LOCATION_REASON::TOFIELD, zone, nullptr) <= 0)
 				continue;
 			if(summon_type != 0 && summon_type != sumtype)
 				continue;
@@ -3865,7 +3866,7 @@ void card::get_own_effects(effect_set* eset) {
 	});
 	std::sort(eset->begin(), eset->end(), effect_sort_id);
 }
-int32_t card::fusion_check(group* fusion_m, group* cg, uint32_t chkf) {
+int32_t card::fusion_check(group* fusion_m, group* cg, uint64_t chkf) {
 	effect* peffect = nullptr;
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	for (; ecit != single_effect.end(); ++ecit) {
@@ -3889,7 +3890,7 @@ int32_t card::fusion_check(group* fusion_m, group* cg, uint32_t chkf) {
 	}
 	return FALSE;
 }
-void card::fusion_filter_valid(group* fusion_m, group* cg, uint32_t chkf, effect_set* eset) {
+void card::fusion_filter_valid(group* fusion_m, group* cg, uint64_t chkf, effect_set* eset) {
 	effect* peffect = nullptr;
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	for (; ecit != single_effect.end(); ++ecit) {
@@ -4105,7 +4106,7 @@ int32_t card::is_can_be_summoned(uint8_t playerid, uint8_t ignore_count, effect*
 			pduel->game_field->restore_lp_cost();
 			return FALSE;
 		}
-	} else if(current.location == LOCATION_HAND) {
+	} else {
 		if(is_affected_by_effect(EFFECT_CANNOT_SUMMON)) {
 			pduel->game_field->restore_lp_cost();
 			return FALSE;
@@ -4237,8 +4238,6 @@ int32_t card::is_can_be_special_summoned(effect* reason_effect, uint32_t sumtype
 	if ((current.location == LOCATION_MZONE && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || (current.location == LOCATION_SZONE && is_affected_by_effect(EFFECT_ORICA_SZONE)))
 	////////kdiy////////
 		return FALSE;
-	if(current.location == LOCATION_REMOVED && (current.position & POS_FACEDOWN))
-		return FALSE;
 	if(!nolimit && is_affected_by_effect(EFFECT_REVIVE_LIMIT) && !is_status(STATUS_PROC_COMPLETE)) {
 		////////kdiy////////
 		//if((current.location & (LOCATION_GRAVE | LOCATION_REMOVED | LOCATION_SZONE))
@@ -4268,7 +4267,7 @@ int32_t card::is_can_be_special_summoned(effect* reason_effect, uint32_t sumtype
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
 	if(zone != 0xff) {
-		if(pduel->game_field->get_useable_count(this, toplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone, nullptr) <= 0)
+		if(pduel->game_field->get_useable_count(this, toplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON::TOFIELD, zone, nullptr) <= 0)
 			return FALSE;
 	}
 	pduel->game_field->save_lp_cost();
@@ -4307,7 +4306,7 @@ int32_t card::is_setable_mzone(uint8_t playerid, uint8_t ignore_count, effect* p
 		if(reason_effect && reason_effect->get_handler() == this)
 			reason_effect->status |= EFFECT_STATUS_SUMMON_SELF;
 	}
-	if(current.location != LOCATION_HAND)
+	if(current.location == LOCATION_MZONE)
 		return FALSE;
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
@@ -4338,7 +4337,7 @@ int32_t card::is_setable_mzone(uint8_t playerid, uint8_t ignore_count, effect* p
 	return TRUE;
 }
 int32_t card::is_setable_szone(uint8_t playerid, uint8_t ignore_fd) {
-	if(!(data.type & TYPE_FIELD) && !ignore_fd && pduel->game_field->get_useable_count(this, playerid, LOCATION_SZONE, current.controler, LOCATION_REASON_TOFIELD) <= 0)
+	if(!(data.type & TYPE_FIELD) && !ignore_fd && pduel->game_field->get_useable_count(this, playerid, LOCATION_SZONE, current.controler, LOCATION_REASON::TOFIELD) <= 0)
 		return FALSE;
 	////kdiy/////////
 	// if(data.type & TYPE_MONSTER && !is_affected_by_effect(EFFECT_MONSTER_SSET))
@@ -4741,11 +4740,11 @@ int32_t card::is_control_can_be_changed(int32_t ignore_mzone, uint32_t zone) {
 	//if(current.location != LOCATION_MZONE)
 	if (!((current.location == LOCATION_MZONE && !is_affected_by_effect(EFFECT_SANCT_MZONE)) || (current.location == LOCATION_SZONE && is_affected_by_effect(EFFECT_ORICA_SZONE))))
 	////////kdiy////////
-		return FALSE;	
-	if(!ignore_mzone && pduel->game_field->get_useable_count(this, 1 - current.controler, LOCATION_MZONE, current.controler, LOCATION_REASON_CONTROL, zone) <= 0)
+		return FALSE;
+	if(!ignore_mzone && pduel->game_field->get_useable_count(this, 1 - current.controler, LOCATION_MZONE, current.controler, LOCATION_REASON::CONTROL, zone) <= 0)
 		return FALSE;
 	if(!pduel->game_field->is_flag(DUEL_TRAP_MONSTERS_NOT_USE_ZONE) && ((get_type() & TYPE_TRAPMONSTER)
-		&& pduel->game_field->get_useable_count(this, 1 - current.controler, LOCATION_SZONE, current.controler, LOCATION_REASON_CONTROL) <= 0))
+		&& pduel->game_field->get_useable_count(this, 1 - current.controler, LOCATION_SZONE, current.controler, LOCATION_REASON::CONTROL) <= 0))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_CHANGE_CONTROL))
 		return FALSE;
@@ -4784,6 +4783,8 @@ int32_t card::is_capable_be_effect_target(effect* peffect, uint8_t playerid) {
 	return TRUE;
 }
 int32_t card::is_can_be_fusion_material(card* fcard, uint64_t summon_type, uint8_t playerid) {
+	if(this == fcard)
+		return FALSE;
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
 	effect_set eset;
@@ -4817,14 +4818,16 @@ int32_t card::is_can_be_fusion_material(card* fcard, uint64_t summon_type, uint8
 	return TRUE;
 }
 int32_t card::is_can_be_synchro_material(card* scard, uint8_t playerid, card* /*tuner*/) {
+	if(this == scard)
+		return FALSE;
 	////////kdiy////////
 	// if(data.type & (TYPE_XYZ) && !(is_affected_by_effect(EFFECT_RANK_LEVEL) || is_affected_by_effect(EFFECT_RANK_LEVEL_S)))
 	// 	return FALSE;
-	// if (data.type & (TYPE_LINK) && !(is_affected_by_effect(EFFECT_SYNCHRO_LEVEL)))
+	// if(data.type & (TYPE_LINK) && !(is_affected_by_effect(EFFECT_SYNCHRO_LEVEL)))
 	// 	return FALSE;
 	// if(!(get_type(scard, SUMMON_TYPE_SYNCHRO, playerid) & TYPE_MONSTER))
 	// 	return FALSE;
-	//if(scard && current.location == LOCATION_MZONE && current.controler != scard->current.controler && !is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL))
+	//if (scard && current.location == LOCATION_MZONE && current.controler != scard->current.controler && !is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL))
 	bool is_xyz = ( ((data.type & TYPE_XYZ) && !(data.type & TYPE_LINK)) || ((data.type & TYPE_LINK) && (is_affected_by_effect(EFFECT_LINK_RANK) || is_affected_by_effect(EFFECT_LINK_RANK_S))) ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
 	bool is_link = ( ((data.type & TYPE_LINK) && !(data.type & TYPE_XYZ)) || ((data.type & TYPE_XYZ) && (is_affected_by_effect(EFFECT_RANK_LINK) || is_affected_by_effect(EFFECT_RANK_LINK_S))) ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
 	bool is_xyzlink = (data.type & TYPE_LINK) && (data.type & TYPE_XYZ) && !(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_RITUAL));
@@ -4857,6 +4860,8 @@ int32_t card::is_can_be_synchro_material(card* scard, uint8_t playerid, card* /*
 	return TRUE;
 }
 int32_t card::is_can_be_ritual_material(card* scard, uint8_t playerid) {
+	if(this == scard)
+		return FALSE;
 	if(!(get_type() & TYPE_MONSTER))
 		return FALSE;
 	effect_set eset;
@@ -4878,6 +4883,8 @@ int32_t card::is_can_be_ritual_material(card* scard, uint8_t playerid) {
 	return TRUE;
 }
 int32_t card::is_can_be_xyz_material(card* scard, uint8_t playerid, uint32_t reason) {
+	if(this == scard)
+		return FALSE;
 	if(data.type & TYPE_TOKEN)
 		return FALSE;
 	if((!(current.location & LOCATION_ONFIELD) || (reason & REASON_MATERIAL)) && is_status(STATUS_FORBIDDEN))
@@ -4904,6 +4911,8 @@ int32_t card::is_can_be_xyz_material(card* scard, uint8_t playerid, uint32_t rea
 	return TRUE;
 }
 int32_t card::is_can_be_link_material(card* scard, uint8_t playerid) {
+	if(this == scard)
+		return FALSE;
 	if(!(get_type(scard, SUMMON_TYPE_LINK, playerid) & TYPE_MONSTER))
 		return FALSE;
 	if(is_status(STATUS_FORBIDDEN))
@@ -4924,6 +4933,8 @@ int32_t card::is_can_be_link_material(card* scard, uint8_t playerid) {
 	return TRUE;
 }
 int32_t card::is_can_be_material(card* scard, uint64_t sumtype, uint8_t playerid) {
+	if(this == scard)
+		return FALSE;
 	if(sumtype & SUMMON_TYPE_FUSION)
 		return is_can_be_fusion_material(scard, sumtype, playerid);
 	if(sumtype & SUMMON_TYPE_SYNCHRO)

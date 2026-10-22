@@ -6,6 +6,8 @@ env:
   DEPLOY_DIR: ocgcore
   DEPLOY_REPO: ${{ secrets.DEPLOY_REPO }}
   DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+  OBJCOPY_BIN: ./scripts/llvm-objcopy
+  STRIP_BIN: ./scripts/llvm-strip
 jobs:
   Windows-visual-studio:
     strategy:
@@ -29,6 +31,7 @@ jobs:
       VISUAL_STUDIO_ARCH: ${{ matrix.arch }}
       VISUAL_STUDIO_VERSION: vs2022
       PREMAKE_FLAGS: ${{ matrix.premake-flag }}
+      STRIP: 0
     steps:
     - uses: actions/checkout@v1
       with:
@@ -115,8 +118,6 @@ jobs:
       run: ./scripts/build-premake5.sh
     - name: Predeploy
       shell: bash
-      env:
-        STRIP: 1
       run: ./scripts/predeploy.sh
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
@@ -164,8 +165,6 @@ jobs:
         sudo chown -R $USER bin
     - name: Predeploy
       shell: bash
-      env:
-        STRIP: 1
       run: ./scripts/predeploy.sh
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
@@ -210,6 +209,7 @@ jobs:
       TRAVIS_OS_NAME: linux
       TARGET_OS: windows
       STRIP_BIN: llvm-strip
+      OBJCOPY_BIN: llvm-objcopy
       BUILD_CONFIG: ${{ format('release_{0}', matrix.arch) }}
       AR: ${{ format('{0}-w64-mingw32-ar', matrix.flavour) }}
       CC: ${{ format('{0}-w64-mingw32-cc', matrix.flavour) }}
@@ -229,8 +229,6 @@ jobs:
       run: ./scripts/build-premake5.sh
     - name: Predeploy
       shell: bash
-      env:
-        STRIP: 1
       run: ./scripts/predeploy.sh
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
@@ -268,6 +266,8 @@ jobs:
       BUILD_CONFIG: release_win32
       MINGW_LITE_VARIANT: ${{ matrix.mingw_variant }}
       EXTRA_CFLAGS: ${{ matrix.extra_cflags }}
+      STRIP_BIN: strip
+      OBJCOPY_BIN: objcopy
       CC: /usr/local/bin/i686-w64-mingw32-gcc
       CXX: /usr/local/bin/i686-w64-mingw32-g++
       AR: /usr/local/bin/i686-w64-mingw32-gcc-ar
@@ -289,8 +289,6 @@ jobs:
       run: ./scripts/build-premake5.sh
     - name: Predeploy
       shell: bash
-      env:
-        STRIP: 1
       run: ./scripts/predeploy.sh
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
@@ -474,15 +472,24 @@ jobs:
         username: Github
 
   Mac-os-cctools:
-    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ["x86_64", "aarch64"]
+        include:
+          - arch: 'aarch64'
+            target_prefix: '-aarch64'
+    runs-on: ubuntu-slim
     env:
-      DEPLOY_BRANCH: travis-core-osx-cctools
+      DEPLOY_BRANCH: ${{ format('travis-core-osx{0}-cctools', matrix.target_prefix) }}
       TRAVIS_OS_NAME: linux
       TARGET_OS: macosx
-      CC: /opt/cctools/bin/x86_64-macosx-clang
-      CXX: /opt/cctools/bin/x86_64-macosx-clang++
-      RANLIB: /opt/cctools/bin/x86_64-apple-darwin11-ranlib
-      AR: /opt/cctools/bin/arm-apple-darwin11-ar rcu
+      ARTIFACT_NAME: ${{ format('osx{0}-cctools', matrix.target_prefix) }}
+      CC: ${{ format('/opt/cctools/bin/{0}-apple-darwin21.4-clang', matrix.arch) }}
+      CXX: ${{ format('/opt/cctools/bin/{0}-apple-darwin21.4-clang++-gstdc++', matrix.arch) }}
+      AR: ${{ format('/opt/cctools/bin/{0}-apple-darwin21.4-ar', matrix.arch) }}
+      RANLIB: ${{ format('/opt/cctools/bin/{0}-apple-darwin21.4-ranlib', matrix.arch) }}
+      STRIP: 0
     steps:
     - uses: actions/checkout@v1
       with:
@@ -493,9 +500,9 @@ jobs:
     - name: Download cctools
       run: |
         cd /opt
-        wget https://github.com/edo9300/cctools-build/releases/download/preview/cctools.tar.xz
+        wget https://github.com/edo9300/cctools-build/releases/download/osxcross/cctools.tar.xz
         tar xf cctools.tar.xz
-        cd cctools/bin
+        echo "PATH=/opt/cctools/bin:/opt/cctools/clang/bin:$PATH" >> $GITHUB_ENV
     - name: Install premake
       shell: bash
       run: ./scripts/install-premake5.sh
@@ -512,62 +519,7 @@ jobs:
     - uses: actions/upload-artifact@v6
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       with:
-        name: osx-cctools
-        path: ocgcore/libocgcore.dylib
-    - name: Log Failure
-      uses: sarisia/actions-status-discord@v1
-      if: failure()
-      with:
-        nodetail: true
-        description: |
-            [[${{ github.event.repository.name }}] ${{ github.job }} failed on ${{ github.ref }}](https://github.com/${{github.repository}}/actions/runs/${{github.run_id}})
-        title: |
-                
-        color: 0xff0000
-        webhook: ${{ secrets.DISCORD_WEBHOOK }}
-        avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-        username: Github
-
-  Mac-os-aarch64-cctools:
-    runs-on: ubuntu-22.04
-    env:
-      DEPLOY_BRANCH: travis-core-osx-aarch64-cctools
-      TRAVIS_OS_NAME: linux
-      TARGET_OS: macosx
-      CC: /opt/cctools/bin/arm64-macosx-clang
-      CXX: /opt/cctools/bin/arm64-macosx-clang++
-      RANLIB: /opt/cctools/bin/arm-apple-darwin11-ranlib
-      AR: /opt/cctools/bin/arm-apple-darwin11-ar rcu
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        ref: ${{ github.head_ref }}
-        repository: ${{github.event.pull_request.head.repo.full_name}}
-        fetch-depth: 1
-        submodules: recursive
-    - name: Download cctools
-      run: |
-        cd /opt
-        wget https://github.com/edo9300/cctools-build/releases/download/preview/cctools.tar.xz
-        tar xf cctools.tar.xz
-        cd cctools/bin
-    - name: Install premake
-      shell: bash
-      run: ./scripts/install-premake5.sh
-    - name: Build
-      shell: bash
-      run: ./scripts/build-premake5.sh
-    - name: Predeploy
-      shell: bash
-      run: ./scripts/predeploy.sh
-    - name: Deploy
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-      shell: bash
-      run: ./scripts/deploy.sh
-    - uses: actions/upload-artifact@v6
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-      with:
-        name: osx-aarch64-cctools
+        name: ${{ env.ARTIFACT_NAME }}
         path: ocgcore/libocgcore.dylib
     - name: Log Failure
       uses: sarisia/actions-status-discord@v1
@@ -584,10 +536,12 @@ jobs:
         username: Github
 
   Mac-os-universal-cctools:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
+      TRAVIS_OS_NAME: linux
+      TARGET_OS: macosx
       DEPLOY_BRANCH: travis-core-osx-universal-cctools
-    needs: [ Mac-os-cctools, Mac-os-aarch64-cctools ]
+    needs: [ Mac-os-cctools ]
     steps:
     - uses: actions/checkout@v1
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
@@ -600,23 +554,23 @@ jobs:
         chmod +x lipo
     - name: Download osx artifacts
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
     - name: Merge binaries
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       shell: bash
       run: |
-        ./lipo -create -output libocgcore.dylib ./osx-aarch64-cctools/libocgcore.dylib ./osx-cctools/libocgcore.dylib
-    - name: Move merged binary
+        mkdir -p ./bin/$BUILD_CONFIG
+        ./lipo -create -output ./bin/$BUILD_CONFIG/libocgcore.dylib ./osx-aarch64-cctools/libocgcore.dylib ./osx-cctools/libocgcore.dylib
+    - name: Predeploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       shell: bash
-      run: |
-        mkdir -p $DEPLOY_DIR && mv libocgcore.dylib $DEPLOY_DIR
+      run: ./scripts/predeploy.sh
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       shell: bash
       run: ./scripts/deploy.sh
     - name: Delete artifacts
-      uses: geekyeggo/delete-artifact@v4
+      uses: geekyeggo/delete-artifact@v6
       with:
         name: |
             osx-aarch64-cctools
@@ -636,7 +590,7 @@ jobs:
         username: Github
 
   Notify-success:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       DEPLOY_BRANCH: travis-osx-universal
       TRAVIS_OS_NAME: macosx

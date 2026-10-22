@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
+ * Copyright (c) 2023-2026, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -377,13 +377,13 @@ struct MoveToField : public Process<false> {
 	uint32_t zone;
     //////kdiy///////
 	bool rule;
-	uint8_t location_reason;
+	LOCATION_REASON location_reason;
 	bool confirm;
 	card* target;
 	MoveToField(uint16_t step_, card* target_, bool enable_, uint8_t ret_, bool pzone_,
                          //////kdiy///////
-						 //uint8_t zone_, bool rule_, uint8_t location_reason_, bool confirm_) :
-                         uint32_t zone_, bool rule_, uint8_t location_reason_, bool confirm_) :
+						 //uint8_t zone_, bool rule_, LOCATION_REASON location_reason_, bool confirm_) :
+                         uint32_t zone_, bool rule_, LOCATION_REASON location_reason_, bool confirm_) :
                          //////kdiy///////
 		Process(step_), enable(enable_), ret(ret_) , pzone(pzone_) , zone(zone_) , rule(rule_) ,
 		location_reason(location_reason_) , confirm(confirm_), target(target_) {}
@@ -692,11 +692,11 @@ struct RockPaperScissors : public Process<true> {
 };
 struct SelectFusion : public Process<false> {
 	uint8_t playerid;
-	uint32_t chkf;
+	uint64_t chkf;
 	owned_lua<group> fusion_materials;
 	owned_lua<group> forced_materials;
 	card* pcard;
-	SelectFusion(uint16_t step_, uint8_t playerid_, owned_lua<group> fusion_materials_, uint32_t chkf_,
+	SelectFusion(uint16_t step_, uint8_t playerid_, owned_lua<group> fusion_materials_, uint64_t chkf_,
 						  owned_lua<group> forced_materials_, card* pcard_) :
 		Process(step_), playerid(playerid_), chkf(chkf_), fusion_materials(fusion_materials_),
 		forced_materials(forced_materials_), pcard(pcard_) {}

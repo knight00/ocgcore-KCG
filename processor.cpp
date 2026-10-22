@@ -567,7 +567,7 @@ bool field::process(Processors::PhaseEvent& arg) {
 	}
 	case 3: {
 		for(auto& ch_lim : core.chain_limit)
-			ensure_luaL_stack(luaL_unref, pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim.function);
+			pduel->lua->release_function_handle(pduel->lua->lua_state, ch_lim.function);
 		core.chain_limit.clear();
 		for(auto& ch : core.current_chain)
 			ch.triggering_effect->get_handler()->set_status(STATUS_CHAINING, FALSE);
@@ -919,7 +919,7 @@ bool field::process(Processors::PointEvent& arg) {
 		core.full_event.clear();
 		core.delayed_quick.clear();
 		for(auto& ch_lim : core.chain_limit)
-			ensure_luaL_stack(luaL_unref, pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim.function);
+			pduel->lua->release_function_handle(pduel->lua->lua_state, ch_lim.function);
 		core.chain_limit.clear();
 		if(core.current_chain.size()) {
 			for(auto& ch : core.current_chain)
@@ -1861,7 +1861,7 @@ bool field::process(Processors::IdleCommand& arg) {
 	}
 	case 2: {
 		for(auto& ch_lim : core.chain_limit)
-			ensure_luaL_stack(luaL_unref, pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim.function);
+			pduel->lua->release_function_handle(pduel->lua->lua_state, ch_lim.function);
 		core.chain_limit.clear();
 		for(auto& ch : core.current_chain)
 			ch.triggering_effect->get_handler()->set_status(STATUS_CHAINING, FALSE);
@@ -1936,7 +1936,7 @@ bool field::process(Processors::IdleCommand& arg) {
 	case 10: {
 		//end announce
 		for(auto& ch_lim : core.chain_limit)
-			ensure_luaL_stack(luaL_unref, pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim.function);
+			pduel->lua->release_function_handle(pduel->lua->lua_state, ch_lim.function);
 		core.chain_limit.clear();
 		if(core.current_chain.size()) {
 			for(auto& ch : core.current_chain)
@@ -2237,7 +2237,7 @@ bool field::process(Processors::BattleCommand& arg) {
 	}
 	case 2: {
 		for(auto& ch_lim : core.chain_limit)
-			ensure_luaL_stack(luaL_unref, pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim.function);
+			pduel->lua->release_function_handle(pduel->lua->lua_state, ch_lim.function);
 		core.chain_limit.clear();
 		for(auto& ch : core.current_chain)
 			ch.triggering_effect->get_handler()->set_status(STATUS_CHAINING, FALSE);
@@ -3038,7 +3038,7 @@ bool field::process(Processors::BattleCommand& arg) {
 	}
 	case 40: {
 		for(auto& ch_lim : core.chain_limit)
-			ensure_luaL_stack(luaL_unref, pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim.function);
+			pduel->lua->release_function_handle(pduel->lua->lua_state, ch_lim.function);
 		core.chain_limit.clear();
 		if(core.current_chain.size()) {
 			for(auto& ch : core.current_chain)
@@ -4305,7 +4305,7 @@ bool field::process(Processors::AddChain& arg) {
         phandler->prev_temp.location = 0;
 		/////kdiy//////
 		for(auto& ch_lim : core.chain_limit)
-			ensure_luaL_stack(luaL_unref, pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim.function);
+			pduel->lua->release_function_handle(pduel->lua->lua_state, ch_lim.function);
 		core.chain_limit.clear();
 		peffect->card_type = phandler->get_type();
 		if((peffect->card_type & (TYPE_TRAP | TYPE_MONSTER)) == (TYPE_TRAP | TYPE_MONSTER))
@@ -4811,7 +4811,7 @@ bool field::process(Processors::SolveChain& arg) {
 		effect* peffect = cait->triggering_effect;
 		if(arg.backed_up_operation) {
 			if(peffect->operation != 0)
-				ensure_luaL_stack(luaL_unref, pduel->lua->lua_state, LUA_REGISTRYINDEX, peffect->operation);
+				pduel->lua->release_function_handle(pduel->lua->lua_state, peffect->operation);
 			peffect->operation = arg.backed_up_operation;
 		}
 		core.special_summoning.clear();
@@ -4919,7 +4919,7 @@ bool field::process(Processors::SolveChain& arg) {
 			core.real_chain_count = 0;
 		if(!core.current_chain.size()) {
 			for(auto& ch_lim : core.chain_limit)
-				ensure_luaL_stack(luaL_unref, pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim.function);
+				pduel->lua->release_function_handle(pduel->lua->lua_state, ch_lim.function);
 			core.chain_limit.clear();
 			return FALSE;
 		}
